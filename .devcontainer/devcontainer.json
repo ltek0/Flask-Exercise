@@ -1,0 +1,34 @@
+{
+  "waitFor": "onCreateCommand",
+  "updateContentCommand": "python -m venv venv",
+  "postCreateCommand": "pip install -r requirements.txt",
+  "postStartCommand": "",
+  "postAttachCommand": "source venv/bin/activate && flask run",
+  "portsAttributes": {
+    "3000": {
+      "label": "Application",
+      "protocol": "http",
+      "onAutoForward": "openPreview"
+    }
+  },
+
+  "customizations": {
+    "codespaces": {
+      "openFiles": ["README.md"]
+    },
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.pylance",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-vscode-remote.remote-containers",
+        "samuelcolvin.jinjahtml",
+        "monosans.djlint",
+        "ms-azuretools.vscode-docker"
+      ]
+    },
+    "forwardPorts": [5000]
+  }
+}

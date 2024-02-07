@@ -1,9 +1,9 @@
 {
   "waitFor": "onCreateCommand",
-  "updateContentCommand": "python -m venv venv",
+  "updateContentCommand": "",
   "postCreateCommand": "pip install -r requirements.txt",
   "postStartCommand": "",
-  "postAttachCommand": "source venv/bin/activate && flask run",
+  "postAttachCommand": "",
   "portsAttributes": {
     "3000": {
       "label": "Application",

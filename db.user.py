@@ -8,7 +8,8 @@ def new_random_user():
     faker = Faker()
     u = {
         'username': faker.user_name(),
-        'email': faker.email()
+        'email': faker.email(),
+        'password': faker.password()
     }
     return models.User(**u)
 
@@ -16,16 +17,16 @@ def create_user(u: models.User):
     return u.create()
 
 def print_user_info(u: models.User):
-    print(f'{u.id}, {u.username}, {u.email}')
+    print(f'{u.id}, {u.username}, {u.email}, {u.password_hash}')
 
 def demo():
     random_user = new_random_user()
     user = create_user(random_user)
     print_user_info(user)
-    print(user.check_password('abcd'))
-    print(user.set_password('abcd'))
-    print(user.check_password('abcd'))
-    print(user.check_password('abcde'))
+
+def get_user_from_credentials():
+    return models.User.get_by_credentials(username_or_email='user1', password='password1')
 
 if __name__ == '__main__':
-    demo()
+    for i in range(10000):
+        demo()

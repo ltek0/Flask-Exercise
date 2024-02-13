@@ -26,7 +26,8 @@
         "ms-vscode-remote.remote-containers",
         "samuelcolvin.jinjahtml",
         "monosans.djlint",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "alexcvzz.vscode-sqlite"
       ]
     },
     "forwardPorts": [5000]

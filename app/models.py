@@ -35,9 +35,14 @@ class User(UserMixin, db.Model):
         self.password_hash = security.generate_password_hash(p)
     
     def create(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return self
+        except Exception as ex:
+            print(ex)
+            return None
+
 
 class Post(db.Model):
     id: so.Mapped[int] = so.mapped_column( primary_key=True)
@@ -51,12 +56,11 @@ class Post(db.Model):
     def __repr__(self) -> str:
         return f'<Post {self.id}:{self.body}>'
     
+    @classmethod
+    def get_lates(n: int):
+        return Post.query.order_by(Post.timestamp.desc()).limit(n).all()
+    
     def create(self):
-        try:
-            db.session.add(self)
-            db.session.commit()
-            return self
-        except Exception as ex:
-            print(ex)
-            return None
-        
+        db.session.add(self)
+        db.session.commit()
+        return self

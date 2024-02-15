@@ -1,12 +1,7 @@
-from flask import flash, render_template, redirect, url_for, request
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import render_template, request
+from app import flask_app
+import inspect
 
-from urllib.parse import urlsplit
-
-from app import flask_app, forms, db, models, crud
-
-import sqlalchemy as sa
-from sqlalchemy import or_
 @flask_app.route('/')
 @flask_app.route('/index')
 def index():
@@ -23,61 +18,34 @@ def index():
     return render_template('index.html', title='Home', posts=posts)
 
 
-@flask_app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = forms.Login()
 
-    # handle GET request
-    if not form.validate_on_submit():
-        return render_template('login.html', title='Sign In' , form=form)
-    
-    # handle invalid login
-    user = models.User.query.filter(or_(models.User.email == form.username.data, models.User.username == form.username.data)).first()
-    if not user or not user.check_password(form.password.data):
-        flash('Invalid username or password')
-        return redirect(url_for('login'))
-    
-    # handle valid login
-    login_user(user, remember = form.remember_me.data)
+def get_attributes(obj):
+    attributes = {}
 
-    # handle next page
-    next_page = request.args.get('next')
-    if not next_page or urlsplit(next_page).netloc != '':
-        next_page = url_for('index')
+    for attribute_name in dir(obj):
+        if attribute_name.startswith('_'):
+            continue
 
-    return redirect(next_page)
+        try:
+            attribute_value = getattr(obj, attribute_name)
 
-@flask_app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
+            if inspect.ismethod(attribute_value) or inspect.isclass(attribute_value):
+                attributes[attribute_name] = get_attributes(attribute_value)
+            elif isinstance(getattr(type(obj), attribute_name, None), property):
+                attributes[attribute_name] = attribute_value
+            else:
+                attributes[attribute_name] = attribute_value
+        except Exception:
+            pass
 
-
-@flask_app.route('/register', methods=['GET', 'POST'])
-def register():
-
-    # redirect if logged in
-    if current_user.is_authenticated:
-        next_page = request.args.get('next')
-        if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('index')
-        return redirect(next_page)
-        
-    # handle GET request
-    form = forms.Register()
-    if not form.validate_on_submit():
-        return render_template('register.html', title='Register', form=form)
-
-    # create User
-    u = models.User(username=form.username.data, email=form.email.data)
-    u.set_password(form.password.data)
-    u = u.create()
-
-    # on error
-    if not u:
-        flash('Oops, something went wrong. User not created.')
+    if attributes or attributes != {}:
+        return attributes 
     else:
-        flash('Congratulations, you are now a registered user!')
+        return ''
 
-    return redirect(url_for('login'))
+@flask_app.route('/debug')
+def debug_url():
+    request_attributes = get_attributes(request)
+    return render_template('debug.html', req_atr=request_attributes)
+
+from app import routes_user, routes_tools

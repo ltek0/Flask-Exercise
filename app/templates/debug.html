@@ -1,0 +1,71 @@
+{% extends "base.html" %} {% block content %}
+<h1>Debug</h1>
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th,
+  td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #4caf50;
+    color: white;
+  }
+</style>
+<table>
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for attr, value in req_atr.items() %}
+    <tr>
+      <td>{{ attr }}</td>
+      <td>{{ value }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for attr, value in req_atr.items() %}
+    <tr>
+      <td>{{ attr }}</td>
+      <td>
+        {% if value is mapping %}
+        <table>
+          <thead>
+            <tr>
+              <th>Sub-Attribute</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sub_attr, sub_value in value.items() %}
+            <tr>
+              <td>{{ sub_attr }}</td>
+              <td>{{ sub_value }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %} {{ value }} {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

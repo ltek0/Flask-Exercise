@@ -34,6 +34,7 @@ class user():
             if db.session.scalar(sa.select(User).where(User.email == email.data)):
                 raise ValidationError('An account with this email already exist. Please use a different email.')
         
+        '''
         def validate_password(self, password: str):
             conditions = ['Your password must:']
             if len(password.data) < 8:
@@ -46,3 +47,4 @@ class user():
                 conditions.append('contain at least one number.')
             if len(conditions) > 1:
                 raise ValidationError('\n'.join(conditions))
+        '''

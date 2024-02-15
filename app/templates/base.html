@@ -15,15 +15,16 @@
       <a href="{{ url_for('index') }}">Home</a>
       <a href="{{ url_for('debug_url') }}">Debug</a>
       <hr />
-
+      {% if not current_user.is_authenticated %}
       Hello Stranger!
       <a href="{{ url_for('login') }}">Login</a>
       <a href="{{ url_for('register') }}">Register</a>
-
+      {% else %}
       <p>
         Hi, {{ current_user.username }}!
         <a href="{{ url_for('logout') }}">Logout</a>
       </p>
+      {% endif %}
     </div>
 
     <hr />

@@ -2,6 +2,7 @@ from flask import render_template, request
 from app import flask_app
 import inspect
 
+
 @flask_app.route('/')
 @flask_app.route('/index')
 def index():

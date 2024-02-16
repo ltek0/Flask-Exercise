@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import datetime as dt, timezone as tz
 from werkzeug import security
-from re import fullmatch
+from hashlib import md5
 
 import sqlalchemy as sa
 import sqlalchemy.orm as so
@@ -20,13 +20,43 @@ class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
-    password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256), index=True)
+    password_hash: so.Mapped[str] = so.mapped_column(sa.String(256), index=True)
 
+
+    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(32))
+    @property
+    def display_name(self):
+        if not self._display_name:
+            return self.username
+        return self._display_name
+    
+    @display_name.setter
+    def display_name(self, new_dname):
+        if new_dname == '':
+            self._display_name = None
+        else:
+            self._display_name = new_dname
+    
+    _bio: so.Mapped[Optional[str]] = so.mapped_column(sa.String(30))
+    @property
+    def bio(self):
+        if not self._bio:
+            return 'Just a Regular User.'
+        return self._bio
+    @bio.setter
+    def bio(self, new_bio):
+        self._bio = new_bio    
+
+    last_seen: so.Mapped[Optional[dt]] = so.mapped_column(default=lambda: dt.now(tz.utc))
     posts: so.WriteOnlyMapped['Post'] = so.relationship(back_populates='author')
 
     def __repr__(self) -> str:
         return f'<User {self.id}:{self.username}>'
-    
+
+    def avatar(self, size: int = 50) -> str:
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+
     def check_password(self, password: str) -> bool:
         return security.check_password_hash(self.password_hash, password)
     
@@ -42,6 +72,11 @@ class User(UserMixin, db.Model):
             print(ex)
             return None
 
+    def update_last_seen(self, user_id: int):
+        user = User.query.get(user_id)
+        return user.last_seen
+
+
 
 class Post(db.Model):
     id: so.Mapped[int] = so.mapped_column( primary_key=True)
@@ -54,12 +89,3 @@ class Post(db.Model):
 
     def __repr__(self) -> str:
         return f'<Post {self.id}:{self.body}>'
-    
-    @classmethod
-    def get_lates(n: int):
-        return Post.query.order_by(Post.timestamp.desc()).limit(n).all()
-    
-    def create(self):
-        db.session.add(self)
-        db.session.commit()
-        return self

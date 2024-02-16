@@ -17,3 +17,4 @@ def get_next_url_from_request(request):
             
     # has next url and checks out
     return next_url
+

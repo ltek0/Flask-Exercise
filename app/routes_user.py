@@ -1,12 +1,20 @@
 from flask import flash, render_template, redirect, url_for, request, session
 from flask_login import current_user, login_user, logout_user
 
-from app import flask_app, routes_tools
+from app import flask_app, routes_tools, db
 from app.models import User
 from app.forms import user as user_form
 
 import sqlalchemy as sa
 
+from datetime import datetime as dt
+
+@flask_app.before_request
+def before_request():
+    # update last seen
+    if current_user.is_authenticated:
+        current_user.last_seen = dt.utcnow()
+        db.session.commit()
 
 @flask_app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -76,7 +84,13 @@ def register():
     if form.validate_on_submit():
 
         # create User
-        u = User(username=form.username.data, email=form.email.data)
+        user_data = {
+            'username': form.username.data,
+            'display_name': form.display_name.data if form.display_name.data else None,
+            'email': form.email.data,
+            'password': form.password.data
+        }
+        u = User(**user_data)
         u.set_password(form.password.data)
         u = u.create() # return full user object on success, else None
 
@@ -99,4 +113,39 @@ def user(username):
         {'author': user, 'body': 'Test post #1'},
         {'author': user, 'body': 'Test post #2'}
     ]
-    return render_template('user.html', user=user, posts=posts)
+    return render_template('user.html', user=user, posts=posts, current_user = current_user)
+
+
+@flask_app.route('/u/<username>/edit', methods=['GET', 'POST'])
+def edit_profile(username):
+        
+    next_url = routes_tools.get_next_url_from_request(request)
+    # redirect if logged in
+    if not current_user.is_authenticated or current_user.username != username:
+        return redirect(next_url)
+    
+    # bug fix for when user login faild GET request overwrites next_url
+    # save next url on first get methoad
+    # On post request load next url from session
+    if request.method == "GET":
+        session['next_url'] = next_url
+    else:
+        next_url = session['next_url']
+
+    form = user_form.EditProfile()
+    if form.validate_on_submit():
+
+        # update user
+        current_user.display_name = form.display_name.data
+        current_user.bio = form.bio.data
+        db.session.commit()
+
+        flash('Your changes have been saved.')
+        return redirect(f'/u/{current_user.username}')
+    
+    # on form load
+    elif request.method == 'GET':
+        form.display_name.data = current_user.display_name
+        form.bio.data = current_user.bio
+
+    return render_template('edit_profile.html', title='Edit Profile', form = form, current_user = current_user)

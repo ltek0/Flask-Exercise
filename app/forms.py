@@ -19,6 +19,7 @@ class user():
 
     class Register(FlaskForm):
         username = StringField('Username', validators=[DataRequired()])
+        display_name = StringField('Display Name (Optional)')
         email = StringField('Email', validators=[DataRequired(), Email()])
         password = PasswordField('Password', validators=[DataRequired()])
         password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
@@ -46,3 +47,8 @@ class user():
                 conditions.append('contain at least one number.')
             if len(conditions) > 1:
                 raise ValidationError('\n'.join(conditions))
+    
+    class EditProfile(FlaskForm):
+        bio = StringField('bio', validators=[DataRequired()])
+        display_name = StringField('Display Name (Optional)')
+        submit = SubmitField('Submit')

@@ -9,19 +9,24 @@
     <title>No Title Specified</title>
     {% endif %}
     <style>
-      .bar-rapper {
-        display: flex;
-        justify-content: space-between;
-      }
       .center_content {
         display: flex;
         justify-content: center;
+        width: 500px;
+      }
+      .bar-rapper {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
       }
     </style>
   </head>
   <body>
-    <div style="width: 500px">
-      <div class="bar-rapper">
+    <div class="center_content">
+      <div
+        class="bar-rapper"
+        style="border-bottom: solid 3px gray; padding-bottom: 0.5rem"
+      >
         <div>
           Flask-Lab:
           <a href="{{ url_for('index') }}">Home</a>
@@ -32,28 +37,25 @@
           {% if not current_user.is_authenticated %} Hello Stranger!
           <a href="{{ url_for('login') }}">Login</a>
           <a href="{{ url_for('register') }}">Register</a>
-          {% else %}
-          <p>
-            Hi, {{ current_user.username }}!
-            <a href="{{ url_for('user', username=current_user.username) }}"
-              >Profile</a
-            >
-            <a href="{{ url_for('logout') }}">Logout</a>
-          </p>
+          {% else %} Hi, {{ current_user.username }}!
+          <a href="{{ url_for('user', username=current_user.username) }}"
+            >Profile</a
+          >
+          <a href="{{ url_for('logout') }}">Logout</a>
           {% endif %}
         </div>
       </div>
-      <hr />
+    </div>
 
-      <div class="center_content">
-        {% with messages = get_flashed_messages() %} {% if messages %}
-        <ul>
-          {% for message in messages %}
-          <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %} {% endwith %} {% block content %}{% endblock %}
-      </div>
+    <div class="center_content">
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
+      <div>{% block content %} {% endblock %}</div>
     </div>
   </body>
 </html>

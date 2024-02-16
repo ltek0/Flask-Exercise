@@ -10,8 +10,10 @@ def get_next_url_from_request(request):
     #if not present or domain not the same
     if not next_url or urlparse(next_url).netloc != urlparse(request.url).netloc:
 
-        # use referrer if not the same as current url
+        # if not the same as current url
         if request.referrer and request.referrer != request.url:
+            
+            # use referrer 
             return request.referrer
 
         # none, use index

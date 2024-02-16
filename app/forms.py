@@ -12,7 +12,7 @@ import re
 
 class user():
     class Login(FlaskForm):
-        username = StringField('Username', validators=[DataRequired()])
+        username = StringField('Username or Email', validators=[DataRequired()])
         password = PasswordField('Password', validators=[DataRequired()])
         remember_me = BooleanField('Remember Me')
         submit = SubmitField('Sign In')
@@ -33,8 +33,7 @@ class user():
         def validate_email(self, email: str ):
             if db.session.scalar(sa.select(User).where(User.email == email.data)):
                 raise ValidationError('An account with this email already exist. Please use a different email.')
-        
-        '''
+
         def validate_password(self, password: str):
             conditions = ['Your password must:']
             if len(password.data) < 8:
@@ -43,8 +42,7 @@ class user():
                 conditions.append('contain at least one lowercase letter.')
             if not re.search('[A-Z]', password.data):
                 conditions.append('contain at least one uppercase letter.')
-            if not re.search('[0-9]', password.data):
+            if not re.search('[0-9]', password.data) or len(password.data) <= 1:
                 conditions.append('contain at least one number.')
             if len(conditions) > 1:
                 raise ValidationError('\n'.join(conditions))
-        '''

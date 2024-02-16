@@ -1,6 +1,3 @@
-from app import flask_app
-
-
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import flask_app, db

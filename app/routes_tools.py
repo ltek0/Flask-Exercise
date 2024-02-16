@@ -11,14 +11,9 @@ def get_next_url_from_request(request):
     if not next_url or urlparse(next_url).netloc != urlparse(request.url).netloc:
 
         # if not the same as current url
-        if request.referrer and request.referrer != request.url:
-            
-            # use referrer 
-            return request.referrer
-
-        # none, use index
-        else: 
-            return url_for('index')
+        if request.referrer != request.url:
+            # return index if treferrer is empty 
+            return request.referrer or url_for('index')
             
     # has next url and checks out
     return next_url

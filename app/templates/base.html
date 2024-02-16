@@ -20,9 +20,8 @@
     </style>
   </head>
   <body>
-    <div style="width: 500px;">
+    <div style="width: 500px">
       <div class="bar-rapper">
-
         <div>
           Flask-Lab:
           <a href="{{ url_for('index') }}">Home</a>
@@ -30,30 +29,31 @@
         </div>
 
         <div>
-          {% if not current_user.is_authenticated %}
-          Hello Stranger!
+          {% if not current_user.is_authenticated %} Hello Stranger!
           <a href="{{ url_for('login') }}">Login</a>
           <a href="{{ url_for('register') }}">Register</a>
           {% else %}
           <p>
             Hi, {{ current_user.username }}!
+            <a href="{{ url_for('user', username=current_user.username) }}"
+              >Profile</a
+            >
             <a href="{{ url_for('logout') }}">Logout</a>
           </p>
           {% endif %}
         </div>
       </div>
-    <hr />
+      <hr />
 
-    <div class="center_content">
-      {% with messages = get_flashed_messages() %} {% if messages %}
-      <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %} {% endwith %} {% block content %}{% endblock %}
+      <div class="center_content">
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <ul>
+          {% for message in messages %}
+          <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% endwith %} {% block content %}{% endblock %}
+      </div>
     </div>
-
-  </div>
   </body>
 </html>

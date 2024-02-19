@@ -20,10 +20,22 @@ class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
-    password_hash: so.Mapped[str] = so.mapped_column(sa.String(256), index=True)
 
+########################################################################################
+# setting password with .password = 'pass' using property and setter
+    _password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256), index=True)
+    @property
+    def password(self):
+        raise Exception('Password cannot be directly called!')
+    
+    @password.setter
+    def password(self, new_password: str):
+        self._password_hash = security.generate_password_hash(new_password)
+########################################################################################
 
-    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(32))
+########################################################################################
+# display name are private and shoudld not be called, accessed with property
+    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(24))
     @property
     def display_name(self):
         if not self._display_name:
@@ -31,25 +43,44 @@ class User(UserMixin, db.Model):
         return self._display_name
     
     @display_name.setter
-    def display_name(self, new_dname):
-        if new_dname == '':
-            self._display_name = None
-        else:
-            self._display_name = new_dname
-    
+    def display_name(self, new_dname: str):
+        if new_dname and len(new_dname) > 24:
+            raise Exception('Display Name too long. Limit 24 charactors')
+        if not new_dname:
+            self._display_name = ''
+        self._display_name = new_dname
+########################################################################################
+
+########################################################################################
+# set the bio to empty string when not specified
     _bio: so.Mapped[Optional[str]] = so.mapped_column(sa.String(30))
     @property
     def bio(self):
         if not self._bio:
-            return 'Just a Regular User.'
+            return ''
         return self._bio
+    
     @bio.setter
     def bio(self, new_bio):
-        self._bio = new_bio    
+        if new_bio and len(new_bio) > 30:
+            raise Exception('Display Name too long. Limit 24 charactors')
+        self._bio = new_bio
+########################################################################################
 
-    last_seen: so.Mapped[Optional[dt]] = so.mapped_column(default=lambda: dt.now(tz.utc))
+
+
+
+
+    last_seen: so.Mapped[dt] = so.mapped_column(default=lambda: dt.now(tz.utc))
+
     posts: so.WriteOnlyMapped['Post'] = so.relationship(back_populates='author')
 
+
+
+
+
+########################################################################################
+# methoad calles
     def __repr__(self) -> str:
         return f'<User {self.id}:{self.username}>'
 
@@ -57,12 +88,11 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
+    # true when password_hash are same as impited
     def check_password(self, password: str) -> bool:
-        return security.check_password_hash(self.password_hash, password)
+        return security.check_password_hash(self._password_hash, password)
     
-    def set_password(self, p: str):
-        self.password_hash = security.generate_password_hash(p)
-    
+    #
     def create(self):
         try:
             db.session.add(self)
@@ -72,9 +102,10 @@ class User(UserMixin, db.Model):
             print(ex)
             return None
 
-    def update_last_seen(self, user_id: int):
-        user = User.query.get(user_id)
-        return user.last_seen
+    def update_last_seen(self, datetime: dt):
+        self.last_seen = dt.utcnow()
+        print(f'user {self.username} logged in at UTC:{self.last_seen}')
+        db.session.commit()
 
 
 

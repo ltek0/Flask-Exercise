@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email , ValidationError, EqualTo
+from wtforms.validators import DataRequired, Email , ValidationError, EqualTo, Length
 
 import sqlalchemy as sa
 
@@ -20,6 +20,7 @@ class user():
     class Register(FlaskForm):
         username = StringField('Username', validators=[DataRequired()])
         display_name = StringField('Display Name (Optional)')
+        bio = StringField('Bio (optinoal)', validators=[Length(min=0, max=30)])
         email = StringField('Email', validators=[DataRequired(), Email()])
         password = PasswordField('Password', validators=[DataRequired()])
         password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])

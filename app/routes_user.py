@@ -2,7 +2,7 @@ from flask import flash, render_template, redirect, url_for, request, session
 from flask_login import current_user, login_user, logout_user
 
 from app import flask_app, routes_tools, db
-from app.models import User
+from app.models import User, Post
 from app.forms import user as user_form
 
 import sqlalchemy as sa
@@ -13,8 +13,8 @@ from datetime import datetime as dt
 def before_request():
     # update last seen
     if current_user.is_authenticated:
-        current_user.last_seen = dt.utcnow()
-        db.session.commit()
+        current_user.update_last_seen(dt)
+
 
 @flask_app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -87,11 +87,11 @@ def register():
         user_data = {
             'username': form.username.data,
             'display_name': form.display_name.data if form.display_name.data else None,
+            'bio': form.bio.data if form.bio.data else None,
             'email': form.email.data,
             'password': form.password.data
         }
         u = User(**user_data)
-        u.set_password(form.password.data)
         u = u.create() # return full user object on success, else None
 
         if u: # on success
@@ -108,11 +108,15 @@ def register():
 
 @flask_app.route('/u/<username>')
 def user(username):
-    user = User.query.filter_by(username = username).first_or_404()
+    # get user, if not found return 404
+    user = User.query.filter_by(username = username).first_or_404()    
+    
     posts = [
         {'author': user, 'body': 'Test post #1'},
         {'author': user, 'body': 'Test post #2'}
     ]
+    # get user posts if user exist
+    #posts = Post.query.filter_by(author = user).all() if user else []
     return render_template('user.html', user=user, posts=posts, current_user = current_user)
 
 
@@ -120,10 +124,14 @@ def user(username):
 def edit_profile(username):
         
     next_url = routes_tools.get_next_url_from_request(request)
-    # redirect if logged in
-    if not current_user.is_authenticated or current_user.username != username:
-        return redirect(next_url)
+    # redirect to login with edit profile as next url
+    if not current_user.is_authenticated:
+        return redirect(url_for('login', next = next_url(url_for('edit_profile', username = username))))
     
+    # if logged in user is not the user being edited
+    if current_user.username != username:
+        return redirect(url_for('user', username = current_user.username))
+
     # bug fix for when user login faild GET request overwrites next_url
     # save next url on first get methoad
     # On post request load next url from session

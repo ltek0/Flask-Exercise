@@ -52,7 +52,7 @@ def login():
         
 
     # default page / GET request
-    return render_template('login.html', form = form, title = 'Sign In')
+    return render_template('login.html.j2', form = form, title = 'Sign In')
 
 
 
@@ -103,7 +103,7 @@ def register():
         return redirect(next_url)
     
     # default action
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html.j2', title='Register', form=form)
 
 
 @flask_app.route('/u/<username>')
@@ -117,7 +117,7 @@ def user(username):
     ]
     # get user posts if user exist
     #posts = Post.query.filter_by(author = user).all() if user else []
-    return render_template('user.html', user=user, posts=posts, current_user = current_user)
+    return render_template('user.html.j2', user=user, posts=posts, current_user = current_user)
 
 
 @flask_app.route('/u/<username>/edit', methods=['GET', 'POST'])
@@ -156,4 +156,4 @@ def edit_profile(username):
         form.display_name.data = current_user.display_name
         form.bio.data = current_user.bio
 
-    return render_template('edit_profile.html', title='Edit Profile', form = form, current_user = current_user)
+    return render_template('edit_profile.html.j2', title='Edit Profile', form = form, current_user = current_user)

@@ -16,19 +16,9 @@ def index():
             'body': 'Post 2'
         }
     ]
-    return render_template('index.html', title='Home', posts=posts)
+    return render_template('index.html.j2', title='Home', posts=posts)
 
 
-@flask_app.errorhandler(404)
-def page_not_found(e):
-    print('error 404')
-    last_url = request.referrer or url_for('index')
-    return render_template('404.html', last_purl = last_url), 404
-
-@flask_app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    return render_template('500.html'), 500
 
 
 def get_attributes(obj):
@@ -58,6 +48,6 @@ def get_attributes(obj):
 @flask_app.route('/debug')
 def debug_url():
     request_attributes = get_attributes(request)
-    return render_template('debug.html', req_atr=request_attributes)
+    return render_template('debug.html.j2', req_atr=request_attributes)
 
 from app import routes_user, routes_tools

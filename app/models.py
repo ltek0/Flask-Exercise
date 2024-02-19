@@ -6,19 +6,20 @@ from hashlib import md5
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 
-from app import db
-from app import login
+from app import db,login
 
 from flask_login import UserMixin
+
 
 @login.user_loader
 def load_user(id: int) -> Optional['User']:
     return db.session.get(User, id)
 
-
 class User(UserMixin, db.Model):
+########################################################################################
+# basic user info
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
+    username: so.Mapped[str] = so.mapped_column(sa.String(32), index=True, unique=True)
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
 
 ########################################################################################
@@ -31,11 +32,11 @@ class User(UserMixin, db.Model):
     @password.setter
     def password(self, new_password: str):
         self._password_hash = security.generate_password_hash(new_password)
-########################################################################################
 
 ########################################################################################
 # display name are private and shoudld not be called, accessed with property
-    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(24))
+    _display_name_leanth = 30
+    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(_display_name_leanth))
     @property
     def display_name(self):
         if not self._display_name:
@@ -44,16 +45,15 @@ class User(UserMixin, db.Model):
     
     @display_name.setter
     def display_name(self, new_dname: str):
-        if new_dname and len(new_dname) > 24:
-            raise Exception('Display Name too long. Limit 24 charactors')
+        if new_dname and len(new_dname) > self._display_name_leanth:
+            raise Exception(f'Display Name too long. Limit {self._display_name_leanth} charactors')
         if not new_dname:
             self._display_name = ''
         self._display_name = new_dname
-########################################################################################
 
 ########################################################################################
 # set the bio to empty string when not specified
-    _bio: so.Mapped[Optional[str]] = so.mapped_column(sa.String(30))
+    _bio: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64))
     @property
     def bio(self):
         if not self._bio:
@@ -62,22 +62,22 @@ class User(UserMixin, db.Model):
     
     @bio.setter
     def bio(self, new_bio):
-        if new_bio and len(new_bio) > 30:
+        if new_bio and len(new_bio) >= 64:
             raise Exception('Display Name too long. Limit 24 charactors')
         self._bio = new_bio
+
 ########################################################################################
-
-
-
-
-
+# Last Seen
     last_seen: so.Mapped[dt] = so.mapped_column(default=lambda: dt.now(tz.utc))
+    def update_last_seen(self, datetime: dt):
+        self.last_seen = datetime.utcnow()
+        print(f'user {self.username} logged in at UTC:{self.last_seen}')
+        db.session.commit()
 
+########################################################################################
+# relationships
     posts: so.WriteOnlyMapped['Post'] = so.relationship(back_populates='author')
-
-
-
-
+    
 
 ########################################################################################
 # methoad calles
@@ -88,11 +88,9 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
-    # true when password_hash are same as impited
     def check_password(self, password: str) -> bool:
         return security.check_password_hash(self._password_hash, password)
     
-    #
     def create(self):
         try:
             db.session.add(self)
@@ -102,10 +100,6 @@ class User(UserMixin, db.Model):
             print(ex)
             return None
 
-    def update_last_seen(self, datetime: dt):
-        self.last_seen = dt.utcnow()
-        print(f'user {self.username} logged in at UTC:{self.last_seen}')
-        db.session.commit()
 
 
 

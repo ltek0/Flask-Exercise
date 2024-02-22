@@ -10,10 +10,20 @@ from app import db,login
 
 from flask_login import UserMixin
 
-
 @login.user_loader
 def load_user(id: int) -> Optional['User']:
     return db.session.get(User, id)
+
+
+########################################################################################
+# Table handeling follower
+followers = sa.Table(
+    'followers',
+    db.metadata,
+    sa.Column('follower_id', sa.Integer, sa.ForeignKey('user.id'), primary_key=True),
+    sa.Column('followed_id', sa.Integer, sa.ForeignKey('user.id'), primary_key=True)
+)
+
 
 class User(UserMixin, db.Model):
 ########################################################################################
@@ -35,8 +45,7 @@ class User(UserMixin, db.Model):
 
 ########################################################################################
 # display name are private and shoudld not be called, accessed with property
-    _display_name_leanth = 30
-    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(_display_name_leanth))
+    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(30))
     @property
     def display_name(self):
         if not self._display_name:
@@ -45,8 +54,8 @@ class User(UserMixin, db.Model):
     
     @display_name.setter
     def display_name(self, new_dname: str):
-        if new_dname and len(new_dname) > self._display_name_leanth:
-            raise Exception(f'Display Name too long. Limit {self._display_name_leanth} charactors')
+        if new_dname and len(new_dname) > 30:
+            raise Exception(f'Display Name too long. Limit {30} charactors')
         if not new_dname:
             self._display_name = ''
         self._display_name = new_dname
@@ -74,10 +83,58 @@ class User(UserMixin, db.Model):
         print(f'user {self.username} logged in at UTC:{self.last_seen}')
         db.session.commit()
 
+
 ########################################################################################
 # relationships
     posts: so.WriteOnlyMapped['Post'] = so.relationship(back_populates='author')
+
+
+########################################################################################
+# follows hell
+    following: so.WriteOnlyMapped['User'] = so.relationship(
+        secondary=followers, primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        back_populates='followers')
     
+    followers: so.WriteOnlyMapped['User'] = so.relationship(
+        secondary=followers, primaryjoin=(followers.c.followed_id == id),
+        secondaryjoin=(followers.c.follower_id == id),
+        back_populates='following')
+    
+# methods
+    def follow(self, user):
+        if not self.is_following(user):
+            self.following.add(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.following.remove(user)
+
+    def is_following(self, user):
+        query = self.following.select().where(User.id == user.id)
+        return db.session.scalar(query) is not None
+
+    def followers_count(self):
+        query = sa.select(sa.func.count()).select_from(
+            self.followers.select().subquery())
+        return db.session.scalar(query)
+
+    def following_count(self):
+        query = sa.select(sa.func.count()).select_from(
+            self.following.select().subquery())
+        return db.session.scalar(query)
+    
+    def following_posts(self):
+        Author = so.aliased(User)
+        Follower = so.aliased(User)
+        return (
+            sa.select(Post)
+            .join(Post.author.of_type(Author))
+            .join(Author.followers.of_type(Follower))
+            .where(Follower.id == self.id)
+            .order_by(Post.timestamp.desc())
+        )
+
 
 ########################################################################################
 # methoad calles

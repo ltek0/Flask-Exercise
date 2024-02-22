@@ -25,3 +25,4 @@ if __name__ == "__main__":
     subprocess.run(['flask', 'db', 'upgrade'])
 
     flask_app.run(**kwargs)
+

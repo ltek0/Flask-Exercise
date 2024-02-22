@@ -2,24 +2,39 @@ from flask import flash, render_template, redirect, url_for, request, session
 from flask_login import current_user, login_user, logout_user
 
 from app import flask_app, routes_tools, db
-from app.models import User, Post
+from app.models import User
 from app.forms import user as user_form
 
 import sqlalchemy as sa
 
 from datetime import datetime as dt
+ 
+def get_next_url_from_request(request):
 
-@flask_app.before_request
-def before_request():
-    # update last seen
-    if current_user.is_authenticated:
-        current_user.update_last_seen(dt)
+    # check for next url in args
+    next_url = request.args.get('next', None)
+
+    #if not present or domain not the same
+    if not next_url or urlparse(next_url).netloc != urlparse(request.url).netloc:
+
+        # if not the same as current url
+        if request.referrer != request.url:
+            # return index if treferrer is empty 
+            return request.referrer or url_for('index')
+
+        else:
+            # request.referrer same
+            return  url_for('index')
+            
+    # has next url and checks out
+    return next_url
+
 
 
 @flask_app.route('/login', methods=['GET', 'POST'])
 def login():
 
-    next_url = routes_tools.get_next_url_from_request(request)
+    next_url = get_next_url_from_request(request)
     # redirect if logged in
     if current_user.is_authenticated:
         return redirect(next_url)
@@ -52,13 +67,13 @@ def login():
         
 
     # default page / GET request
-    return render_template('login.html.j2', form = form, title = 'Sign In')
+    return render_template('user/login.html.j2', form = form, title = 'Sign In')
 
 
 
 @flask_app.route('/logout')
 def logout():
-    next_url = routes_tools.get_next_url_from_request(request)
+    next_url = get_next_url_from_request(request)
     logout_user()
     return redirect(next_url)
 
@@ -68,7 +83,7 @@ def logout():
 def register():
 
 
-    next_url = routes_tools.get_next_url_from_request(request)
+    next_url = get_next_url_from_request(request)
     # redirect if logged in
     if current_user.is_authenticated:
         return redirect(next_url)
@@ -103,7 +118,7 @@ def register():
         return redirect(next_url)
     
     # default action
-    return render_template('register.html.j2', title='Register', form=form)
+    return render_template('user/register.html.j2', title='Register', form=form)
 
 
 @flask_app.route('/u/<username>')
@@ -117,13 +132,13 @@ def user(username):
     ]
     # get user posts if user exist
     #posts = Post.query.filter_by(author = user).all() if user else []
-    return render_template('user.html.j2', user=user, posts=posts, current_user = current_user)
+    return render_template('user/user.html.j2', user=user, posts=posts, current_user = current_user)
 
 
 @flask_app.route('/u/<username>/edit', methods=['GET', 'POST'])
 def edit_profile(username):
         
-    next_url = routes_tools.get_next_url_from_request(request)
+    next_url = get_next_url_from_request(request)
     # redirect to login with edit profile as next url
     if not current_user.is_authenticated:
         return redirect(url_for('login', next = next_url(url_for('edit_profile', username = username))))
@@ -156,4 +171,4 @@ def edit_profile(username):
         form.display_name.data = current_user.display_name
         form.bio.data = current_user.bio
 
-    return render_template('edit_profile.html.j2', title='Edit Profile', form = form, current_user = current_user)
+    return render_template('user/edit_profile.html.j2', title='Edit Profile', form = form, current_user = current_user)

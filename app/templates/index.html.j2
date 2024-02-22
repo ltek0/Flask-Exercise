@@ -1,8 +1,15 @@
-{% extends "base.html.j2" %} {% block content %}
-<div>
-  <h1>Posts</h1>
-  {% for post in posts %}
-  <p><b>{{ post.author.username }}</b> said: <i>{{ post.body }}</i></p>
-  {% endfor %}
-</div>
+{% extends "base.html.j2" %}
+{% block content %}
+  <div>
+    <h1>Posts</h1>
+    {% if posts %}
+      {% for post in posts %}
+        <p>
+          <b>{{ post.author.username }}</b> said: <i>{{ post.body }}</i>
+        </p>
+      {% endfor %}
+    {% else %}
+      <p>no posts yet</p>
+    {% endif %}
+  </div>
 {% endblock %}

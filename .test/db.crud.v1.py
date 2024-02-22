@@ -44,3 +44,11 @@ if __name__ == '__main__':
     #print(select_all_from_model(models.User))
     #create_random_user(100000)
     #print_all_user_info()
+
+
+    u = User(
+        usermame = 'karl'
+        email = '..'
+    )
+    db.session.add(u)
+    db.session.commit()

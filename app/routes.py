@@ -1,21 +1,24 @@
-from flask import render_template, request, url_for
+from flask import render_template, request
+from flask_login import current_user
+from datetime import datetime as dt
+
 from app import flask_app
+from app.models import Post
 import inspect
+
+
+@flask_app.before_request
+def before_request():
+    # update last seen
+    if current_user.is_authenticated:
+        current_user.update_last_seen(dt)
 
 
 @flask_app.route('/')
 @flask_app.route('/index')
+@flask_app.route('/abc')
 def index():
-    posts = [
-        {
-            'author': {'username': 'user2'},
-            'body': 'Post 1'
-        },
-        {
-            'author': {'username': 'user3'},
-            'body': 'Post 2'
-        }
-    ]
+    posts = Post.query.order_by(Post.timestamp.desc()).limit(10).all()
     return render_template('index.html.j2', title='Home', posts=posts)
 
 

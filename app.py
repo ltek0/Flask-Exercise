@@ -1,5 +1,6 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+
 from app import flask_app, db
 from app.models import User, Post
 
@@ -12,5 +13,7 @@ kwargs ={
     'debug': True,
     'host': '0.0.0.0'
 }
+
+
 if __name__ == "__main__":
     flask_app.run(**kwargs)

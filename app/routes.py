@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import render_template, request, url_for
 from app import flask_app
 import inspect
 
@@ -18,6 +18,17 @@ def index():
     ]
     return render_template('index.html', title='Home', posts=posts)
 
+
+@flask_app.errorhandler(404)
+def page_not_found(e):
+    print('error 404')
+    last_url = request.referrer or url_for('index')
+    return render_template('404.html', last_purl = last_url), 404
+
+@flask_app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
 
 
 def get_attributes(obj):

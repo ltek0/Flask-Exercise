@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block content %}
+<h1>500</h1>
+<p>Your request cannot be procressed at the moment</p>
+<p><a onclick="goBack();" href="">Back</a></p>
+<script>
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+{% endblock %}

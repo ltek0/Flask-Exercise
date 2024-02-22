@@ -1,8 +1,8 @@
-from flask import flash, render_template, redirect, url_for, request, session
+from flask import flash, render_template, redirect, url_for, request, session, urlparse
 from flask_login import current_user, login_user, logout_user
 
-from app import flask_app, routes_tools, db
-from app.models import User
+from app import flask_app, db
+from app.models import User, Post
 from app.forms import user as user_form
 
 import sqlalchemy as sa
@@ -29,6 +29,12 @@ def get_next_url_from_request(request):
     # has next url and checks out
     return next_url
 
+
+@flask_app.before_request
+def before_request():
+    # update last seen
+    if current_user.is_authenticated:
+        current_user.update_last_seen(dt)
 
 
 @flask_app.route('/login', methods=['GET', 'POST'])
@@ -137,7 +143,7 @@ def user(username):
 
 @flask_app.route('/u/<username>/edit', methods=['GET', 'POST'])
 def edit_profile(username):
-        
+
     next_url = get_next_url_from_request(request)
     # redirect to login with edit profile as next url
     if not current_user.is_authenticated:

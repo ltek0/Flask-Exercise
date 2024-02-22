@@ -54,6 +54,16 @@ class User(UserMixin, db.Model):
     
     @display_name.setter
     def display_name(self, new_dname: str):
+        if new_dname and len(new_dname) > 24:
+            raise Exception('Display Name too long. Limit 24 charactors')
+        if not new_dname:
+            self._display_name = ''
+        self._display_name = new_dname
+
+########################################################################################
+# set the bio to empty string when not specified
+    _bio: so.Mapped[Optional[str]] = so.mapped_column(sa.String(30))
+    def display_name(self, new_dname: str):
         if new_dname and len(new_dname) > 30:
             raise Exception(f'Display Name too long. Limit {30} charactors')
         if not new_dname:
@@ -71,9 +81,7 @@ class User(UserMixin, db.Model):
     
     @bio.setter
     def bio(self, new_bio):
-        if new_bio and len(new_bio) >= 64:
-            raise Exception('Display Name too long. Limit 24 charactors')
-        self._bio = new_bio
+        self._bio = new_bio    
 
 ########################################################################################
 # Last Seen
@@ -145,9 +153,10 @@ class User(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
+    # true when password_hash are same as impited
     def check_password(self, password: str) -> bool:
-        return security.check_password_hash(self._password_hash, password)
-    
+        return security.check_password_hash(self.password_hash, password)
+
     def create(self):
         try:
             db.session.add(self)
@@ -157,6 +166,9 @@ class User(UserMixin, db.Model):
             print(ex)
             return None
 
+    def update_last_seen(self, user_id: int):
+        user = User.query.get(user_id)
+        return user.last_seen
 
 
 

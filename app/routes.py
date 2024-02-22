@@ -1,17 +1,8 @@
 from flask import render_template, request
-from flask_login import current_user
-from datetime import datetime as dt
 
 from app import flask_app
 from app.models import Post
 import inspect
-
-
-@flask_app.before_request
-def before_request():
-    # update last seen
-    if current_user.is_authenticated:
-        current_user.update_last_seen(dt)
 
 
 @flask_app.route('/')
@@ -22,6 +13,14 @@ def index():
     return render_template('index.html.j2', title='Home', posts=posts)
 
 
+
+@flask_app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@flask_app.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html'), 500
 
 
 def get_attributes(obj):

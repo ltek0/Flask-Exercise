@@ -73,3 +73,7 @@ class post:
     class Edit(FlaskForm):
         body = StringField('Edit Your Post', validators=[DataRequired(), Length(min = 1, max = 140)])
         submit = SubmitField('Submit')
+
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')

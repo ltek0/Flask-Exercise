@@ -1,10 +1,10 @@
 from urllib.parse import urlparse
 from flask import flash, render_template, redirect, url_for, request, session
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 
 from app import flask_app, db
 from app.models import User, Post
-from app.forms import user as user_form
+from app.forms import user as user_form, EmptyForm
 
 from app.routes_tools import get_next_url_from_request
 
@@ -115,6 +115,7 @@ def user(username):
     
     # get user posts
     posts = Post.query.filter_by(author = user).all()
+
     return render_template('user/profile.html.j2', user=user, posts=posts, current_user = current_user)
 
 
@@ -155,3 +156,30 @@ def edit_profile(username):
         form.bio.data = current_user.bio
 
     return render_template('user/edit.html.j2', title='Edit Profile', form = form, current_user = current_user)
+
+
+@flask_app.route('/u/<uname>/f/<funame>', methods=['POST'])
+@login_required
+def follow(uname, funame):
+
+    # redirect to login with follow as next url
+    next_url = get_next_url_from_request(request)
+
+    if not current_user.is_authenticated:
+        return redirect(url_for('login', next = next_url(url_for('follow', username = uname, funame = funame))))
+
+    # logged in user not input user
+    if current_user.username != uname:
+        return redirect(url_for('user', username = current_user.username))
+
+    # get user, if not found return 404
+    user = User.query.filter_by(username = funame).first_or_404()
+
+    # follow or unfollow
+    if current_user.is_following(user):
+        current_user.unfollow(user)
+    else:
+        current_user.follow(user)
+    
+    db.session.commit()
+    return redirect(next_url)

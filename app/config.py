@@ -3,10 +3,11 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or '!!!'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
     
+    # used for flask form
+    SECRET_KEY = os.environ.get('SECRET_KEY') or '!!!'
 
     # mailing config # see errors.py
     MAIL_SERVER = os.environ.get('MAIL_SERVER')

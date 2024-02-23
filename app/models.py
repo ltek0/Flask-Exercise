@@ -14,7 +14,6 @@ from flask_login import UserMixin
 def load_user(id: int) -> Optional['User']:
     return db.session.get(User, id)
 
-
 ########################################################################################
 # Table handeling follower
 followers = sa.Table(
@@ -23,7 +22,6 @@ followers = sa.Table(
     sa.Column('follower_id', sa.Integer, sa.ForeignKey('user.id'), primary_key=True),
     sa.Column('followed_id', sa.Integer, sa.ForeignKey('user.id'), primary_key=True)
 )
-
 
 class User(UserMixin, db.Model):
 ########################################################################################
@@ -37,15 +35,15 @@ class User(UserMixin, db.Model):
     _password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256), index=True)
     @property
     def password(self):
-        raise Exception('Password cannot be directly called!')
-    
+        return 'Password cannot be directly accessed'
+        
     @password.setter
     def password(self, new_password: str):
         self._password_hash = security.generate_password_hash(new_password)
 
 ########################################################################################
 # display name are private and shoudld not be called, accessed with property
-    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(30))
+    _display_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(24))
     @property
     def display_name(self):
         if not self._display_name:
@@ -81,24 +79,26 @@ class User(UserMixin, db.Model):
     
     @bio.setter
     def bio(self, new_bio):
-        self._bio = new_bio    
-
+        if len(new_bio) <= 64:
+            self._bio = new_bio
+        else:
+            raise Exception('Bio too long, limit is 64 charactors')
+        
 ########################################################################################
 # Last Seen
     last_seen: so.Mapped[dt] = so.mapped_column(default=lambda: dt.now(tz.utc))
     def update_last_seen(self, datetime: dt):
         self.last_seen = datetime.utcnow()
-        print(f'user {self.username} logged in at UTC:{self.last_seen}')
+        print(f'user {self.username} last seen at UTC:{self.last_seen}')
         db.session.commit()
-
 
 ########################################################################################
 # relationships
     posts: so.WriteOnlyMapped['Post'] = so.relationship(back_populates='author')
 
-
 ########################################################################################
 # follows hell
+
     following: so.WriteOnlyMapped['User'] = so.relationship(
         secondary=followers, primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
@@ -138,14 +138,17 @@ class User(UserMixin, db.Model):
         return (
             sa.select(Post)
             .join(Post.author.of_type(Author))
-            .join(Author.followers.of_type(Follower))
-            .where(Follower.id == self.id)
+            .join(Author.followers.of_type(Follower), isouter=True)
+            .where(sa.or_(
+                Follower.id == self.id,
+                Author.id == self.id,
+            ))
+            .group_by(Post)
             .order_by(Post.timestamp.desc())
         )
 
-
 ########################################################################################
-# methoad calles
+# other methoad calles
     def __repr__(self) -> str:
         return f'<User {self.id}:{self.username}>'
 
@@ -155,7 +158,7 @@ class User(UserMixin, db.Model):
 
     # true when password_hash are same as impited
     def check_password(self, password: str) -> bool:
-        return security.check_password_hash(self.password_hash, password)
+        return security.check_password_hash(self._password_hash, password)
 
     def create(self):
         try:

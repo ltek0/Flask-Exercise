@@ -1,4 +1,5 @@
-from flask import flash, render_template, redirect, url_for, request, session, urlparse
+from urllib.parse import urlparse
+from flask import flash, render_template, redirect, url_for, request, session
 from flask_login import current_user, login_user, logout_user
 
 from app import flask_app, db
@@ -6,6 +7,7 @@ from app.models import User, Post
 from app.forms import user as user_form
 
 import sqlalchemy as sa
+
 
 from datetime import datetime as dt
  
@@ -25,7 +27,7 @@ def get_next_url_from_request(request):
         else:
             # request.referrer same
             return  url_for('index')
-            
+
     # has next url and checks out
     return next_url
 
@@ -87,7 +89,6 @@ def logout():
 
 @flask_app.route('/register', methods=['GET', 'POST'])
 def register():
-
 
     next_url = get_next_url_from_request(request)
     # redirect if logged in
@@ -177,4 +178,4 @@ def edit_profile(username):
         form.display_name.data = current_user.display_name
         form.bio.data = current_user.bio
 
-    return render_template('user/edit_profile.html.j2', title='Edit Profile', form = form, current_user = current_user)
+    return render_template('user/edit.html.j2', title='Edit Profile', form = form, current_user = current_user)

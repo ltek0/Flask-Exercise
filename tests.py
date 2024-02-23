@@ -7,6 +7,18 @@ from app import flask_app, db
 from app.models import User, Post
 
 
+from faker import Faker
+def create_user():
+    fake = Faker()
+    passwd = fake.password()
+    fake_user = {
+        'username': fake.user_name(),
+        'email': fake.email(),
+        'password': passwd
+    }
+    return User(**fake_user), passwd
+
+
 class UserModelCase(unittest.TestCase):
     def setUp(self):
         self.app_context = flask_app.app_context()
@@ -19,9 +31,9 @@ class UserModelCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_password_hashing(self):
-        u = User(username='susan', email='susan@example.com', password = 'cat')
-        self.assertFalse(u.check_password('dog'))
-        self.assertTrue(u.check_password('cat'))
+        u, p = create_user()
+        self.assertFalse(u.check_password(f'Fasle-{p}'))
+        self.assertTrue(u.check_password(p))
 
     def test_avatar(self):
         u = User(username='john', email='john@example.com')
@@ -30,8 +42,9 @@ class UserModelCase(unittest.TestCase):
                                          '?d=identicon&s=128'))
 
     def test_follow(self):
-        u1 = User(username='john', email='john@example.com')
-        u2 = User(username='susan', email='susan@example.com')
+        u1 = create_user()[0]
+        u2 = create_user()[0]
+
         db.session.add(u1)
         db.session.add(u2)
         db.session.commit()
@@ -47,14 +60,15 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(u2.followers_count(), 1)
         u1_following = db.session.scalars(u1.following.select()).all()
         u2_followers = db.session.scalars(u2.followers.select()).all()
-        self.assertEqual(u1_following[0].username, 'susan')
-        self.assertEqual(u2_followers[0].username, 'john')
+        self.assertEqual(u1_following[0].username, u2.username)
+        self.assertEqual(u2_followers[0].username, u1.username)
 
         u1.unfollow(u2)
         db.session.commit()
         self.assertFalse(u1.is_following(u2))
         self.assertEqual(u1.following_count(), 0)
         self.assertEqual(u2.followers_count(), 0)
+
 
     def test_follow_posts(self):
         # create four users
@@ -96,4 +110,4 @@ class UserModelCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    unittest.main(verbosity=7)

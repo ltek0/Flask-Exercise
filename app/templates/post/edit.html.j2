@@ -1,0 +1,21 @@
+{% extends "base.html.j2" %}
+{% block content %}
+    <h1>Edit Post</h1>
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        <table>
+            <tr>
+                <td>Title</td>
+                <td>{{ post.title }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.body.label }}</td>
+                <td>{{ form.body(rows=10, cols=64) }}</td>
+            </tr>
+            <tr>
+                <td>action</td>
+                <td>{{ form.submit() }}</td>
+            </tr>
+        </table>
+    </form>
+{% endblock %}

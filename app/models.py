@@ -60,16 +60,6 @@ class User(UserMixin, db.Model):
 
 ########################################################################################
 # set the bio to empty string when not specified
-    _bio: so.Mapped[Optional[str]] = so.mapped_column(sa.String(30))
-    def display_name(self, new_dname: str):
-        if new_dname and len(new_dname) > 30:
-            raise Exception(f'Display Name too long. Limit {30} charactors')
-        if not new_dname:
-            self._display_name = ''
-        self._display_name = new_dname
-
-########################################################################################
-# set the bio to empty string when not specified
     _bio: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64))
     @property
     def bio(self):
@@ -79,10 +69,11 @@ class User(UserMixin, db.Model):
     
     @bio.setter
     def bio(self, new_bio):
-        if len(new_bio) <= 64:
-            self._bio = new_bio
+        if new_bio:
+            if len(new_bio) > 64:
+                raise Exception('Bio too long, limit is 64 charactors')
         else:
-            raise Exception('Bio too long, limit is 64 charactors')
+            self._bio = ''
         
 ########################################################################################
 # Last Seen
@@ -169,15 +160,14 @@ class User(UserMixin, db.Model):
             print(ex)
             return None
 
-    def update_last_seen(self, user_id: int):
-        user = User.query.get(user_id)
-        return user.last_seen
-
-
 
 class Post(db.Model):
     id: so.Mapped[int] = so.mapped_column( primary_key=True)
+
+    title: so.Mapped[str] = so.mapped_column(sa.String(64), index=True)
+
     body: so.Mapped[str] = so.mapped_column(sa.String(200), index=True)
+
     timestamp: so.Mapped[dt] = so.mapped_column(default=lambda: dt.now(tz.utc), index=True)
 
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True)
@@ -186,3 +176,21 @@ class Post(db.Model):
 
     def __repr__(self) -> str:
         return f'<Post {self.id}:{self.body}>'
+    
+
+    def create(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return self
+        except Exception as ex:
+            print(ex)
+            return None
+        
+    @property    
+    def preview(self):
+        return self.body[:20] + '...' if len(self.body) > 20 else self.body
+
+    def update(self):
+        db.session.commit()
+        return self

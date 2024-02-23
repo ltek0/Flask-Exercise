@@ -6,31 +6,11 @@ from app import flask_app, db
 from app.models import User, Post
 from app.forms import user as user_form
 
+from app.routes_tools import get_next_url_from_request
+
 import sqlalchemy as sa
 
-
 from datetime import datetime as dt
- 
-def get_next_url_from_request(request):
-
-    # check for next url in args
-    next_url = request.args.get('next', None)
-
-    #if not present or domain not the same
-    if not next_url or urlparse(next_url).netloc != urlparse(request.url).netloc:
-
-        # if not the same as current url
-        if request.referrer != request.url:
-            # return index if treferrer is empty 
-            return request.referrer or url_for('index')
-
-        else:
-            # request.referrer same
-            return  url_for('index')
-
-    # has next url and checks out
-    return next_url
-
 
 @flask_app.before_request
 def before_request():
@@ -133,13 +113,9 @@ def user(username):
     # get user, if not found return 404
     user = User.query.filter_by(username = username).first_or_404()    
     
-    posts = [
-        {'author': user, 'body': 'Test post #1'},
-        {'author': user, 'body': 'Test post #2'}
-    ]
-    # get user posts if user exist
-    #posts = Post.query.filter_by(author = user).all() if user else []
-    return render_template('user/user.html.j2', user=user, posts=posts, current_user = current_user)
+    # get user posts
+    posts = Post.query.filter_by(author = user).all()
+    return render_template('user/profile.html.j2', user=user, posts=posts, current_user = current_user)
 
 
 @flask_app.route('/u/<username>/edit', methods=['GET', 'POST'])

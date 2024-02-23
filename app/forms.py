@@ -63,3 +63,13 @@ class user():
         display_name = StringField('Display Name (Optional)', validators=[Length(min = 0, max = 24)])
         bio = StringField('Bio (optinoal)', validators=[Length(min = 0, max = 64)])
         submit = SubmitField('Submit')
+
+class post:
+    class Create(FlaskForm):
+        body = StringField('Say something', validators=[DataRequired(), Length(min = 1, max = 140)])
+        title = StringField('Title', validators=[DataRequired(), Length(min = 1, max = 64)])
+        submit = SubmitField('Create')
+
+    class Edit(FlaskForm):
+        body = StringField('Edit Your Post', validators=[DataRequired(), Length(min = 1, max = 140)])
+        submit = SubmitField('Submit')

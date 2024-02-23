@@ -22,7 +22,7 @@
 <table>
   <tr valign="top">
     <td><img src="{{ post.author.avatar(36) }}" /></td>
-    <td>{{ post.author.display_name }} says:<br />{{ post.body }}</td>
+    <td>{{ post.author.display_name }}: {{ post.title }}<br /><a href="{{ url_for('view_post', post_id = post.id) }}">{{ post.preview }}</a></td>
   </tr>
 </table>
 

@@ -1,5 +1,7 @@
-from flask import render_template, request
+from flask import render_template
 
+from flask_login import current_user
+ 
 from app import flask_app
 from app.models import Post
 import inspect
@@ -22,4 +24,4 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
-from app import routes_user, routes_tools
+from app import routes_user, routes_tools, routes_post

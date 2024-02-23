@@ -1,15 +1,38 @@
 {% extends "base.html.j2" %}
 {% block content %}
   <div>
-    <h1>Posts</h1>
+    <style>
+.home-post-table {
+width: 100%;
+border-collapse: collapse;
+margin-bottom: 1rem;
+}
+.home-post-table td {
+border: 1px solid #000;
+}
+.home-post-table tr, .home-post-table td, .home-post-table p, .home-post-table h2{
+  padding: 0;
+  margin:3px;
+}
+    </style>
     {% if posts %}
+      <h1>Latest Posts</h1>
       {% for post in posts %}
-        <p>
-          <b>{{ post.author.username }}</b> said: <i>{{ post.body }}</i>
-        </p>
+        <table>
+          <tr valign="top">
+            <td>
+              <img src="{{ post.author.avatar(36) }}" />
+            </td>
+            <td>
+              {{ post.author.display_name }}: {{ post.title }}
+              <br />
+              <a href="{{ url_for('view_post', post_id = post.id) }}">{{ post.preview }}</a>
+            </td>
+          </tr>
+        </table>
       {% endfor %}
     {% else %}
-      <p>no posts yet</p>
+      <h1>no posts yet</h1>
     {% endif %}
   </div>
 {% endblock %}

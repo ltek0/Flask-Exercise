@@ -7,9 +7,8 @@ from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
 
 @flask_app.errorhandler(404)
-def page_not_found(error):
-    print('error 404')
-    return render_template('404.html.j2'), 404
+def page_not_found(error, message=None):
+    return render_template('404.html.j2', message = message), 404
 
 @flask_app.errorhandler(500)
 def internal_error(error):

@@ -1,27 +1,13 @@
 {% extends "base.html.j2" %}
 {% block content %}
   <div>
-    <style>
-.home-post-table {
-width: 100%;
-border-collapse: collapse;
-margin-bottom: 1rem;
-}
-.home-post-table td {
-border: 1px solid #000;
-}
-.home-post-table tr, .home-post-table td, .home-post-table p, .home-post-table h2{
-  padding: 0;
-  margin:3px;
-}
-    </style>
     {% if posts %}
       <h1>Latest Posts</h1>
       {% for post in posts %}
         <table>
           <tr valign="top">
             <td>
-              <img src="{{ post.author.avatar(36) }}" />
+              <img alt="" height="36" width="36" src="{{ post.author.avatar(36) }}" />
             </td>
             <td>
               {{ post.author.display_name }}: {{ post.title }}
@@ -35,4 +21,4 @@ border: 1px solid #000;
       <h1>no posts yet</h1>
     {% endif %}
   </div>
-{% endblock %}
+{% endblock content %}

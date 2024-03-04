@@ -1,47 +1,62 @@
 {% extends "base.html.j2" %}
 {% block content %}
   <style>
-  .pofile{
-    margin:0
-  }
+    #u-table h1,
+    #u-table p {
+      margin:0
+    }
   </style>
   <h1>Profile</h1>
-  <table class="profile">
-    <tr valign="top">
+
+  <table id="u-table">
+    <tr>
       <td>
-        <img src="{{ user.avatar(128) }}" />
+        <img alt="" width="128" height="128" src="{{ user.avatar(128) }}" />
       </td>
       <td>
-        <h1>User: {{ user.display_name }}</h1>
+
+        <h1>{{ user.display_name }}</h1>
         <p>Username: {{ user.username }}</p>
-        {% if user.bio %}<p>{{ user.bio }}</p>{% endif %}
-        {% if user.last_seen %}<p>Last seen on: {{ user.last_seen }}</p>{% endif %}
+        <p>Last seen on: {{ user.last_seen }}</p>
         <p>Follower: {{ user.followers_count }}</p>
+
         {% if current_user.username == user.username %}
           <a href="{{ url_for('edit_profile',username = current_user.username) }}">Edit your profile</a>
         {% endif %}
+
         {% if current_user.is_authenticated: %}
+
           {% if current_user.username != user.username and not current_user.is_following(user) %}
             <form action="{{ url_for('follow', uname = current_user.username, funame = user.username) }}"
                   method="post">
               <input type="submit" value="Follow" />
             </form>
+
           {% elif current_user.username != user.username and current_user.is_following(user) %}
             <form action="{{ url_for('follow', uname = current_user.username, funame = user.username) }}"
                   method="post">
               <input type="submit" value="Unfollow" />
             </form>
+
           {% endif %}
         {% endif %}
       </td>
     </tr>
+    {% if user.bio %}  
+      <tr>
+        <p>{{ user.bio }}</p>
+      </tr>
+    {% endif %}
   </table>
+
   <hr />
-  {% for post in posts %}
+
+  {% if posts %}
     <table>
-      <tr valign="top">
+    {% for post in posts %}
+      <tr>
         <td>
-          <img src="{{ post.author.avatar(36) }}" />
+          <img alt="" width="36" height="36" src="{{ post.author.avatar(36) }}" />
         </td>
         <td>
           {{ post.author.display_name }}: {{ post.title }}
@@ -49,6 +64,8 @@
           <a href="{{ url_for('view_post', post_id = post.id) }}">{{ post.preview }}</a>
         </td>
       </tr>
+    {% endfor %}
     </table>
-  {% endfor %}
+  {% endif %}
+
 {% endblock %}

@@ -70,8 +70,7 @@ def edit_post(post_id):
 
 
 @flask_app.route('/p/<int:post_id>')
-@flask_app.route('/p/<int:post_id>/')
-def view_post(post_id):
+def view_post(post_id: int):
     post = Post.query.get(post_id)
     if not post:
         return abort(404)
@@ -81,7 +80,7 @@ def view_post(post_id):
 
 @flask_app.route('/p/<int:post_id>/delete')
 @login_required
-def delete_post(post_id):
+def delete_post(post_id: int):
     post = Post.query.get(post_id)
     if not post:
         return abort(404)

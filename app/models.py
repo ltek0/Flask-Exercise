@@ -163,8 +163,12 @@ class User(UserMixin, db.Model):
             return None
 
 
+
+
+
+
 class Post(db.Model):
-    id: so.Mapped[int] = so.mapped_column( primary_key=True)
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
 
     title: so.Mapped[str] = so.mapped_column(sa.String(64), index=True)
 
@@ -188,10 +192,12 @@ class Post(db.Model):
         except Exception as ex:
             print(ex)
             return None
-        
+
+
     @property    
     def preview(self):
         return self.body[:20] + '...' if len(self.body) > 20 else self.body
+
 
     def update(self):
         db.session.commit()

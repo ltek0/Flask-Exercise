@@ -8,54 +8,44 @@
     {% else %}
       <title>No Title Specified</title>
     {% endif %}
-    <style>
-      .center_content {
-        display: flex;
-        justify-content: center;
-        width: 1000px;
-      }
-      .bar-rapper {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-      }
-    </style>
   </head>
   <body>
-    <div class="center_content">
-      <div class="bar-rapper"
-           style="border-bottom: solid 3px gray;
-                  padding-bottom: 0.5rem">
+      <div>
         <div>
           Flask-Lab:
-          <a href="{{ url_for("index") }}">Home</a>
-          <a href="{{ url_for("debug_url") }}">Debug</a>
-          {% if current_user.is_authenticated %}<a href="{{ url_for("create_post") }}">Create Post</a>{% endif %}
+          <a href="{{ url_for('index') }}">Home</a>
+          <a href="{{ url_for('debug_url') }}">Debug</a>
+          {% if current_user.is_authenticated %}<a href="{{ url_for('create_post') }}">Create Post</a>{% endif %}
         </div>
         <div>
           {% if not current_user.is_authenticated %}
             Hello Stranger!
-            <a href="{{ url_for("login") }}">Login</a>
-            <a href="{{ url_for("register") }}">Register</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
           {% else %}
             Hi, {{ current_user.username }}!
-            <a href="{{ url_for('user', username=current_user.username) }}">Profile</a>
-            <a href="{{ url_for("logout") }}">Logout</a>
+            <a href="{{ url_for('user', username = current_user.username) }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
           {% endif %}
         </div>
       </div>
+
+    <hr />
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div>
+      <ul>
+        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+      </ul>
     </div>
-    <div class="center_content">
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <ul>
-            {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-      <div>
-        {% block content %}{% endblock %}
-      </div>
+    <hr />
+    {% endif %}
+    {% endwith %}
+    
+    <div>
+      {% block content %} {% endblock content %}
     </div>
+
   </body>
 </html>

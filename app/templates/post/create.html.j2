@@ -3,23 +3,24 @@
     <h1>Create Post</h1>
     <form action="" method="post">
         {{ form.hidden_tag() }}
-        <table>
-            <tr>
-                <td>{{ form.title.label }}</td>
-                <td>{{ form.title(size=64) }}</td>
-            </tr>
-            <tr>
-                <td>Author</td>
-                <td>{{ current_user.display_name }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.body.label }}</td>
-                <td>{{ form.body(rows=10, cols=64) }}</td>
-            </tr>
-            <tr>
-                <td colspan="2">{{ form.submit() }}</td>
-            </tr>
-        </table>
+
+      <p>
+        {{ form.title.label }}<br />
+        {{ form.title(size=32) }}<br />
+        {% for error in form.title.errors %}
+          <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+      </p>
+      <p>
+        {{ form.body.label }}<br />
+        {{ form.body(cols=64,rows=4) }}<br />
+        {% for error in form.body.errors %}
+          <span style="color: red">[{{ error }}]</span>
+        {% endfor %}
+      </p>
+
+      <p>{{ form.submit() }}</p>
+      
     </form>
     
 {% endblock %}

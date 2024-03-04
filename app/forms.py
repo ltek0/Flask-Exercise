@@ -58,11 +58,11 @@ class user():
             if len(conditions) > 1:
                 raise ValidationError('\n'.join(conditions))
 
-
     class EditProfile(FlaskForm):
         display_name = StringField('Display Name (Optional)', validators=[Length(min = 0, max = 24)])
         bio = StringField('Bio (optinoal)', validators=[Length(min = 0, max = 64)])
         submit = SubmitField('Submit')
+
 
 class post:
     class Create(FlaskForm):

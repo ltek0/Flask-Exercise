@@ -1,3 +1,3 @@
 # Flask-Exercise
 
-reference: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-viii-followers
+reference: https://www.youtube.com/playlist?list=PLtgJR0xD2TPeVeq6azvnKXYSeYHFzGaMi

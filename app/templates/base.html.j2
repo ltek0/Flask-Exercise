@@ -6,46 +6,34 @@
     {% if title %}
       <title>{{ title }}</title>
     {% else %}
-      <title>No Title Specified</title>
+      <title>No Title</title>
     {% endif %}
   </head>
   <body>
+    <div>
       <div>
-        <div>
-          Flask-Lab:
-          <a href="{{ url_for('index') }}">Home</a>
-          <a href="{{ url_for('debug_url') }}">Debug</a>
-          {% if current_user.is_authenticated %}<a href="{{ url_for('create_post') }}">Create Post</a>{% endif %}
-        </div>
-        <div>
-          {% if not current_user.is_authenticated %}
-            Hello Stranger!
-            <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('register') }}">Register</a>
-          {% else %}
-            Hi, {{ current_user.username }}!
-            <a href="{{ url_for('user', username = current_user.username) }}">Profile</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
-          {% endif %}
-        </div>
+        Flask-Lab:
+        <a href="{{ url_for("index") }}">Home</a>
       </div>
-
-    <hr />
-
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <div>
-      <ul>
-        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-      </ul>
+      <hr />
+      {% if current_user.is_authenticated %}
+        Hello, {{ current_user.username }}!
+        <a href="{{ url_for("logout") }}">Logout</a>
+        <a href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+      {% else %}
+        <a href="{{ url_for("login") }}">Login</a>
+        <a href="{{ url_for("register") }}">Register</a>
+      {% endif %}
+      <hr />
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul>
+            {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
     </div>
-    <hr />
-    {% endif %}
-    {% endwith %}
-    
-    <div>
-      {% block content %} {% endblock content %}
-    </div>
-
+    {% block content %}
+    {% endblock content %}
   </body>
 </html>

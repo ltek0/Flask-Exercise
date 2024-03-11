@@ -1,11 +1,8 @@
-{% extends "base.html.j2" %} {% block content %}
-<h1>500</h1>
-<p>Your request cannot be procressed at the moment</p>
-<p><a onclick="goBack();" href="">Back</a></p>
-<script>
-  function goBack() {
-    window.history.back();
-  }
-</script>
-
+{% extends "base.html.j2" %}
+{% block content %}
+    <h1>An unexpected error has occurred</h1>
+    <p>The administrator has been notified. Sorry for the inconvenience!</p>
+    <p>
+        <a href="{{ url_for("index") }}">Back</a>
+    </p>
 {% endblock content %}

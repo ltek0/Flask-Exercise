@@ -1,35 +1,47 @@
 {
+  "name": "Python 3 & PostgreSQL",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  // "workspaceFolder": "/workspace",
+  "hostRequirements": {
+    "cpus": 2
+  },
   "waitFor": "onCreateCommand",
-  "updateContentCommand": "",
-  "postCreateCommand": "pip install -r requirements.txt",
-  "postStartCommand": "",
-  "postAttachCommand": "",
+  "postCreateCommand": "",
+  "postAttachCommand": {
+    "server": "flask --debug run --host=0.0.0.0"
+  },
   "portsAttributes": {
-    "3000": {
-      "label": "Application",
-      "protocol": "http",
-      "onAutoForward": "openPreview"
+    "5000": {
+      "label": "Flask Apps",
+      "protocol": "http"
+    },
+    "5050": {
+      "label": "pgadmin"
+    },
+    "8025": {
+      "label": "mailhog"
     }
   },
-
   "customizations": {
     "codespaces": {
-      "openFiles": ["README.md"]
+      "openFiles": ["templates/index.html"]
     },
     "vscode": {
+      "settings": {
+      },
       "extensions": [
         "ms-python.python",
-        "ms-python.pylance",
-        "esbenp.prettier-vscode",
-        "GitHub.copilot",
-        "GitHub.copilot-chat",
-        "ms-vscode-remote.remote-containers",
+        "ms-python.vscode-pylance",
         "samuelcolvin.jinjahtml",
         "monosans.djlint",
         "ms-azuretools.vscode-docker",
-        "alexcvzz.vscode-sqlite"
+        "esbenp.prettier-vscode"
       ]
-    },
-    "forwardPorts": [5000]
+    }
+  },
+  "forwardPorts": [5000, 5050, 8025],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-from-docker:1": {}
   }
 }

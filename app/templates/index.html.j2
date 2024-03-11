@@ -1,24 +1,10 @@
 {% extends "base.html.j2" %}
 {% block content %}
-  <div>
-    {% if posts %}
-      <h1>Latest Posts</h1>
-      {% for post in posts %}
-        <table>
-          <tr valign="top">
-            <td>
-              <img alt="" height="36" width="36" src="{{ post.author.avatar(36) }}" />
-            </td>
-            <td>
-              {{ post.author.display_name }}: {{ post.title }}
-              <br />
-              <a href="{{ url_for('view_post', post_id = post.id) }}">{{ post.preview }}</a>
-            </td>
-          </tr>
-        </table>
-      {% endfor %}
-    {% else %}
-      <h1>no posts yet</h1>
-    {% endif %}
-  </div>
+  {% for post in posts %}
+    <div>
+      <p>
+        {{ post.author.username }} says: <b>{{ post.body }}</b>
+      </p>
+    </div>
+  {% endfor %}
 {% endblock content %}

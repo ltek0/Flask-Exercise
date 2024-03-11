@@ -1,11 +1,7 @@
-{% extends "base.html.j2" %} {% block content %}
-<h1>404</h1>
-<p>The page you are looking for was not found.</p>
-<p><a onclick="goBack();" href="">Back</a></p>
-<script>
-  function goBack() {
-    window.history.back();
-  }
-</script>
-
+{% extends "base.html.j2" %}
+{% block content %}
+    <h1>Not Found</h1>
+    <p>
+        <a href="{{ url_for("index") }}">Back</a>
+    </p>
 {% endblock content %}

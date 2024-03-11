@@ -2,5 +2,7 @@
 
 **/__pycache__
 
-/migrations
 /app/app.db
+/app/logs
+
+/migrations

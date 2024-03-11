@@ -7,11 +7,13 @@ from app.config import Config
 
 flask_app = Flask(__name__)
 flask_app.config.from_object(Config)
-db = SQLAlchemy(flask_app)
+
+db = SQLAlchemy()
+db.init_app(flask_app)
 migrate = Migrate(flask_app, db)
 
-login = LoginManager(flask_app)
-login.login_view = 'login'
-login.init_app(flask_app)
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(flask_app)
 
-from app import models, routes, errors
+from app import routes, model, errors, logging

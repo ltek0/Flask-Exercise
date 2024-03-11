@@ -1,7 +1,7 @@
 from faker import Faker
 import csv
 from app import db
-from app.model import User
+from app.models import User
 from app import flask_app
 
 flask_app.app_context().push()
@@ -41,10 +41,10 @@ def create_user_from_csv(file: str):
     for us in users:
         u = User(username = us['username'], email = us['email'])
         u.set_password(us['password'])
-        print(u.create_user())
+        print(u.create())
 
 def new_set_users(file: str = 'users.csv', count: int = 10):
-    write_random_users_to_csv(file, count)
+    #write_random_users_to_csv(file, count)
     User.query.delete()
     create_user_from_csv(file)
 

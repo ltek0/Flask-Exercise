@@ -6,6 +6,12 @@ from flask_login import UserMixin
 
 from hashlib import md5
 
+followers = db.Table(
+    'Followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+)
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     _display_name = db.Column(db.String(100)) 
@@ -13,8 +19,13 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(128), index=True, unique=True, nullable=False)
     _passowrd_hash = db.Column(db.String(256), index=True)
     about_me = db.Column(db.String(256))
-    last_seen = db.Column(db.DateTime, default=lambda: dt.utcnow)
+    last_seen = db.Column(db.DateTime, default=lambda: dt.utcnow())
     posts = db.relationship('Post', backref='author', lazy='select')
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self) -> str:
         return f'<User {self.username}>'
@@ -52,6 +63,23 @@ class User(UserMixin, db.Model):
         email_md5 = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{email_md5}?d=identicon&s={size}'
 
+    def is_following(self, user):
+        return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+    
+    def follow(self, user): 
+        if not self.is_following(user):
+            self.followed.append(user)
+    
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def followed_posts(self):
+        followed = Post.query.join(
+            followers, (followers.c.followed_id == Post.user_id)
+        ).filter(followers.c.follower_id == self.id)
+        own = Post.query.filter_by(user_id = self.id)
+        return followed.union(own).order_by(Post.timestamp.desc())
 
 @login_manager.user_loader
 def load_user(id: int):
@@ -66,4 +94,4 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self) -> str:
-        return f'<Post {self.title}>'
+        return f"<Post '{self.body}'>"

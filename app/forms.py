@@ -5,7 +5,7 @@ from flask_wtf.form import _Auto
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from app.model import User
+from app.models import User
 
 import re
 
@@ -14,6 +14,7 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     remember_me = BooleanField("Remember Me")
     submit = SubmitField("Sign In")
+
 
 class RegisterForm(FlaskForm):
     display_name = StringField('Display Name', validators=[Length(max=100, message='Max Allowed leanth is 100 Charactor')])
@@ -32,7 +33,8 @@ class RegisterForm(FlaskForm):
     def validate_email(self, email: str):
         if User.query.filter_by(username=email.data).first():
             raise ValidationError("This email is already in use.")
-        
+
+
 class EditProfileForm(FlaskForm):
     username = StringField('Username')
     display_name = StringField('Display Name', validators=[Length(max=100, message='Max Allowed leanth is 100 Charactor')])
@@ -46,4 +48,3 @@ class EditProfileForm(FlaskForm):
     def validate_username(self, username):
         if username.data != self.original_username and User.query.filter_by(username=username.data).first():
             ValidationError('Username not avaliable. Please choose a different one.')
-            

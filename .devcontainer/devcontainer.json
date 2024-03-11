@@ -1,16 +1,12 @@
 {
-  "name": "Python 3 & PostgreSQL",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
-  // "workspaceFolder": "/workspace",
   "hostRequirements": {
     "cpus": 2
   },
   "waitFor": "onCreateCommand",
   "postCreateCommand": "",
-  "postAttachCommand": {
-    "server": "flask --debug run --host=0.0.0.0"
-  },
+  "postAttachCommand": {},
   "portsAttributes": {
     "5000": {
       "label": "Flask Apps",
@@ -24,12 +20,8 @@
     }
   },
   "customizations": {
-    "codespaces": {
-      "openFiles": ["templates/index.html"]
-    },
     "vscode": {
-      "settings": {
-      },
+      "settings": {},
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",

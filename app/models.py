@@ -1,6 +1,7 @@
 from app import db, login_manager
 import werkzeug.security
-from datetime import datetime as dt
+from datetime import datetime as dt, UTC
+
 
 from flask_login import UserMixin
 
@@ -19,7 +20,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(128), index=True, unique=True, nullable=False)
     _passowrd_hash = db.Column(db.String(256), index=True)
     about_me = db.Column(db.String(256))
-    last_seen = db.Column(db.DateTime, default=lambda: dt.utcnow())
+    last_seen = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     posts = db.relationship('Post', backref='author', lazy='select')
     followed = db.relationship(
         'User', secondary=followers,
@@ -49,7 +50,7 @@ class User(UserMixin, db.Model):
     def check_password(self, password: str) -> bool:
         return werkzeug.security.check_password_hash(self._passowrd_hash, password)
 
-    def create(self):
+    def create(self): # returns the full user object on sucess and None on error
         try:
             db.session.add(self)
             db.session.commit()
@@ -66,20 +67,42 @@ class User(UserMixin, db.Model):
     def is_following(self, user):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
     
-    def follow(self, user): 
-        if not self.is_following(user):
-            self.followed.append(user)
-    
-    def unfollow(self, user):
-        if self.is_following(user):
-            self.followed.remove(user)
+    def follow(self, user): # returns True on sucess and false on error
+        try:
+            if not self.is_following(user):
+                self.followed.append(user)
+                db.session.commit()
+                return True
+            return False
+        except Exception as ex:
+            db.session.rollback()
+            print(ex)
+            return False
 
+    def unfollow(self, user): # returns True on sucess and false on error
+        try:
+            if self.is_following(user):
+                self.followed.remove(user)
+                db.session.commit()
+                return True
+            return False
+        except Exception as ex:
+            db.session.rollback()
+            print(ex)
+            return False
+
+    @property
     def followed_posts(self):
         followed = Post.query.join(
             followers, (followers.c.followed_id == Post.user_id)
         ).filter(followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id = self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
+    
+    def update_last_seen(self):
+        self.last_seen = dt.now(UTC)
+        db.session.commit()
+
 
 @login_manager.user_loader
 def load_user(id: int):
@@ -88,10 +111,33 @@ def load_user(id: int):
  
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(128))
+    _title = db.Column(db.String(128))
     body = db.Column(db.String(512))
-    timestamp = db.Column(db.DateTime, default=lambda: dt.utcnow)
+    timestamp = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    @property
+    def title(self) -> str:
+        return self._title or ""
+    
+    @title.setter
+    def title(self, title: str) -> None:
+        if not title:
+            self._title = None
+        elif len(title) <= 128:
+            self._title = title
+        else:
+            raise ValueError('Title is too long')
+
+    def create(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return True
+        except Exception as ex:
+            db.session.rollback()
+            print(ex)
+            return False
+    
     def __repr__(self) -> str:
-        return f"<Post '{self.body}'>"
+        return f"<Post '{self.id}:{self.body}'>"

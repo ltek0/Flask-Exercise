@@ -46,5 +46,15 @@ class EditProfileForm(FlaskForm):
         self.original_username = original_username
 
     def validate_username(self, username):
-        if username.data != self.original_username and User.query.filter_by(username=username.data).first():
-            ValidationError('Username not avaliable. Please choose a different one.')
+        if username.data == self.original_username:
+            ValidationError('Username not changed')
+        if not re.fullmatch(r'\b[A-Za-z0-9._]{3,32}\b', username.data):
+            raise ValidationError('Username must be between 3 and 24 characters long and contain only letters, numbers, dots and underscores.')
+        if User.query.filter_by(username=username.data).first():
+            raise ValidationError("Username not avaliable. Please use a different username.")
+    
+
+class CreatePostForm(FlaskForm):
+    title = StringField('Title', validators=[Length(min=0, max=128)])
+    body = TextAreaField('Say something to the world', validators=[DataRequired(), Length(min=0, max=512)])
+    submit = SubmitField('Submit')

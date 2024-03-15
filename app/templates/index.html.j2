@@ -1,10 +1,36 @@
 {% extends "base.html.j2" %}
 {% block content %}
-  {% for post in posts %}
-    <div>
+  {% if form %}
+    <form action="" method="post">
+      {{ form.hidden_tag() }}
       <p>
-        {{ post.author.username }} says: <b>{{ post.body }}</b>
+        {{ form.title.label }}
+        <br />
+        {{ form.title(cols=32,rows=4) }}
+        <br />
+        {% for error in form.title.errors %}<span style="color: red;">[{{ error }}]</span>{% endfor %}
       </p>
-    </div>
-  {% endfor %}
+      <p>
+        {{ form.body.label }}
+        <br />
+        {{ form.body(cols=32,rows=4) }}
+        <br />
+        {% for error in form.body.errors %}<span style="color: red;">[{{ error }}]</span>{% endfor %}
+      </p>
+      <p>{{ form.submit() }}</p>
+    </form>
+  {% endif %}
+  {% if posts %}
+    {% for post in posts %}
+      {% include "_post_card.html.j2" %}
+    {% endfor %}
+    {% if prev_url %}<a type="button" href="{{ prev_url }}">Newer posts</a>{% endif %}
+    {% if next_url %}<a type="button" href="{{ next_url }}">Older posts</a>{% endif %}
+  {% else %}
+    {% if home %}
+      <h2>empty</h2>
+    {% else %}
+      <h2>No posts yet. Be the first to post!</h2>
+    {% endif %}
+  {% endif %}
 {% endblock content %}

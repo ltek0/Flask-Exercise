@@ -25,7 +25,7 @@ def _create_users(count: int):
         user = User(
             display_name = f'User{i+1} name',
             username = f'user{i+1}',
-            email = f'user{i+1}@data-init.local')
+            email = f'user{i+1}@example.com')
         user.set_password(f'user{i+1}pw')
         user = user.create()
         print(user)

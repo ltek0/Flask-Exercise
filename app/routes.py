@@ -1,12 +1,13 @@
 from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import login_user, current_user, login_required, logout_user
 
-from app import flask_app, db
-from app.forms import EditProfileForm, LoginForm, RegisterForm, CreatePostForm
-from app.models import User, Post
+from . import flask_app, db, forms
+from .models import User, Post
+from .email import send_password_reset_email
 
 from urllib.parse import urlparse
 from datetime import datetime as dt
+
 
 @flask_app.before_request
 def before_request():
@@ -25,12 +26,11 @@ def _get_next_url_from_request(request):
 
 
 @flask_app.route('/', methods=['GET', 'POST'])
-@flask_app.route('/index', methods=['GET', 'POST'])
 def index():
     if not current_user.is_authenticated:
         return redirect(url_for('explore'))
     
-    form = CreatePostForm()
+    form = forms.CreatePostForm()
     if current_user.is_authenticated and form.validate_on_submit():
         post = Post(
             title = form.title.data,
@@ -72,7 +72,7 @@ def login():
     else:
         next_url = session['next_url']
 
-    form = LoginForm()
+    form = forms.LoginForm()
     if form.validate_on_submit():
         user = User.query.filter(db.or_(User.email == form.username.data, User.username == form.username.data)).first()
 
@@ -84,7 +84,7 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('login', next = next_url))
         
-    return render_template('login.html.j2', title="Sign In", form = form)
+    return render_template('login.html.j2', title="Sign In", form=form)
 
 
 @flask_app.route('/register', methods=['GET','POST'])
@@ -100,7 +100,7 @@ def register():
     else:
         next_url = session['next_url']
     
-    form = RegisterForm()
+    form = forms.RegisterForm()
     if form.validate_on_submit():
         user = User(username=form.username.data,
                     email=form.email.data,
@@ -147,7 +147,7 @@ def profile(username):
 @login_required
 def edit_profile():
 
-    form = EditProfileForm(original_username=current_user.username)
+    form = forms.EditProfileForm(original_username=current_user.username)
 
     if form.validate_on_submit():
         current_user.username = form.username.data
@@ -167,9 +167,55 @@ def edit_profile():
     return render_template('edit_profile.html.j2', title='Edit Profile', form=form)
 
 
+@flask_app.route("/reset_password", methods=['GET', 'POST'])
+def reset_password_request():
+    
+    next_url = _get_next_url_from_request(request)
+
+    if current_user.is_authenticated:
+        return redirect(next_url)
+    
+    form = forms.ResetPasswordRequestForm()
+    if form.validate_on_submit():
+
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user, urlparse(request.url).netloc)
+
+        flash('An email will be sent to you shortly if the email is found in our records')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password_request.html.j2', title="Reset Password", form=form)
+
+
+@flask_app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_password(token: str):
+
+    next_url = _get_next_url_from_request(request)
+
+    if current_user.is_authenticated:
+        return redirect(next_url)
+    
+    user = User.verify_reset_password_token(token)
+    if not user:
+        flash('Invalid tokin')
+        return redirect(url_for('index'))
+    
+    form = forms.ResetPasswordForm()
+    if form.validate_on_submit():
+
+        user.set_password(form.password.data)
+        db.session.commit()
+
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password.html.j2', title="Reset Password", form=form)
+
+
 @flask_app.route('/follow/<username>')
 @login_required
-def follow(username):
+def follow(username: str):
 
     current_user_profile = redirect(url_for('profile', username=current_user.username))
     user = User.query.filter_by(username = username).first()
@@ -192,7 +238,7 @@ def follow(username):
 
 @flask_app.route('/unfollow/<username>')
 @login_required
-def unfollow(username):
+def unfollow(username: str):
 
     current_user_profile = redirect(url_for('profile', username=current_user.username))
     user = User.query.filter_by(username = username).first()
@@ -211,4 +257,3 @@ def unfollow(username):
         flash(f'You are not following {user.display_name} or something went wrong.')
 
     return redirect(url_for('profile', username=user.username))
-

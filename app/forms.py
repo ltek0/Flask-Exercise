@@ -5,7 +5,7 @@ from flask_wtf.form import _Auto
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from app.models import User
+from .models import User
 
 import re
 
@@ -57,3 +57,14 @@ class CreatePostForm(FlaskForm):
     title = StringField('Title', validators=[Length(min=0, max=128)])
     body = TextAreaField('Say something to the world', validators=[DataRequired(), Length(min=0, max=512)])
     submit = SubmitField('Submit')
+
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Request Password Reset")
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField("New password", validators=[DataRequired()])
+    password2 = PasswordField("Repeat new Password", validators=[DataRequired(), EqualTo("password")])
+    submit = SubmitField("Reset password")

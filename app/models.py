@@ -1,11 +1,13 @@
-from app import db, login_manager
 import werkzeug.security
-from datetime import datetime as dt, UTC
+from datetime import datetime as dt, UTC, timedelta as td
 from typing import Self
+import jwt
+from hashlib import md5
 
 from flask_login import UserMixin
 
-from hashlib import md5
+from . import db, login_manager, flask_app
+
 
 followers = db.Table(
     'Followers',
@@ -51,7 +53,7 @@ class User(UserMixin, db.Model):
 
     @property
     def display_name(self) -> str:
-        return self._display_name or self.username 
+        return self._display_name
     
     @display_name.setter
     def display_name(self, new_display_name: str) -> None:
@@ -88,7 +90,7 @@ class User(UserMixin, db.Model):
             return self
         except Exception as ex:
             db.session.rollback()
-            print(ex)
+            flask_app.logger.error(ex)
             return None
 
     def avatar(self, size: int) -> str:
@@ -107,7 +109,7 @@ class User(UserMixin, db.Model):
             return False
         except Exception as ex:
             db.session.rollback()
-            print(ex)
+            flask_app.logger.error(ex)
             return False
 
     def unfollow(self, user: Self): # returns True on sucess and false on error
@@ -119,7 +121,7 @@ class User(UserMixin, db.Model):
             return False
         except Exception as ex:
             db.session.rollback()
-            print(ex)
+            flask_app.logger.error(ex)
             return False
 
     @property
@@ -129,6 +131,21 @@ class User(UserMixin, db.Model):
         ).filter(followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id = self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
+
+    def get_reset_password_token(self, expires_in: int = 600):
+        return jwt.encode({"reset_password": self.id,
+                           "exp": dt.now(UTC) + td(seconds=expires_in)},
+                          flask_app.config["SECRET_KEY"], algorithm="HS256")
+        
+    @staticmethod
+    def verify_reset_password_token(token: str):
+        try:
+            id = jwt.decode(token, flask_app.config["SECRET_KEY"], algorithms="HS256")["reset_password"]
+        except Exception as ex:
+            flask_app.logger.error('Invalid tokin used')
+            flask_app.logger.error(ex)
+            return None
+        return User.query.get(id)
 
 
 @login_manager.user_loader
@@ -163,8 +180,8 @@ class Post(db.Model):
             return self
         except Exception as ex:
             db.session.rollback()
-            print(ex)
-            return False
+            flask_app.logger.error(ex)
+            return None
     
     def __repr__(self) -> str:
         return f"<Post '{self.id}:{self.body}'>"

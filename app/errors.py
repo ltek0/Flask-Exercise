@@ -1,6 +1,6 @@
 from flask import render_template
 
-from app import flask_app, db
+from . import flask_app, db
 
 
 @flask_app.errorhandler(404)

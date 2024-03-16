@@ -4,3 +4,4 @@
 
 /app/app.db
 /app/logs
+/migrations

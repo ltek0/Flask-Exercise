@@ -190,15 +190,17 @@ def reset_password_request():
 
 @flask_app.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_password(token: str):
-    
+
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-    
-    if request.method == 'POST':
-        user = PasswordResetTokens.use(token)
 
     form = forms.ResetPasswordForm()
     if form.validate_on_submit():
+
+        user = PasswordResetTokens.use(token)
+        if not user:
+            flash('Invalid or expired token')
+            return redirect(url_for('login'))
 
         user.set_password(form.password.data)
         db.session.commit()

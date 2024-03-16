@@ -84,7 +84,7 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('login', next = next_url))
         
-    return render_template('login.html.j2', title="Sign In", form=form)
+    return render_template('user/login.html.j2', title="Sign In", form=form)
 
 
 @flask_app.route('/register', methods=['GET','POST'])
@@ -114,7 +114,7 @@ def register():
             flash('Something went wrong')
         return redirect(next_url)
     
-    return render_template('register.html.j2', title='Register', form=form)
+    return render_template('user/register.html.j2', title='Register', form=form)
 
 
 @flask_app.route('/logout')
@@ -140,7 +140,7 @@ def profile(username):
     next_url = url_for('profile', page=posts.next_num, username=username) if posts.next_num else None
     prev_url = url_for('profile', page=posts.prev_num, username=username) if posts.prev_num else None
 
-    return render_template('profile.html.j2', user=user, posts=posts, title=title, next_url=next_url, prev_url=prev_url)
+    return render_template('user/profile.html.j2', user=user, posts=posts, title=title, next_url=next_url, prev_url=prev_url)
 
 
 @flask_app.route('/edit_profile', methods=['GET', 'POST'])
@@ -164,7 +164,7 @@ def edit_profile():
         form.display_name.data = current_user.display_name
         form.about_me.data = current_user.about_me
 
-    return render_template('edit_profile.html.j2', title='Edit Profile', form=form)
+    return render_template('user/edit_profile.html.j2', title='Edit Profile', form=form)
 
 
 @flask_app.route("/reset_password", methods=['GET', 'POST'])
@@ -185,7 +185,7 @@ def reset_password_request():
         flash('An email will be sent to you shortly if the email is found in our records')
         return redirect(url_for('login'))
     
-    return render_template('reset_password_request.html.j2', title="Reset Password", form=form)
+    return render_template('user/reset_password_request.html.j2', title="Reset Password", form=form)
 
 
 @flask_app.route("/reset_password/<token>", methods=['GET', 'POST'])
@@ -210,7 +210,7 @@ def reset_password(token: str):
         flash('Your password has been reset.')
         return redirect(url_for('login'))
     
-    return render_template('reset_password.html.j2', title="Reset Password", form=form)
+    return render_template('user/reset_password.html.j2', title="Reset Password", form=form)
 
 
 @flask_app.route('/follow/<username>')

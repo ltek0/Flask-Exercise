@@ -1,12 +1,6 @@
-import subprocess
-from os import path as op
 from app import flask_app
 
-def db_migrations():
-    if not op.exists(op.join(op.dirname(op.realpath(__file__)), 'migration')):
-        subprocess.run(['flask', 'db', 'init'])
-    subprocess.run(['flask', 'db', 'migrate'])
-    subprocess.run(['flask', 'db', 'upgrade'])
+from db_migtions import db_migrations
 
 if __name__ == "__main__":
     db_migrations()

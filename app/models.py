@@ -1,7 +1,7 @@
 from app import db, login_manager
 import werkzeug.security
 from datetime import datetime as dt, UTC
-
+from typing import Self
 
 from flask_login import UserMixin
 
@@ -15,12 +15,12 @@ followers = db.Table(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    _display_name = db.Column(db.String(100)) 
-    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    email = db.Column(db.String(128), index=True, unique=True, nullable=False)
-    _passowrd_hash = db.Column(db.String(256), index=True)
-    about_me = db.Column(db.String(256))
-    last_seen = db.Column(db.DateTime, default=lambda: dt.now(UTC))
+    username = db.Column(db.String(64), nullable=False, index=True, unique=True)
+    email = db.Column(db.String(128), nullable=False, index=True, unique=True)
+    _passowrd_hash = db.Column(db.String(256), nullable=False, index=True)
+    _last_seen = db.Column(db.DateTime, nullable=True)
+    _display_name = db.Column(db.String(100), nullable=True) 
+    _about_me = db.Column(db.String(256), nullable=True)
     posts = db.relationship('Post', backref='author', lazy='select')
     followed = db.relationship(
         'User', secondary=followers,
@@ -28,21 +28,52 @@ class User(UserMixin, db.Model):
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
+    def __init__(self, 
+                 username:str,
+                 email:str, 
+                 display_name:str = None,
+                 about_me:str=None):
+        self.username = username
+        self.email = email
+        self._display_name = display_name or self.username
+        self._about_me = about_me or 'creator'
+
     def __repr__(self) -> str:
-        return f'<User {self.username}>'
+        return f'<User {self.id}:{self.username}>'
     
+    @property
+    def last_seen(self):
+        return self._last_seen or 'User have not loggin yet.'
+
+    def update_last_seen(self):
+        self._last_seen = dt.now(UTC)
+        db.session.commit()
+
     @property
     def display_name(self) -> str:
         return self._display_name or self.username 
     
     @display_name.setter
-    def display_name(self, display_name: str) -> None:
-        if not display_name:
-            self._display_name = self.username
-        elif len(display_name) <= 100:
-            self._display_name = display_name
+    def display_name(self, new_display_name: str) -> None:
+        if not new_display_name:
+            self._display_name = None
+        elif len(new_display_name) <= 100:
+            self._display_name = new_display_name
         else:
-            raise ValueError('Display name is too long')
+            raise ValueError('Display name is too long.')
+    
+    @property
+    def about_me(self):
+        return self._about_me or ''
+    
+    @about_me.setter
+    def about_me(self, new_about_me: str):
+        if not new_about_me:
+            self._about_me = None
+        elif len(new_about_me) <= 256:
+            self._about_me = new_about_me
+        else:
+            raise ValueError('About me is too long.')
 
     def set_password(self, password: str) -> None:
         self._passowrd_hash = werkzeug.security.generate_password_hash(password)
@@ -54,7 +85,7 @@ class User(UserMixin, db.Model):
         try:
             db.session.add(self)
             db.session.commit()
-            return User.query.filter_by(username = self.username).first()
+            return self
         except Exception as ex:
             db.session.rollback()
             print(ex)
@@ -64,10 +95,10 @@ class User(UserMixin, db.Model):
         email_md5 = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{email_md5}?d=identicon&s={size}'
 
-    def is_following(self, user):
+    def is_following(self, user: Self):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
     
-    def follow(self, user): # returns True on sucess and false on error
+    def follow(self, user: Self): # returns True on sucess and false on error
         try:
             if not self.is_following(user):
                 self.followed.append(user)
@@ -79,7 +110,7 @@ class User(UserMixin, db.Model):
             print(ex)
             return False
 
-    def unfollow(self, user): # returns True on sucess and false on error
+    def unfollow(self, user: Self): # returns True on sucess and false on error
         try:
             if self.is_following(user):
                 self.followed.remove(user)
@@ -98,10 +129,6 @@ class User(UserMixin, db.Model):
         ).filter(followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id = self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
-    
-    def update_last_seen(self):
-        self.last_seen = dt.now(UTC)
-        db.session.commit()
 
 
 @login_manager.user_loader
@@ -133,7 +160,7 @@ class Post(db.Model):
         try:
             db.session.add(self)
             db.session.commit()
-            return True
+            return self
         except Exception as ex:
             db.session.rollback()
             print(ex)

@@ -43,7 +43,7 @@ def index():
             flash('Something went wrong')
 
     page = request.args.get("page", 1, type=int)
-    posts = current_user.followed_posts.filter(Post.author != current_user).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    posts = current_user.followed_posts.paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
     next_url = url_for('index', page=posts.next_num) if posts.next_num else None
     prev_url = url_for('index', page=posts.prev_num) if posts.prev_num else None
 
@@ -58,8 +58,6 @@ def explore():
     next_url = url_for('explore', page=posts.next_num) if posts.next_num else None
     prev_url = url_for('explore', page=posts.prev_num) if posts.prev_num else None
 
-    for i in posts.items:
-        print(i.author.username)
     return render_template("index.html.j2", title="Explore", posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 
@@ -139,8 +137,8 @@ def profile(username):
 
     page = request.args.get("page", 1, type=int)
     posts = Post.query.filter_by(author = user).order_by(Post.timestamp.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for('profile', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for('profile', page=posts.prev_num) if posts.prev_num else None
+    next_url = url_for('profile', page=posts.next_num, username=username) if posts.next_num else None
+    prev_url = url_for('profile', page=posts.prev_num, username=username) if posts.prev_num else None
 
     return render_template('profile.html.j2', user=user, posts=posts, title=title, next_url=next_url, prev_url=prev_url)
 
@@ -155,7 +153,9 @@ def edit_profile():
         current_user.username = form.username.data
         current_user.display_name = form.display_name.data
         current_user.about_me = form.about_me.data
-        
+
+        db.session.commit()
+
         flash('Your changes have been saved.')
         return redirect(url_for('profile', username=current_user.username))
 

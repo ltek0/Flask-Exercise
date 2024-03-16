@@ -1,52 +1,75 @@
-from faker import Faker
-import csv
 from app import db
-from app.models import User
+from app.models import User, Post, followers
 from app import flask_app
+
+from db_migtions import db_migrations
 
 flask_app.app_context().push()
 
-class Usertmp:
-    def __init__(self, username: str, email: str, password: str):
-        self.username = username
-        self.email = email
-        self.password = password
 
-def _random_fake_user():
-    fake = Faker()
-    return Usertmp(
-        username = fake.user_name(),
-        email = fake.email(),
-        password= fake.password()  
-    )
+def warning():
+    print('Warning!!! This will remove all post and users from the database')
+    pros = input('Wish to proseed(y/N)')
+    if pros == 'y':
+        db.session.query(followers).delete()
+        db.session.query(Post).delete()
+        db.session.query(User).delete()
+        db.session.commit
+        return True
+    return False
 
-def _get_user_from_csv(file: str):
-    with open(file, 'r') as file:
-        reader = csv.DictReader(file)
-        return list(reader)
 
-def write_random_users_to_csv(file: str, count: int, mode: str = ''):
-    if not mode or mode != 'a' or mode != 'w':
-        mode = 'w'
-    with open(file, mode) as file:
-        writer = csv.writer(file)
-        if mode == 'w':
-            writer.writerow(['username','email','password'])
-        for i in range(count):
-            u = _random_fake_user()
-            writer.writerow([u.username, u.email, u.password])
-            
-def create_user_from_csv(file: str):
-    users = _get_user_from_csv(file)
-    for us in users:
-        u = User(username = us['username'], email = us['email'])
-        u.set_password(us['password'])
-        print(u.create())
+def create_users(count: int):
+    for i in range(count):
+        user = User(
+            display_name = f'User{i+1} name',
+            username = f'user{i+1}',
+            email = f'user{i+1}@data-init.local')
+        user.set_password(f'user{i+1}pw')
+        user = user.create()
+        print(user)
 
-def new_set_users(file: str = 'users.csv', count: int = 10):
-    #write_random_users_to_csv(file, count)
-    User.query.delete()
-    create_user_from_csv(file)
+
+def create_post_for_user(u: User, count: int,):
+    for i in range(count):
+        post = Post(
+            title = f"post{i+1}",
+            body = f'''Body of post{i+1} for user with username: {u.username}''',
+            author = u
+        )
+        post = post.create()
+        print(post)
+    
 
 if __name__ == '__main__':
-    new_set_users()
+    if not warning():
+        raise Exception('Exit on cancel')
+    db_migrations()
+    create_users(5)
+
+    user1 = db.session.query(User).filter_by(username='user1').first()
+    user2 = db.session.query(User).filter_by(username='user2').first()
+    user3 = db.session.query(User).filter_by(username='user3').first()
+    user4 = db.session.query(User).filter_by(username='user4').first()
+    user5 = db.session.query(User).filter_by(username='user5').first()
+
+    create_post_for_user(user1, 5)
+    create_post_for_user(user2, 5)
+    create_post_for_user(user3, 5)
+    create_post_for_user(user4, 5)
+    create_post_for_user(user5, 5)
+
+    user1.follow(user4)
+    user1.follow(user5)
+
+    user2.follow(user5)
+    user2.follow(user1)
+
+    user3.follow(user1)
+    user3.follow(user2)    
+
+    user4.follow(user2)
+    user4.follow(user3)
+
+    user5.follow(user3)
+    user5.follow(user4)

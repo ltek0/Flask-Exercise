@@ -1,5 +1,10 @@
 {% extends "base.html.j2" %}
 {% block content %}
+    <style>
+    h1, p {
+        margin: 0;
+    }
+    </style>
     <table>
         <tr valign="top">
             <td>
@@ -9,7 +14,8 @@
                      width="128" />
             </td>
             <td>
-                <h1>User: {{ user.username }}</h1>
+                <h1>{{ user.display_name }}</h1>
+                <p>username: {{ user.username }}</p>
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
                 {% if user.last_seen %}<p>Last seen on: {{ user.last_seen }}</p>{% endif %}
                 <p>followers: {{ user.followers.count() }}, following: {{ user.followed.count() }}</p>

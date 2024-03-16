@@ -6,20 +6,21 @@ from db_migtions import db_migrations
 
 flask_app.app_context().push()
 
+def _drop_db():
+    db.create_all()
+    db.drop_all()
 
-def warning():
+
+def _warning():
     print('Warning!!! This will remove all post and users from the database')
     pros = input('Wish to proseed(y/N)')
     if pros == 'y':
-        db.session.query(followers).delete()
-        db.session.query(Post).delete()
-        db.session.query(User).delete()
-        db.session.commit
+        _drop_db()
         return True
     return False
 
 
-def create_users(count: int):
+def _create_users(count: int):
     for i in range(count):
         user = User(
             display_name = f'User{i+1} name',
@@ -30,7 +31,7 @@ def create_users(count: int):
         print(user)
 
 
-def create_post_for_user(u: User, count: int,):
+def _create_post_for_user(u: User, count: int,):
     for i in range(count):
         post = Post(
             title = f"post{i+1}",
@@ -42,10 +43,10 @@ def create_post_for_user(u: User, count: int,):
     
 
 if __name__ == '__main__':
-    if not warning():
+    if not _warning():
         raise Exception('Exit on cancel')
     db_migrations()
-    create_users(5)
+    _create_users(5)
 
     user1 = db.session.query(User).filter_by(username='user1').first()
     user2 = db.session.query(User).filter_by(username='user2').first()
@@ -53,11 +54,11 @@ if __name__ == '__main__':
     user4 = db.session.query(User).filter_by(username='user4').first()
     user5 = db.session.query(User).filter_by(username='user5').first()
 
-    create_post_for_user(user1, 5)
-    create_post_for_user(user2, 5)
-    create_post_for_user(user3, 5)
-    create_post_for_user(user4, 5)
-    create_post_for_user(user5, 5)
+    _create_post_for_user(user1, 5)
+    _create_post_for_user(user2, 5)
+    _create_post_for_user(user3, 5)
+    _create_post_for_user(user4, 5)
+    _create_post_for_user(user5, 5)
 
     user1.follow(user4)
     user1.follow(user5)

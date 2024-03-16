@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import login_user, current_user, login_required, logout_user
 
 from . import flask_app, db, forms
-from .models import User, Post
+from .models import User, Post, PasswordResetTokens
 from .email import send_password_reset_email
 
 from urllib.parse import urlparse
@@ -180,7 +180,7 @@ def reset_password_request():
 
         user = User.query.filter_by(email=form.email.data).first()
         if user:
-            send_password_reset_email(user, urlparse(request.url).netloc)
+            send_password_reset_email(user)
 
         flash('An email will be sent to you shortly if the email is found in our records')
         return redirect(url_for('login'))
@@ -190,17 +190,13 @@ def reset_password_request():
 
 @flask_app.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_password(token: str):
-
-    next_url = _get_next_url_from_request(request)
-
-    if current_user.is_authenticated:
-        return redirect(next_url)
     
-    user = User.verify_reset_password_token(token)
-    if not user:
-        flash('Invalid tokin')
+    if current_user.is_authenticated:
         return redirect(url_for('index'))
     
+    if request.method == 'POST':
+        user = PasswordResetTokens.use(token)
+
     form = forms.ResetPasswordForm()
     if form.validate_on_submit():
 

@@ -15,6 +15,7 @@ followers = db.Table(
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), nullable=False, index=True, unique=True)
@@ -83,15 +84,11 @@ class User(UserMixin, db.Model):
     def check_password(self, password: str) -> bool:
         return werkzeug.security.check_password_hash(self._passowrd_hash, password)
 
-    def create(self): # returns the full user object on sucess and None on error
-        try:
-            db.session.add(self)
-            db.session.commit()
-            return self
-        except Exception as ex:
-            db.session.rollback()
-            flask_app.logger.error(ex)
-            return None
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+        flask_app.logger.info(f"User {self.username} created")
+        return self
 
     def avatar(self, size: int) -> str:
         email_md5 = md5(self.email.lower().encode('utf-8')).hexdigest()
@@ -100,30 +97,22 @@ class User(UserMixin, db.Model):
     def is_following(self, user: Self):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
     
-    def follow(self, user: Self): # returns True on sucess and false on error
-        try:
-            if not self.is_following(user):
-                self.followed.append(user)
-                db.session.commit()
-                return True
-            return False
-        except Exception as ex:
-            db.session.rollback()
-            flask_app.logger.error(ex)
-            return False
+    def follow(self, user: Self):
+        if not self.is_following(user):
+            self.followed.append(user)
+            db.session.commit()
+            flask_app.logger.info(f"{self.username} followed {user.username}")
+            return True
+        return False
 
-    def unfollow(self, user: Self): # returns True on sucess and false on error
-        try:
-            if self.is_following(user):
-                self.followed.remove(user)
-                db.session.commit()
-                return True
-            return False
-        except Exception as ex:
-            db.session.rollback()
-            flask_app.logger.error(ex)
-            return False
-
+    def unfollow(self, user: Self):
+        if self.is_following(user):
+            self.followed.remove(user)
+            db.session.commit()
+            flask_app.logger.info(f"{self.username} unfollowed {user.username}")
+            return True
+        return False
+    
     @property
     def followed_posts(self):
         followed = Post.query.join(
@@ -132,20 +121,46 @@ class User(UserMixin, db.Model):
         own = Post.query.filter_by(user_id = self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
 
-    def get_reset_password_token(self, expires_in: int = 600):
-        return jwt.encode({"reset_password": self.id,
-                           "exp": dt.now(UTC) + td(seconds=expires_in)},
-                          flask_app.config["SECRET_KEY"], algorithm="HS256")
-        
-    @staticmethod
-    def verify_reset_password_token(token: str):
+
+class PasswordResetTokens(db.Model):
+    _token = db.Column(db.String(256), primary_key=True)
+
+    @classmethod
+    def generate(cls, user: User, expires_in: int = 600):
+        token = {
+            "reset_password": user.id, 
+            "exp": dt.now(UTC) + td(seconds=expires_in)
+        }
+        instance = cls(_token=jwt.encode(token, flask_app.config["SECRET_KEY"], algorithm="HS256"))
+
+        db.session.add(instance)
+        db.session.commit()
+        flask_app.logger.info(f"Password reset token generated for {user.username}")
+
+        return instance._token
+    
+    @classmethod
+    def use(cls, token: str):
+        password_reset_token = cls.query.filter_by(_token=token).first()
+        if not password_reset_token:
+            flask_app.logger.info(f'An invalid token was used: {token}')
+            return None
+
         try:
             id = jwt.decode(token, flask_app.config["SECRET_KEY"], algorithms="HS256")["reset_password"]
+            user = User.query.get(id)
+            if not user:
+                return None
+
+            db.session.delete(password_reset_token)
+            db.session.commit()
+            flask_app.logger.info(f"Password reset token used for {user.username}")
+            return user
+
         except Exception as ex:
-            flask_app.logger.error('Invalid tokin used')
-            flask_app.logger.error(ex)
+            cls.query.filter_by(_token=token).delete()
+            flask_app.logger.error(f"An error occurred while using a password reset token: {ex}")
             return None
-        return User.query.get(id)
 
 
 @login_manager.user_loader
@@ -165,7 +180,7 @@ class Post(db.Model):
         return self._title or ""
     
     @title.setter
-    def title(self, title: str) -> None:
+    def title(self, title: str):
         if not title:
             self._title = None
         elif len(title) <= 128:
@@ -174,14 +189,10 @@ class Post(db.Model):
             raise ValueError('Title is too long')
 
     def create(self):
-        try:
-            db.session.add(self)
-            db.session.commit()
-            return self
-        except Exception as ex:
-            db.session.rollback()
-            flask_app.logger.error(ex)
-            return None
-    
+        db.session.add(self)
+        db.session.commit()
+        flask_app.logger.info(f"Post {self.id} created")
+        return self
+        
     def __repr__(self) -> str:
         return f"<Post '{self.id}:{self.body}'>"

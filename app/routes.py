@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, session
+from flask import render_template, flash, redirect, url_for, request, session, abort
 from flask_login import login_user, current_user, login_required, logout_user
 
 from . import flask_app, db, forms
@@ -21,7 +21,7 @@ def _get_next_url_from_request(request):
         if request.referrer != request.url:
             return request.referrer or url_for('index')
         else:
-            return  url_for('index')
+            return url_for('index')
     return next_url
 
 
@@ -36,11 +36,8 @@ def index():
             title = form.title.data,
             body = form.body.data,
             author = current_user)
-        resault = post.create()
-        if resault:
-            flash('Your post is live')
-        else:
-            flash('Something went wrong')
+        post.create()
+        flash('Your post is live')
 
     page = request.args.get("page", 1, type=int)
     posts = current_user.followed_posts.paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
@@ -67,10 +64,6 @@ def login():
     next_url = _get_next_url_from_request(request)
     if current_user.is_authenticated:
         return redirect(next_url)
-    if request.method == "GET":
-        session['next_url'] = next_url
-    else:
-        next_url = session['next_url']
 
     form = forms.LoginForm()
     if form.validate_on_submit():
@@ -79,10 +72,10 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             flash('Welcome Back!')
-            return redirect(next_url)
+            return redirect(url_for('index'))
         else:
             flash('Invalid username or password')
-            return redirect(url_for('login', next = next_url))
+            return redirect(url_for('login'))
         
     return render_template('user/login.html.j2', title="Sign In", form=form)
 
@@ -91,29 +84,21 @@ def login():
 def register():
 
     next_url = _get_next_url_from_request(request)
-
     if current_user.is_authenticated:
         return redirect(next_url)
-    
-    if request.method == "GET":
-        session['next_url'] = next_url
-    else:
-        next_url = session['next_url']
-    
+
     form = forms.RegisterForm()
     if form.validate_on_submit():
+
         user = User(username=form.username.data,
                     email=form.email.data,
                     display_name=form.display_name.data)
         user.set_password(form.password.data)
-        user = user.create()
-        if user:
-            login_user(user, remember=False)
-            flash('You are now a registered')
-        else:
-            flash('Something went wrong')
-        return redirect(next_url)
-    
+        user.create()
+
+        flash('You are now a registered')
+        return redirect(url_for('login'))
+
     return render_template('user/register.html.j2', title='Register', form=form)
 
 
@@ -153,7 +138,7 @@ def edit_profile():
         current_user.username = form.username.data
         current_user.display_name = form.display_name.data
         current_user.about_me = form.about_me.data
-
+        
         db.session.commit()
 
         flash('Your changes have been saved.')
@@ -194,10 +179,13 @@ def reset_password(token: str):
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
+    if not PasswordResetTokens.validate(token=token):
+        return abort(403, description="Invalid access token")
+    
     form = forms.ResetPasswordForm()
     if form.validate_on_submit():
 
-        user = PasswordResetTokens.use(token)
+        user = PasswordResetTokens.use(token=token)
         if not user:
             flash('Invalid or expired token')
             return redirect(url_for('login'))
@@ -222,7 +210,7 @@ def follow(username: str):
         flash(f'user {username} was not found')
         return current_user_profile
     if user == current_user:
-        flash(f'You cannot follow yourself')
+        flash('You cannot follow yourself')
         return current_user_profile
     
     resault = current_user.follow(user)

@@ -87,29 +87,26 @@ class User(UserMixin, db.Model):
     def create(self):
         db.session.add(self)
         db.session.commit()
-        flask_app.logger.info(f"User {self.username} created")
         return self
 
     def avatar(self, size: int) -> str:
         email_md5 = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{email_md5}?d=identicon&s={size}'
 
-    def is_following(self, user: Self):
+    def is_following(self, user: Self) -> bool:
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
     
-    def follow(self, user: Self):
+    def follow(self, user: Self) -> bool:
         if not self.is_following(user):
             self.followed.append(user)
             db.session.commit()
-            flask_app.logger.info(f"{self.username} followed {user.username}")
             return True
         return False
 
-    def unfollow(self, user: Self):
+    def unfollow(self, user: Self) -> bool:
         if self.is_following(user):
             self.followed.remove(user)
             db.session.commit()
-            flask_app.logger.info(f"{self.username} unfollowed {user.username}")
             return True
         return False
     
@@ -120,6 +117,11 @@ class User(UserMixin, db.Model):
         ).filter(followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id = self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
+
+
+@login_manager.user_loader
+def load_user(id: int):
+    return User.query.get(int(id))
 
 
 class PasswordResetTokens(db.Model):
@@ -135,44 +137,48 @@ class PasswordResetTokens(db.Model):
 
         db.session.add(instance)
         db.session.commit()
-        flask_app.logger.info(f"Password reset token generated for {user.username}")
 
         return instance._token
     
     @classmethod
-    def use(cls, token: str):
-        password_reset_token = cls.query.filter_by(_token=token).first()
-        if not password_reset_token:
-            flask_app.logger.info(f'An invalid token was used: {token}')
+    def validate(cls, token: str):
+        # check token in database
+        if not cls.query.filter_by(_token=token).first():
             return None
-
-        try:
+        
+        try: # validate token
             id = jwt.decode(token, flask_app.config["SECRET_KEY"], algorithms="HS256")["reset_password"]
             user = User.query.get(id)
             if not user:
                 return None
-
-            db.session.delete(password_reset_token)
-            db.session.commit()
-            flask_app.logger.info(f"Password reset token used for {user.username}")
             return user
 
-        except Exception as ex:
-            cls.query.filter_by(_token=token).delete()
-            flask_app.logger.error(f"An error occurred while using a password reset token: {ex}")
+        except:
             return None
 
+    @classmethod
+    def use(cls, token: str):
+        try:
+            user = cls.validate(token=token)
+            if not user:
+                return None
 
-@login_manager.user_loader
-def load_user(id: int):
-    return User.query.get(int(id))
+            cls.query.filter_by(_token=token).delete()
+            db.session.commit()
+            return user
+
+        except:
+            cls.query.filter_by(_token=token).delete()
+            db.session.commit()
+            return None
+
 
  
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     _title = db.Column(db.String(128))
     body = db.Column(db.String(512))
-    timestamp = db.Column(db.DateTime, default=lambda: dt.now(UTC))
+    timestamp = db.Column(db.DateTime, default=dt.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     @property
@@ -191,7 +197,6 @@ class Post(db.Model):
     def create(self):
         db.session.add(self)
         db.session.commit()
-        flask_app.logger.info(f"Post {self.id} created")
         return self
         
     def __repr__(self) -> str:

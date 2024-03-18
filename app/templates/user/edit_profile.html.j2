@@ -1,32 +1,9 @@
 {% extends "base.html.j2" %}
-{% block content %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
     <h1>Edit Profile</h1>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}
-            <br />
-            {{ form.username(size=32) }}
-            <br />
-            {% for error in form.username.errors %}<span style="color: red;">[{{ error }}]</span>{% endfor %}
-        </p>
-        <p>
-            {{ form.display_name.label }}
-            <br />
-            {{ form.display_name(size=32) }}
-            <br />
-            {% for error in form.display_name.errors %}<span style="color: red;">[{{ error }}]</span>{% endfor %}
-        </p>
-        <p>
-            {{ form.about_me.label }}
-            <br />
-            {{ form.about_me(cols=50,rows=4) }}
-            <br />
-            {% for error in form.about_me.errors %}<span style="color: red;">[{{ error }}]</span>{% endfor %}
-        </p>
-        <p>
-            To change your profile picture. please go to <a href="https://gravatar.com/">gravatar.com</a>
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
-{% endblock content %}
+    {{ wtf.quick_form(form) }}
+    <p>
+        To change your profile picture. please go to <a href="https://gravatar.com/">gravatar.com</a>
+    </p>
+{% endblock app_content %}

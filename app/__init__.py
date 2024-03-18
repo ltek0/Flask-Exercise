@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_bootstrap import Bootstrap
 
 from .config import Config
 
@@ -23,6 +24,7 @@ login_manager.init_app(flask_app)
 
 mail = Mail(flask_app)
 
+bootstrap = Bootstrap(flask_app)
 
 if not flask_app.debug:
     root = logging.getLogger()

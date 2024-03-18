@@ -13,3 +13,4 @@ python-dotenv==1.0.1
 psycopg2==2.9.9
 flask_mail==0.9.1
 pyjwt==2.8.0
+flask_bootstrap==3.3.7.1

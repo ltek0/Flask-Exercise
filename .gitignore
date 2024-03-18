@@ -6,3 +6,5 @@
 /app/logs
 /migrations
 /.flaskenv
+
+**/**.mo

@@ -16,3 +16,5 @@ class Config(object):
     ADMINS = ['webmaster@flask-admin.local']
 
     POSTS_PER_PAGE = 3
+
+    LANGS = ['en', 'zh', 'jp']

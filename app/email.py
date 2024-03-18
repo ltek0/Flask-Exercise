@@ -17,7 +17,7 @@ def send_password_reset_email(user: User):
     token = PasswordResetTokens.generate(user = user, expires_in = 600)
 
     email = Message(
-        '[Microblog] Reset Your Password',
+        '[Flask Exercise] Reset Your Password',
         sender = flask_app.config['ADMINS'][0],
         recipients = [user.email],
         body = render_template('email/reset_password.txt.j2', user=user, token=token),

@@ -1,6 +1,6 @@
-from flask import render_template, flash, redirect, url_for, request, session, abort
+from flask import render_template, flash, redirect, url_for, request, abort, g
 from flask_login import login_user, current_user, login_required, logout_user
-
+from flask_babel import _, get_locale
 from . import flask_app, db, forms
 from .models import User, Post, PasswordResetTokens
 from .email import send_password_reset_email
@@ -13,6 +13,7 @@ from datetime import datetime as dt
 def before_request():
     if current_user.is_authenticated:
         current_user.update_last_seen()
+    g.locale = str(get_locale())
 
 
 def _get_next_url_from_request(request):
@@ -37,7 +38,7 @@ def index():
             body = form.body.data,
             author = current_user)
         post.create()
-        flash('Your post is live')
+        flash(_('Your post is live'))
 
     page = request.args.get("page", 1, type=int)
     posts = current_user.followed_posts.paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
@@ -71,10 +72,10 @@ def login():
 
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            flash('Welcome Back!')
+            flash(_('Welcome Back!'))
             return redirect(url_for('index'))
         else:
-            flash('Invalid username or password')
+            flash(_('Invalid username or password'))
             return redirect(url_for('login'))
         
     return render_template('user/login.html.j2', title="Sign In", form=form)
@@ -96,7 +97,7 @@ def register():
         user.set_password(form.password.data)
         user.create()
 
-        flash('You are now a registered')
+        flash(_('You are now a registered'))
         return redirect(url_for('login'))
 
     return render_template('user/register.html.j2', title='Register', form=form)
@@ -110,7 +111,7 @@ def logout():
 
     logout_user()
 
-    flash('You have been logged out')
+    flash(_('You have been logged out'))
     return redirect(next_url)
 
 
@@ -118,7 +119,7 @@ def logout():
 def profile(username):
 
     user = User.query.filter_by(username=username).first_or_404()
-    title = f'User {user.display_name}' if user else 'Not Found'
+    title = _('User  %(dn)s', dn=user.display_name) if user else _('Not Found')
 
     page = request.args.get("page", 1, type=int)
     posts = Post.query.filter_by(author = user).order_by(Post.timestamp.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
@@ -141,7 +142,7 @@ def edit_profile():
         
         db.session.commit()
 
-        flash('Your changes have been saved.')
+        flash(_('Your changes have been saved.'))
         return redirect(url_for('profile', username=current_user.username))
 
     elif request.method == 'GET':
@@ -167,10 +168,10 @@ def reset_password_request():
         if user:
             send_password_reset_email(user)
 
-        flash('An email will be sent to you shortly if the email is found in our records')
+        flash(_('An email will be sent to you shortly if the email is found in our records'))
         return redirect(url_for('login'))
     
-    return render_template('user/reset_password_request.html.j2', title="Reset Password", form=form)
+    return render_template('user/reset_password.html.j2', title="Reset Password", form=form)
 
 
 @flask_app.route("/reset_password/<token>", methods=['GET', 'POST'])
@@ -180,20 +181,20 @@ def reset_password(token: str):
         return redirect(url_for('index'))
 
     if not PasswordResetTokens.validate(token=token):
-        return abort(403, description="Invalid access token")
+        return abort(403, description=_("Invalid access token"))
     
     form = forms.ResetPasswordForm()
     if form.validate_on_submit():
 
         user = PasswordResetTokens.use(token=token)
         if not user:
-            flash('Invalid or expired token')
+            flash(_('Invalid or expired token'))
             return redirect(url_for('login'))
 
         user.set_password(form.password.data)
         db.session.commit()
 
-        flash('Your password has been reset.')
+        flash(_('Your password has been reset.'))
         return redirect(url_for('login'))
     
     return render_template('user/reset_password.html.j2', title="Reset Password", form=form)
@@ -207,17 +208,17 @@ def follow(username: str):
     user = User.query.filter_by(username = username).first()
 
     if not user:
-        flash(f'user {username} was not found')
+        flash(_('user %(u)s was not found', u=username))
         return current_user_profile
     if user == current_user:
-        flash('You cannot follow yourself')
+        flash(_('You cannot follow yourself'))
         return current_user_profile
     
     resault = current_user.follow(user)
     if resault:
-        flash(f'You are now following {user.display_name}')
+        flash(_('You are now following %(dn)s', dn=user.display_name))
     else:
-        flash(f'You are already following {user.display_name} or something went wrong.')
+        flash(_('You are already following %(dn)s or something went wrong.', dn=user.display_name))
 
     return redirect(url_for('profile', username=user.username))
 
@@ -230,16 +231,16 @@ def unfollow(username: str):
     user = User.query.filter_by(username = username).first()
 
     if not user:
-        flash(f'user {username} was not found')
+        flash(_('user %(n)s was not found', n=username))
         return current_user_profile
     if user == current_user:
-        flash(f'You cannot unfollow yourself')
+        flash(_('You cannot unfollow yourself'))
         return current_user_profile
     
     resault = current_user.unfollow(user)
     if resault:
-        flash(f'You are no longer following {user.display_name}')
+        flash(_('You are no longer following %(a)s', a=user.display_name))
     else:
-        flash(f'You are not following {user.display_name} or something went wrong.')
+        flash(_('You are not following %(a)s or something went wrong.', a=user.display_name))
 
     return redirect(url_for('profile', username=user.username))

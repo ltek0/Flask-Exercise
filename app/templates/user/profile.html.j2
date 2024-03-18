@@ -10,24 +10,26 @@
             </td>
             <td>
                 <h1>{{ user.display_name }}</h1>
-                <p>Also known as: {{ user.username }}</p>
+                <p>{{ _("Also known as: ") }}{{ user.username }}</p>
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-                {% if user.last_seen %}<p>Last seen on: {{ user.last_seen }}</p>{% endif %}
-                <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
+                {% if user.last_seen %}
+                    <p>{{ _("Last seen on: %(l)s", l=moment(user.last_seen).fromNow()) }}</p>
+                {% endif %}
+                <p>{{ _('%(f)d followers', f=user.followers.count() ) }}, {{ _('%(f)d following', f=user.followed.count() ) }}</p>
                 {% if current_user.is_authenticated %}
                     {% if user == current_user %}
                         <p>
-                            <a href="{{ url_for("edit_profile") }}">Edit your profile</a>
+                            <a href="{{ url_for("edit_profile") }}">{{ _("Edit your profile") }}</a>
                         </p>
                     {% endif %}
                     {% if user != current_user %}
                         {% if current_user.is_following(user) %}
                             <p>
-                                <a href="{{ url_for('unfollow', username=user.username) }}">UnFollow</a>
+                                <a href="{{ url_for('unfollow', username=user.username) }}">{{ _("UnFollow") }}</a>
                             </p>
                         {% else %}
                             <p>
-                                <a href="{{ url_for('follow', username=user.username) }}">Follow</a>
+                                <a href="{{ url_for('follow', username=user.username) }}">{{ _("Follow") }}</a>
                             </p>
                         {% endif %}
                     {% endif %}
@@ -38,7 +40,7 @@
     <hr />
     {% if posts %}
         {% include "_post_table.html.j2" %}
-        {% if prev_url %}<a href="{{ prev_url }}">Newer posts</a>{% endif %}
-        {% if next_url %}<a href="{{ next_url }}">Older posts</a>{% endif %}
+        {% if prev_url %}<a href="{{ prev_url }}">{{ _("Newer posts") }}</a>{% endif %}
+        {% if next_url %}<a href="{{ next_url }}">{{ _("Older posts") }}</a>{% endif %}
     {% endif %}
 {% endblock app_content %}

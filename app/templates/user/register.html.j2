@@ -1,9 +1,9 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <h1>Register</h1>
+    <h1>{{ _("Register") }}</h1>
     {{ wtf.quick_form(form) }}
     <p>
-        Already have an account? <a href="{{ url_for("login") }}">login</a>
+        {{ _("Already have an account?") }} <a href="{{ url_for("login") }}">{{ _("login") }}</a>
     </p>
 {% endblock app_content %}

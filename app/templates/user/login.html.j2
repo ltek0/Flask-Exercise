@@ -1,12 +1,12 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <h1>Sign In</h1>
+    <h1>{{ _("Sign In") }}</h1>
     {{ wtf.quick_form(form) }}
     <p>
-        New User? <a href="{{ url_for("register") }}">Click to Register</a>
+        {{ _("New User?") }} <a href="{{ url_for("register") }}">{{ _("Click to Register") }}</a>
         <br />
-        Forgot Your Password?
-        <a href="{{ url_for("reset_password_request") }}">Click to Reset It</a>
+        {{ _("Forgot Your Password?") }}
+        <a href="{{ url_for("reset_password_request") }}">{{ _("Click to Reset It") }}</a>
     </p>
 {% endblock app_content %}

@@ -1,9 +1,9 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <h1>Edit Profile</h1>
+    <h1>{{ _("Edit Profile") }}</h1>
     {{ wtf.quick_form(form) }}
     <p>
-        To change your profile picture. please go to <a href="https://gravatar.com/">gravatar.com</a>
+        {{ _("To change your profile picture. please go to") }} <a href="https://gravatar.com/">gravatar.com</a>
     </p>
 {% endblock app_content %}

@@ -5,6 +5,7 @@ import jwt
 from hashlib import md5
 
 from flask_login import UserMixin
+from flask_babel import _
 
 from . import db, login_manager, flask_app
 
@@ -39,14 +40,14 @@ class User(UserMixin, db.Model):
         self.username = username
         self.email = email
         self._display_name = display_name or self.username
-        self._about_me = about_me or 'creator'
+        self._about_me = about_me or _('creator')
 
     def __repr__(self) -> str:
         return f'<User {self.id}:{self.username}>'
     
     @property
     def last_seen(self):
-        return self._last_seen or 'User have not loggin yet.'
+        return self._last_seen or _('User have not loggin yet.')
 
     def update_last_seen(self):
         self._last_seen = dt.now(UTC)
@@ -76,7 +77,7 @@ class User(UserMixin, db.Model):
         elif len(new_about_me) <= 256:
             self._about_me = new_about_me
         else:
-            raise ValueError('About me is too long.')
+            raise ValueError(_('About me is too long.'))
 
     def set_password(self, password: str) -> None:
         self._passowrd_hash = werkzeug.security.generate_password_hash(password)
@@ -192,7 +193,7 @@ class Post(db.Model):
         elif len(title) <= 128:
             self._title = title
         else:
-            raise ValueError('Title is too long')
+            raise ValueError(_('Title is too long'))
 
     def create(self):
         db.session.add(self)

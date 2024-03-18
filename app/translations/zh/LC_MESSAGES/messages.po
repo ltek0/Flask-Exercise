@@ -1,0 +1,337 @@
+# Chinese translations for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-03-18 10:53+0000\n"
+"PO-Revision-Date: 2024-03-18 10:54+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh\n"
+"Language-Team: zh <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#: app/forms.py:13
+msgid "Username or email"
+msgstr "用户名或电子邮件"
+
+#: app/forms.py:14 app/forms.py:23
+msgid "Password"
+msgstr "密码"
+
+#: app/forms.py:15
+msgid "Remember Me"
+msgstr "记住我"
+
+#: app/forms.py:16 app/templates/user/login.html.j2:4
+msgid "Sign In"
+msgstr "登录"
+
+#: app/forms.py:20 app/forms.py:40
+msgid "Display Name"
+msgstr "显示名称"
+
+#: app/forms.py:21 app/forms.py:39
+msgid "Username"
+msgstr "用户名"
+
+#: app/forms.py:22 app/forms.py:63
+msgid "Email"
+msgstr "电子邮件"
+
+#: app/forms.py:24
+msgid "Repeat Password"
+msgstr "重复密码"
+
+#: app/forms.py:25 app/templates/user/register.html.j2:4
+msgid "Register"
+msgstr "注册"
+
+#: app/forms.py:29
+msgid ""
+"Username must be between 3 and 24 characters long and contain only "
+"letters, numbers, dots and underscores."
+msgstr "用户名长度必须在 3 到 24 个字符之间，并且只能包含字母、数字、点和下划线。"
+
+#: app/forms.py:31 app/forms.py:53
+msgid "Username not avaliable. Please use a different username."
+msgstr "用户名不可用。"
+
+#: app/forms.py:35
+msgid "This email is already in use."
+msgstr "此电子邮件已被使用。"
+
+#: app/forms.py:41
+msgid "About Me"
+msgstr "关于我"
+
+#: app/forms.py:42 app/forms.py:59
+msgid "Submit"
+msgstr "提交"
+
+#: app/forms.py:57
+msgid "Title"
+msgstr "标题"
+
+#: app/forms.py:58
+msgid "Say something to the world"
+msgstr "对世界说点什么"
+
+#: app/forms.py:64
+msgid "Request Password Reset"
+msgstr "请求重置密码"
+
+#: app/forms.py:68
+msgid "New password"
+msgstr "新密码"
+
+#: app/forms.py:69
+msgid "Repeat new Password"
+msgstr "重复新密码"
+
+#: app/forms.py:70
+msgid "Reset password"
+msgstr "重置密码"
+
+#: app/models.py:43
+msgid "creator"
+msgstr "创造者"
+
+#: app/models.py:50
+msgid "User have not loggin yet."
+msgstr "用户尚未登录。"
+
+#: app/models.py:80
+msgid "About me is too long."
+msgstr "关于我太长了。"
+
+#: app/models.py:196
+msgid "Title is too long"
+msgstr "标题太长"
+
+#: app/routes.py:41
+msgid "Your post is live"
+msgstr "你的帖子已上线"
+
+#: app/routes.py:75
+msgid "Welcome Back!"
+msgstr "欢迎回来！"
+
+#: app/routes.py:78
+msgid "Invalid username or password"
+msgstr "用户名或密码无效"
+
+#: app/routes.py:100
+msgid "You are now a registered"
+msgstr "您现在已注册"
+
+#: app/routes.py:114
+msgid "You have been logged out"
+msgstr "您已注销"
+
+#: app/routes.py:122
+#, python-format
+msgid "User  %(dn)s"
+msgstr "用户 %(dn)s"
+
+#: app/routes.py:122 app/templates/errors/404.html.j2:3
+msgid "Not Found"
+msgstr "未找到"
+
+#: app/routes.py:145
+msgid "Your changes have been saved."
+msgstr "您的更改已保存。"
+
+#: app/routes.py:171
+msgid "An email will be sent to you shortly if the email is found in our records"
+msgstr "如果在我们的记录中找到该电子邮件，我们很快就会向您发送一封电子邮件"
+
+#: app/routes.py:184
+msgid "Invalid access token"
+msgstr "无效的访问令牌"
+
+#: app/routes.py:191
+msgid "Invalid or expired token"
+msgstr "令牌无效或过期"
+
+#: app/routes.py:197
+msgid "Your password has been reset."
+msgstr "您的密码已重置。"
+
+#: app/routes.py:211
+#, python-format
+msgid "user %(u)s was not found"
+msgstr "未找到用户 %(u)s"
+
+#: app/routes.py:214
+msgid "You cannot follow yourself"
+msgstr "你不能跟随自己"
+
+#: app/routes.py:219
+#, python-format
+msgid "You are now following %(dn)s"
+msgstr "您现在正在关注 %(dn)s"
+
+#: app/routes.py:221
+#, python-format
+msgid "You are already following %(dn)s or something went wrong."
+msgstr "您已经关注 %(dn)s 或出现问题。"
+
+#: app/routes.py:234
+#, python-format
+msgid "user %(n)s was not found"
+msgstr "未找到用户 %(n)s"
+
+#: app/routes.py:237
+msgid "You cannot unfollow yourself"
+msgstr "你不能取消关注自己"
+
+#: app/routes.py:242
+#, python-format
+msgid "You are no longer following %(a)s"
+msgstr "您不再关注 %(a)s"
+
+#: app/routes.py:244
+#, python-format
+msgid "You are not following %(a)s or something went wrong."
+msgstr "您没有关注 %(a)s 或出现问题。"
+
+#: app/templates/base.html.j2:18
+msgid "Toggle navigation"
+msgstr "切换导航"
+
+#: app/templates/base.html.j2:28 app/templates/errors/403.html.j2:5
+#: app/templates/errors/404.html.j2:5 app/templates/errors/500.html.j2:6
+msgid "Home"
+msgstr "家"
+
+#: app/templates/base.html.j2:31
+msgid "Explore"
+msgstr "探索"
+
+#: app/templates/base.html.j2:37
+msgid "Login"
+msgstr "登录"
+
+#: app/templates/base.html.j2:41
+msgid "Profile"
+msgstr "简介"
+
+#: app/templates/base.html.j2:44
+msgid "Logout"
+msgstr "退出"
+
+#: app/templates/index.html.j2:11 app/templates/user/profile.html.j2:43
+msgid "Newer posts"
+msgstr "较新的帖子"
+
+#: app/templates/index.html.j2:12 app/templates/user/profile.html.j2:44
+msgid "Older posts"
+msgstr "旧帖子"
+
+#: app/templates/index.html.j2:15
+msgid "No posts yet."
+msgstr "还没有帖子。"
+
+#: app/templates/index.html.j2:17
+msgid "No posts yet. Be the first to post!"
+msgstr "还没有帖子。"
+
+#: app/templates/email/reset_password.txt.j2:1
+msgid "Dear"
+msgstr "亲爱的"
+
+#: app/templates/email/reset_password.txt.j2:2
+msgid "To reset your password click on the following link within 10 hours:"
+msgstr "要重置密码，请在 10 小时内单击以下链接："
+
+#: app/templates/email/reset_password.txt.j2:4
+msgid "If you have not requested a password reset simply ignore this message."
+msgstr "如果您没有请求重置密码，请忽略此消息。"
+
+#: app/templates/errors/403.html.j2:3
+msgid "Forbidden"
+msgstr "禁止"
+
+#: app/templates/errors/500.html.j2:3
+msgid "An unexpected error has occurred"
+msgstr "发生意外错误"
+
+#: app/templates/errors/500.html.j2:4
+msgid "The administrator has been notified. Sorry for the inconvenience!"
+msgstr "已通知管理员。"
+
+#: app/templates/user/edit_profile.html.j2:4
+msgid "Edit Profile"
+msgstr "编辑个人资料"
+
+#: app/templates/user/edit_profile.html.j2:7
+msgid "To change your profile picture. please go to"
+msgstr "更改您的个人资料图片。"
+
+#: app/templates/user/login.html.j2:7
+msgid "New User?"
+msgstr "新用户？"
+
+#: app/templates/user/login.html.j2:7
+msgid "Click to Register"
+msgstr "点击注册"
+
+#: app/templates/user/login.html.j2:9
+msgid "Forgot Your Password?"
+msgstr "忘记密码？"
+
+#: app/templates/user/login.html.j2:10
+msgid "Click to Reset It"
+msgstr "点击重置"
+
+#: app/templates/user/profile.html.j2:13
+msgid "Also known as: "
+msgstr "也称为："
+
+#: app/templates/user/profile.html.j2:16
+#, python-format
+msgid "Last seen on: %(l)s"
+msgstr "最后一次出现时间：%(l)s"
+
+#: app/templates/user/profile.html.j2:18
+#, python-format
+msgid "%(f)d followers"
+msgstr "%(f)d 位关注者"
+
+#: app/templates/user/profile.html.j2:18
+#, python-format
+msgid "%(f)d following"
+msgstr "%(f)d 正在关注"
+
+#: app/templates/user/profile.html.j2:22
+msgid "Edit your profile"
+msgstr "编辑您的个人资料"
+
+#: app/templates/user/profile.html.j2:28
+msgid "UnFollow"
+msgstr "取消关注"
+
+#: app/templates/user/profile.html.j2:32
+msgid "Follow"
+msgstr "跟随"
+
+#: app/templates/user/register.html.j2:7
+msgid "Already have an account?"
+msgstr "已经有帐户？"
+
+#: app/templates/user/register.html.j2:7
+msgid "login"
+msgstr "登录"
+
+#: app/templates/user/reset_password.html.j2:4
+msgid "Reset Your Password"
+msgstr "重设密码"
+

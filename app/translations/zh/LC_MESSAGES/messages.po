@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-18 10:53+0000\n"
-"PO-Revision-Date: 2024-03-18 10:54+0000\n"
+"POT-Creation-Date: 2024-03-21 04:43+0000\n"
+"PO-Revision-Date: 2024-03-21 04:44+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
 "Language-Team: zh <LL@li.org>\n"
@@ -100,22 +100,6 @@ msgstr "重复新密码"
 msgid "Reset password"
 msgstr "重置密码"
 
-#: app/models.py:43
-msgid "creator"
-msgstr "创造者"
-
-#: app/models.py:50
-msgid "User have not loggin yet."
-msgstr "用户尚未登录。"
-
-#: app/models.py:80
-msgid "About me is too long."
-msgstr "关于我太长了。"
-
-#: app/models.py:196
-msgid "Title is too long"
-msgstr "标题太长"
-
 #: app/routes.py:41
 msgid "Your post is live"
 msgstr "你的帖子已上线"
@@ -134,7 +118,7 @@ msgstr "您现在已注册"
 
 #: app/routes.py:114
 msgid "You have been logged out"
-msgstr "您已注销"
+msgstr "您已退出"
 
 #: app/routes.py:122
 #, python-format
@@ -230,11 +214,11 @@ msgstr "退出"
 
 #: app/templates/index.html.j2:11 app/templates/user/profile.html.j2:43
 msgid "Newer posts"
-msgstr "较新的帖子"
+msgstr "新帖子"
 
 #: app/templates/index.html.j2:12 app/templates/user/profile.html.j2:44
 msgid "Older posts"
-msgstr "旧帖子"
+msgstr "较旧的帖子"
 
 #: app/templates/index.html.j2:15
 msgid "No posts yet."
@@ -249,8 +233,8 @@ msgid "Dear"
 msgstr "亲爱的"
 
 #: app/templates/email/reset_password.txt.j2:2
-msgid "To reset your password click on the following link within 10 hours:"
-msgstr "要重置密码，请在 10 小时内单击以下链接："
+msgid "To reset your password click on the following link within 10 minutes:"
+msgstr "要重置密码，请在 10 分钟内单击以下链接："
 
 #: app/templates/email/reset_password.txt.j2:4
 msgid "If you have not requested a password reset simply ignore this message."
@@ -299,7 +283,7 @@ msgstr "也称为："
 #: app/templates/user/profile.html.j2:16
 #, python-format
 msgid "Last seen on: %(l)s"
-msgstr "最后一次出现时间：%(l)s"
+msgstr "最后出现时间：%(l)s"
 
 #: app/templates/user/profile.html.j2:18
 #, python-format
@@ -313,7 +297,7 @@ msgstr "%(f)d 正在关注"
 
 #: app/templates/user/profile.html.j2:22
 msgid "Edit your profile"
-msgstr "编辑您的个人资料"
+msgstr "编辑你的个人资料"
 
 #: app/templates/user/profile.html.j2:28
 msgid "UnFollow"
@@ -321,7 +305,7 @@ msgstr "取消关注"
 
 #: app/templates/user/profile.html.j2:32
 msgid "Follow"
-msgstr "跟随"
+msgstr "关注"
 
 #: app/templates/user/register.html.j2:7
 msgid "Already have an account?"
@@ -333,5 +317,6 @@ msgstr "登录"
 
 #: app/templates/user/reset_password.html.j2:4
 msgid "Reset Your Password"
-msgstr "重设密码"
+msgstr "重置您的密码"
+
 

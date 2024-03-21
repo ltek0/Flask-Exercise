@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-18 10:53+0000\n"
+"POT-Creation-Date: 2024-03-21 04:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,22 +97,6 @@ msgstr ""
 
 #: app/forms.py:70
 msgid "Reset password"
-msgstr ""
-
-#: app/models.py:43
-msgid "creator"
-msgstr ""
-
-#: app/models.py:50
-msgid "User have not loggin yet."
-msgstr ""
-
-#: app/models.py:80
-msgid "About me is too long."
-msgstr ""
-
-#: app/models.py:196
-msgid "Title is too long"
 msgstr ""
 
 #: app/routes.py:41
@@ -248,7 +232,7 @@ msgid "Dear"
 msgstr ""
 
 #: app/templates/email/reset_password.txt.j2:2
-msgid "To reset your password click on the following link within 10 hours:"
+msgid "To reset your password click on the following link within 10 minutes:"
 msgstr ""
 
 #: app/templates/email/reset_password.txt.j2:4

@@ -1,0 +1,14 @@
+FLASK_APP=app.py
+FLASK_DEBUG=
+
+SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@postgresdb:5432/postgres"
+SECRET_KEY="You will never guess this key"
+SERVER_NAME=127.0.0.1:5000
+
+MAIL_SERVER=mailhog
+MAIL_PORT=1025
+MAIL_USE_SSL=
+MAIL_USE_TLS=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_SENDER="no-reply@localhost"

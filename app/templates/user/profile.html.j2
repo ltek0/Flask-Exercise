@@ -13,7 +13,7 @@
                 <p>{{ _("Also known as: ") }}{{ user.username }}</p>
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
                 {% if user.last_seen %}
-                    <p>{{ _("Last seen on: %(l)s", l=moment(user.last_seen).fromNow()) }}</p>
+                    <p>{{ _("Last seen on: %(l)s", l=user.last_seen.strftime('%m/%d/%Y, %H:%M:%S')) }}</p>
                 {% endif %}
                 <p>{{ _('%(f)d followers', f=user.followers.count() ) }}, {{ _('%(f)d following', f=user.followed.count() ) }}</p>
                 {% if current_user.is_authenticated %}

@@ -1,10 +1,14 @@
+# load env must be placed before app import
+from dotenv import load_dotenv
+load_dotenv('.flaskenv')
+
+from os import path as op
+import subprocess
+
 from app import db
-from app.models import User, Post, followers
+from app.models import User, Post
 from app import flask_app
 
-from db_migtions import db_migrations
-
-flask_app.app_context().push()
 
 def _drop_db():
     db.create_all()
@@ -43,9 +47,16 @@ def _create_post_for_user(u: User, count: int,):
     
 
 if __name__ == '__main__':
+
+    flask_app.app_context().push()
+
     if not _warning():
         raise Exception('Exit on cancel')
-    db_migrations()
+    
+    if not op.exists(op.join(op.dirname(op.realpath(__file__)), 'migrations')):
+        subprocess.run(['flask', 'db', 'init'])
+    subprocess.run(['flask', 'db', 'migrate'])
+    subprocess.run(['flask', 'db', 'upgrade'])
     _create_users(5)
 
     user1 = db.session.query(User).filter_by(username='user1').first()

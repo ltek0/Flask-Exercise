@@ -5,7 +5,6 @@ import jwt
 from hashlib import md5
 
 from flask_login import UserMixin
-from flask_babel import _
 
 from . import db, login_manager, flask_app
 
@@ -21,7 +20,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), nullable=False, index=True, unique=True)
     email = db.Column(db.String(128), nullable=False, index=True, unique=True)
-    _passowrd_hash = db.Column(db.String(256), nullable=False, index=True)
+    _password_hash = db.Column(db.String(256), nullable=False, index=True)
     _last_seen = db.Column(db.DateTime, nullable=True)
     _display_name = db.Column(db.String(100), nullable=True) 
     _about_me = db.Column(db.String(256), nullable=True)
@@ -40,14 +39,14 @@ class User(UserMixin, db.Model):
         self.username = username
         self.email = email
         self._display_name = display_name or self.username
-        self._about_me = about_me or _('creator')
+        self._about_me = about_me or '---'
 
     def __repr__(self) -> str:
         return f'<User {self.id}:{self.username}>'
     
     @property
     def last_seen(self):
-        return self._last_seen or _('User have not loggin yet.')
+        return self._last_seen or None
 
     def update_last_seen(self):
         self._last_seen = dt.now(UTC)
@@ -77,13 +76,13 @@ class User(UserMixin, db.Model):
         elif len(new_about_me) <= 256:
             self._about_me = new_about_me
         else:
-            raise ValueError(_('About me is too long.'))
+            raise ValueError('About me is too long.')
 
     def set_password(self, password: str) -> None:
-        self._passowrd_hash = werkzeug.security.generate_password_hash(password)
+        self._password_hash = werkzeug.security.generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
-        return werkzeug.security.check_password_hash(self._passowrd_hash, password)
+        return werkzeug.security.check_password_hash(self._password_hash, password)
 
     def create(self):
         db.session.add(self)
@@ -111,7 +110,6 @@ class User(UserMixin, db.Model):
             return True
         return False
     
-    @property
     def followed_posts(self):
         followed = Post.query.join(
             followers, (followers.c.followed_id == Post.user_id)
@@ -126,34 +124,42 @@ def load_user(id: int):
 
 
 class PasswordResetTokens(db.Model):
-    _token = db.Column(db.String(256), primary_key=True)
+    # TODO: use blacklist methoad to revoke tokens instead of tracking valid tokens
+    id = db.Column(db.Integer, primary_key=True)
+    _token = db.Column(db.String(256), nullable=False)
+    _expire_time = db.Column(db.DateTime, nullable=False)
 
     @classmethod
     def generate(cls, user: User, expires_in: int = 600):
         token = {
-            "reset_password": user.id, 
+            "reset_password": user.id,
             "exp": dt.now(UTC) + td(seconds=expires_in)
         }
-        instance = cls(_token=jwt.encode(token, flask_app.config["SECRET_KEY"], algorithm="HS256"))
-
-        db.session.add(instance)
+        instence = cls(
+            _token=jwt.encode(token, flask_app.config["SECRET_KEY"], algorithm="HS256"),
+            _expire_time = token["exp"]
+        )
+        db.session.add(instence)
         db.session.commit()
 
-        return instance._token
+        return instence._token
     
     @classmethod
     def validate(cls, token: str):
         # check token in database
         if not cls.query.filter_by(_token=token).first():
             return None
-        
+
+        # remove expired tokens
+        cls.query.filter(cls._expire_time < dt.now(UTC)).delete()
+        db.session.commit()
+
         try: # validate token
             id = jwt.decode(token, flask_app.config["SECRET_KEY"], algorithms="HS256")["reset_password"]
             user = User.query.get(id)
             if not user:
                 return None
             return user
-
         except:
             return None
 
@@ -170,15 +176,15 @@ class PasswordResetTokens(db.Model):
 
         except:
             cls.query.filter_by(_token=token).delete()
+            cls.query.filter(cls._epxire_time < dt.now(UTC)).delete()
             db.session.commit()
             return None
-
 
  
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    _title = db.Column(db.String(128))
-    body = db.Column(db.String(512))
+    _title = db.Column(db.String(128), nullable=True)
+    body = db.Column(db.String(512), nullable=False)
     timestamp = db.Column(db.DateTime, default=dt.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -193,9 +199,10 @@ class Post(db.Model):
         elif len(title) <= 128:
             self._title = title
         else:
-            raise ValueError(_('Title is too long'))
+            raise ValueError('Title is too long')
 
     def create(self):
+        self._timestamp = dt.now(UTC)
         db.session.add(self)
         db.session.commit()
         return self

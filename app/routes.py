@@ -41,7 +41,7 @@ def index():
         flash(_('Your post is live'))
 
     page = request.args.get("page", 1, type=int)
-    posts = current_user.followed_posts.paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    posts = current_user.followed_posts().paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
     next_url = url_for('index', page=posts.next_num) if posts.next_num else None
     prev_url = url_for('index', page=posts.prev_num) if posts.prev_num else None
 

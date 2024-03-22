@@ -2,7 +2,7 @@
 
 reference: https://www.youtube.com/playlist?list=PLtgJR0xD2TPeVeq6azvnKXYSeYHFzGaMi
 
-# Babel command for creating translations
+## Babel command for creating translations
 
 creating translations
 
@@ -18,8 +18,15 @@ pybabel compile -d app/translations
 pybabel update -i app/translations/messages.pot -d app/translations
 
 ```
+## Database initialisation
+in the flakenv, there is a default uri configured to a docker container running postgres defined in ```.devcontainer/*```. to init the database execute the following commands
+```
+flask db init
+flask db migrate
+flask db upgrade
+```
 
-# Labs
+## Labs
 
 7. Error Handeling
 8. Followers
@@ -29,15 +36,32 @@ pybabel update -i app/translations/messages.pot -d app/translations
 12. date and times
 13. lang translations
 
-# Running the application in codespace
+# Running the application in codespace or devcontainer
+0.  create virtual enviroment
+```
+python -m venv venv
+source ./venv/bin/activate
+pip install -U -r requirements.txt
+```
 1. create .flaskenv
 ``` 
 .flaskenv.template to .flaskenv
 change config as needed
 contents in .template is set up for development in codespace and devcontainer
 ```
-2. comple babel translations, see above documentation for details
-3. run app.py or data_init.py to initialise the database\
-All existing data in the database specified will be deleted and 5 users with 5 posts will be created for each users
-4.
+2. comple babel translations, see above
+3. initialise database, see above
+4. test data init, the following script will create 5 users with 5 posts for each users
+```
+python data_init.py
+```
+see contents of data_init.py for details
+5. execute
+```
+flask run
+```
+or
+```
+python app.py
+```
 

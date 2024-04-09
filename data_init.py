@@ -10,16 +10,12 @@ from app.models import User, Post
 from app import flask_app
 
 
-def _drop_db():
-    db.create_all()
-    db.drop_all()
-
-
 def _warning():
     print('Warning!!! This will remove all post and users from the database')
     pros = input('Wish to proseed(y/N)')
     if pros == 'y':
-        _drop_db()
+        db.create_all()
+        db.drop_all()
         return True
     return False
 
@@ -31,18 +27,20 @@ def _create_users(count: int):
             username = f'user{i+1}',
             email = f'user{i+1}@example.com')
         user.set_password(f'user{i+1}pw')
-        user = user.create()
+        db.session.add(user)
+        db.session.commit()
         print(user)
 
 
-def _create_post_for_user(u: User, count: int,):
+def _create_post_for_user(u: User, count: int):
     for i in range(count):
         post = Post(
             title = f"post{i+1}",
             body = f'''Body of post{i+1} for user with username: {u.username}''',
             author = u
         )
-        post = post.create()
+        db.session.add(post)
+        db.session.commit()
         print(post)
     
 

@@ -6,14 +6,7 @@ from .models import User, Post, PasswordResetTokens
 from .email import send_password_reset_email
 
 from urllib.parse import urlparse
-from datetime import datetime as dt
-
-
-@flask_app.before_request
-def before_request():
-    if current_user.is_authenticated:
-        current_user.update_last_seen()
-    g.locale = str(get_locale())
+from datetime import datetime as dt, UTC, timedelta as td
 
 
 def _get_next_url_from_request(request):
@@ -26,18 +19,29 @@ def _get_next_url_from_request(request):
     return next_url
 
 
+@flask_app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.dt.now(UTC)
+        db.session.commit()
+    g.locale = str(get_locale())
+
+
 @flask_app.route('/', methods=['GET', 'POST'])
 def index():
     if not current_user.is_authenticated:
         return redirect(url_for('explore'))
-    
+
     form = forms.CreatePostForm()
     if current_user.is_authenticated and form.validate_on_submit():
+
         post = Post(
             title = form.title.data,
             body = form.body.data,
             author = current_user)
-        post.create()
+        db.session.add(post)
+        db.session.commit()
+
         flash(_('Your post is live'))
 
     page = request.args.get("page", 1, type=int)
@@ -68,12 +72,15 @@ def login():
 
     form = forms.LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter(db.or_(User.email == form.username.data, User.username == form.username.data)).first()
+        u = User.query.filter(db.or_(User.email == form.username.data, User.username == form.username.data)).first()
 
-        if user and user.check_password(form.password.data):
+        if u and u.check_password(form.password.data):
+
             login_user(user, remember=form.remember_me.data)
+
             flash(_('Welcome Back!'))
             return redirect(url_for('index'))
+
         else:
             flash(_('Invalid username or password'))
             return redirect(url_for('login'))
@@ -91,11 +98,12 @@ def register():
     form = forms.RegisterForm()
     if form.validate_on_submit():
 
-        user = User(username=form.username.data,
-                    email=form.email.data,
-                    display_name=form.display_name.data)
-        user.set_password(form.password.data)
-        user.create()
+        u = User(username = form.username.data,
+                    email = form.email.data,
+                    display_name = form.display_name.data)
+        u.set_password(form.password.data)
+        db.session.add(u)
+        db.session.commit()
 
         flash(_('You are now a registered'))
         return redirect(url_for('login'))

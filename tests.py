@@ -32,11 +32,12 @@ class UserModelCase(unittest.TestCase):
     def test_follow(self):
         u1 = User(username='john', email='john@example.com')
         u1.set_password('1234')
-        u1.create()
 
         u2 = User(username='susan', email='susan@example.com')
         u2.set_password('1234')
-        u2.create()
+
+        db.session.add_all([u1,u2])
+        db.session.commit()
 
         self.assertEqual(u1.followed.all(), [])
         self.assertEqual(u1.followers.all(), [])
@@ -65,10 +66,8 @@ class UserModelCase(unittest.TestCase):
         u3.set_password('1234')
         u4.set_password('1234')
 
-        u1.create()
-        u2.create()
-        u3.create()
-        u4.create()
+        db.session.add_all([u1,u2,u3,u4])
+        db.session.commit()
 
         # create four posts
         now = datetime.utcnow()

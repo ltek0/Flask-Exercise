@@ -55,6 +55,7 @@ if __name__ == '__main__':
         subprocess.run(['flask', 'db', 'init'])
     subprocess.run(['flask', 'db', 'migrate'])
     subprocess.run(['flask', 'db', 'upgrade'])
+    
     _create_users(5)
 
     user1 = db.session.query(User).filter_by(username='user1').first()

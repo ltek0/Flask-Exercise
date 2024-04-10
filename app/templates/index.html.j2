@@ -1,10 +1,14 @@
 {% extends "base.html.j2" %}
 {% block app_content %}
   {% if form %}
-    <h3>Hi, {{ current_user.username }}!</h3>
+    <h3>Hi, {{ current_user.display_name }}!</h3>
     {% import 'bootstrap/wtf.html' as wtf %}
-    <div class="mb-3">{{ wtf.quick_form(form) }}</div>
-    <hr>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">{{ wtf.quick_form(form) }}</div>
+      </div>
+    </div>
+    <hr />
   {% endif %}
   {% if posts %}
     {% include "_post_table.html.j2" %}

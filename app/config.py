@@ -26,7 +26,12 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     
-    SERVER_NAME = _required_env('SERVER_NAME')
+    # server_name used by url_for to construct url
+    # without it will resault in 
+    # indirect-access(email) having 127.0.0.1:<-port-> as host 
+    svr_nme = os.environ.get('SERVER_NAME')
+    if svr_nme:
+        SERVER_NAME = svr_nme
 
     POSTS_PER_PAGE = 3
     LANGS = ['en', 'zh']

@@ -23,7 +23,7 @@ class User(UserMixin, db.Model):
     _password_hash = db.Column(db.String(256), nullable=False, index=True)
     last_seen = db.Column(db.DateTime, nullable=True)
     display_name = db.Column(db.String(100), nullable=True) 
-    _about_me = db.Column(db.String(256), nullable=True)
+    about_me = db.Column(db.String(256), nullable=True)
     posts = db.relationship('Post', backref='author', lazy='select')
     followed = db.relationship(
         'User', secondary=followers,

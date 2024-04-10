@@ -22,7 +22,7 @@ def _get_next_url_from_request(request):
 @flask_app.before_request
 def before_request():
     if current_user.is_authenticated:
-        current_user.dt.now(UTC)
+        current_user.last_seen = dt.now(UTC)
         db.session.commit()
     g.locale = str(get_locale())
 
@@ -33,7 +33,7 @@ def index():
         return redirect(url_for('explore'))
 
     form = forms.CreatePostForm()
-    if current_user.is_authenticated and form.validate_on_submit():
+    if form.validate_on_submit():
 
         post = Post(
             title = form.title.data,
@@ -43,6 +43,9 @@ def index():
         db.session.commit()
 
         flash(_('Your post is live'))
+
+        # after form submit, redirect, otherwise, form data will not be cleared
+        return redirect(url_for('index'))
 
     page = request.args.get("page", 1, type=int)
     posts = current_user.followed_posts().paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
@@ -76,7 +79,7 @@ def login():
 
         if u and u.check_password(form.password.data):
 
-            login_user(user, remember=form.remember_me.data)
+            login_user(u, remember=form.remember_me.data)
 
             flash(_('Welcome Back!'))
             return redirect(url_for('index'))

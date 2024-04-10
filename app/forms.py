@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from flask_wtf import FlaskForm
-from flask_wtf.form import _Auto
 from flask_babel import gettext
 
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField
@@ -8,6 +8,27 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo
 from .models import User
 
 import re
+
+
+def _username_validator(curr_username:str = None, username: str= None):
+    if not re.fullmatch(r'\b[A-Za-z0-9._]{3,32}\b', username):
+        raise ValidationError(gettext('Username must be between 3 and 24 characters long and contain only letters, numbers, dots and underscores.'))
+    if curr_username != username:
+        if User.query.filter_by(username=username).first():
+            raise ValidationError(gettext("Username not avaliable. Please use a different username."))
+
+
+def _password_validator(password: str):
+    conditions = ['Your password must:']
+    if len(password) < 8:
+        conditions.append('contain at least one lowercase letter.')
+    if not re.search('[A-Z]', password):
+        conditions.append('contain at least one uppercase letter.')
+    if not re.search('[0-9]', password):
+        conditions.append('contain at least one number.')
+    if len(conditions) > 1:
+        raise ValidationError(''.join(conditions))
+
 
 class LoginForm(FlaskForm):
     username = StringField(gettext("Username or email"), validators=[DataRequired()])
@@ -24,15 +45,15 @@ class RegisterForm(FlaskForm):
     password2 = PasswordField(gettext("Repeat Password"), validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField(gettext("Register"))
 
-    def validate_username(self, username: str):
-        if not re.fullmatch(r'\b[A-Za-z0-9._]{3,32}\b', username.data):
-            raise ValidationError(gettext('Username must be between 3 and 24 characters long and contain only letters, numbers, dots and underscores.'))
-        if User.query.filter_by(username=username.data).first():
-            raise ValidationError(gettext("Username not avaliable. Please use a different username."))
+    def validate_username(self, username: StringField):
+        _username_validator(username=username.data)
     
-    def validate_email(self, email: str):
+    def validate_email(self, email: StringField):
         if User.query.filter_by(username=email.data).first():
             raise ValidationError(gettext("This email is already in use."))
+
+    def validate_password(self, password: StringField):
+        _password_validator(password=password.data)
 
 
 class EditProfileForm(FlaskForm):
@@ -41,22 +62,18 @@ class EditProfileForm(FlaskForm):
     about_me = TextAreaField(gettext('About Me'), validators=[Length(max=256, message='Max Allowed leanth is 256 Charactor')])
     submit = SubmitField(gettext('Submit'))
 
-    def __init_gettext(self, original_username, *args, **kwargs):
-        super(EditProfileForm, self).__init_gettext(*args, **kwargs)
+    def __init__(self, original_username, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
         self.original_username = original_username
 
-    def validate_username(self, username):
-        if not re.fullmatch(r'\b[A-Za-z0-9._]{3,32}\b', username.data):
-            raise ValidationError('Username must be between 3 and 24 characters long and contain only letters, numbers, dots and underscores.')
-        if username.data != self.original_username:
-            if User.query.filter_by(username=username.data).first():
-                raise ValidationError(gettext("Username not avaliable. Please use a different username."))
+    def validate_username(self, username: StringField):
+        _username_validator(curr_username=self.original_username, username=username.data)
     
 
 class CreatePostForm(FlaskForm):
     title = StringField(gettext('Title'), validators=[Length(min=0, max=128)])
     body = TextAreaField(gettext('Say something to the world'), validators=[DataRequired(), Length(min=0, max=512)])
-    submit = SubmitField(gettext('Submit'))
+    submit = SubmitField(gettext('Post'))
 
 
 class ResetPasswordRequestForm(FlaskForm):
@@ -68,3 +85,6 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField(gettext("New password"), validators=[DataRequired()])
     password2 = PasswordField(gettext("Repeat new Password"), validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField(gettext("Reset password"))
+
+    def validate_password(self, password: StringField):
+        _password_validator(password=password.data)

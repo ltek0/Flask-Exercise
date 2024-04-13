@@ -72,4 +72,5 @@ For dev purpous use
 sqlite:////workspaces/Flask-Exercise/app/app.db
 ```
 on SQLALCHEMY_DATABASE_URI in .flaskenv. Both of these files are untracked, when the database got messed up and for some reason you need to delete the database, you can simply delete this file instead of the db running in codespace
-
+<hr>
+Remove the SERVER_NAME param in .flaskenv when using codespace broswer, otherwise, all page will return error 404, unless you are hosting in local or using codespace in local vscode

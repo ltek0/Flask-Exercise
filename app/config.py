@@ -16,6 +16,7 @@ class Config(object):
     
     SECRET_KEY = _required_env("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = _required_env('SQLALCHEMY_DATABASE_URI')
+        
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     MAIL_SERVER = _required_env('MAIL_SERVER')

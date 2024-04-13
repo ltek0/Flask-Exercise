@@ -12,8 +12,7 @@
   {% endif %}
   {% if posts %}
     {% include "_post_table.html.j2" %}
-    {% if prev_url %}<a href="{{ prev_url }}">{{ _("Newer posts") }}</a>{% endif %}
-    {% if next_url %}<a href="{{ next_url }}">{{ _("Older posts") }}</a>{% endif %}
+    {% include "_pagination_button.html.j2" %}
   {% else %}
     {% if home %}
       <h5>{{ _("No posts yet.") }}</h5>

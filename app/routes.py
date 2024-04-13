@@ -2,21 +2,23 @@ from flask import render_template, flash, redirect, url_for, request, abort, g
 from flask_login import login_user, current_user, login_required, logout_user
 from flask_babel import _, get_locale
 
+from werkzeug.utils import secure_filename
 from urllib.parse import urlparse
 from datetime import datetime as dt, UTC
+from hashlib import sha256
 
 from . import flask_app, db, forms
 from .models import User, Post, PasswordResetTokens
 from .email import send_password_reset_email
 
+import app.models as models
+
 
 def _get_next_url_from_request(request):
     next_url = request.args.get('next', None)
-    if not next_url or urlparse(next_url).netloc != urlparse(request.url).netloc:
-        if request.referrer != request.url:
+    if not next_url or urlparse(next_url).netloc != '':
+        if request.referrer != request.url and not urlparse(request.referrer).netloc != urlparse(request.url).netloc:
             return request.referrer or url_for('index')
-        else:
-            return url_for('index')
     return next_url
 
 
@@ -59,13 +61,10 @@ def explore():
     return render_template("index.html.j2", title="Explore", posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 
-def _get_next_url_from_request(request):
-    next_url = request.args.get('next', None)
-    if not next_url or urlparse(next_url).netloc != urlparse(request.url).netloc:
-        if request.referrer != request.url:
-            return request.referrer or url_for('index')
-        return url_for('index')
-    return next_url
+@flask_app.route('/explore/<int:post_id>')
+def explore_post(post_id: int):
+    # TODO: create page for posts to allow comments
+    pass
 
 
 @flask_app.route("/login", methods=['GET', 'POST'])
@@ -140,6 +139,12 @@ def edit_profile():
     return render_template('user/edit_profile.html.j2', title='Edit Profile', form=form)
 
 
+@flask_app.route('/change_password')
+def change_password():
+    #TODO: change password
+    pass
+
+
 @flask_app.route("/reset_password", methods=['GET', 'POST'])
 def reset_password_request():
     next_url = _get_next_url_from_request(request)
@@ -204,4 +209,37 @@ def unfollow(username: str):
     current_user.unfollow(user)
     flash(_('You are no longer following %(a)s', a=user.display_name))
     return redirect(url_for('profile', username=user.username))
+
+
+@flask_app.route('/gallery')
+def gallery():
+    page = request.args.get("page", 1, type=int)
+    posts = models.GalleryPost.query.order_by(models.GalleryPost.timestamp.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for('gallery', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for('gallery', page=posts.prev_num) if posts.prev_num else None
+    return render_template('gallery/home.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url)
+
+
+@flask_app.route('/gallery/create', methods=['GET', 'POST'])
+@login_required
+def gallery_create_post():
+    form = forms.CreateGallery()
+    if form.validate_on_submit():
+        gallery_post = models.GalleryPost(
+            title = form.title.data,
+            author = current_user)
+        for image in request.files.getlist('images'):
+            gallery_post_image = models.GalleryPostImages(
+                path = sha256(image.read()).hexdigest(),
+                posts = gallery_post)
+        db.session.add_all([gallery_post, gallery_post_image])
+        db.session.commit()
+        return redirect(url_for('gallery'))
+    return render_template('gallery/create.html.j2', form=form)
+
+
+@flask_app.route('/gallery/post-<int:post_id>')
+def gallery_post_view(post_id: int):
+    # TODO: gallery view post
+    pass
 

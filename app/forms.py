@@ -2,8 +2,9 @@ from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField, FileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
+from flask_wtf.file import FileRequired,  FileAllowed
 
 from .models import User
 
@@ -88,3 +89,9 @@ class ResetPasswordForm(FlaskForm):
 
     def validate_password(self, password: StringField):
         _password_validator(password=password.data)
+
+
+class CreateGallery(FlaskForm):
+    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
+    images = FileField(gettext('Select Photos'), validators=[FileRequired(), FileAllowed(['jpg', 'png', 'You can only upload images!'])])
+    submit = SubmitField("Upload")

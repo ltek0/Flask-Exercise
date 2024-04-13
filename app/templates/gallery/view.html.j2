@@ -1,0 +1,10 @@
+{% extends "base.html.j2" %}
+{% block app_content %}
+    <h1>Gallery</h1>
+    <hr />
+    <h3>{{ post.title }}</h3>
+    <p>{{ post.description }}</p>
+    <p>Views: {{ post.views }}</p>
+    <hr />
+    {% for img in post.images %}<p>sha256 of img: {{ img.path }}</p>{% endfor %}
+{% endblock app_content %}

@@ -15,7 +15,9 @@
     <hr />
     {% for post in posts %}
         <div class="post">
-            <h3>{{ post.title }}</h3>
+            <h3>
+                <a href="{{ url_for('gallery_post_view', post_id=post.id) }}">{{ post.title }}</a>
+            </h3>
             <p>sha256 of img {{ post.images[0].path }}</p>
             <p>
                 by: <a href="{{ url_for('profile', username = post.author.username) }}">{{ post.author.display_name }}</a> @ {{ moment(post.timestamp).fromNow() }}

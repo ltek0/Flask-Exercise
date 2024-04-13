@@ -65,3 +65,11 @@ or
 python app.py
 ```
 
+# Extra notes
+
+For dev purpous use
+```
+sqlite:////workspaces/Flask-Exercise/app/app.db
+```
+on SQLALCHEMY_DATABASE_URI in .flaskenv. Both of these files are untracked, when the database got messed up and for some reason you need to delete the database, you can simply delete this file instead of the db running in codespace
+

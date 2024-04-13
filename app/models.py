@@ -23,7 +23,7 @@ class User(UserMixin, db.Model):
     _password_hash = db.Column(db.String(256), nullable=False, index=True)
     last_seen = db.Column(db.DateTime, nullable=True)
     display_name = db.Column(db.String(100), nullable=True) 
-    _about_me = db.Column(db.String(256), nullable=True)
+    about_me = db.Column(db.String(256), nullable=True)
     posts = db.relationship('Post', backref='author', lazy='select')
     followed = db.relationship(
         'User', secondary=followers,
@@ -52,7 +52,7 @@ class User(UserMixin, db.Model):
 
     def is_following(self, user: Self) -> bool:
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
-    
+
     def follow(self, user: Self) -> bool:
         if not self.is_following(user):
             self.followed.append(user)
@@ -82,29 +82,10 @@ def load_user(id: int):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    _title = db.Column(db.String(128), nullable=True)
+    title = db.Column(db.String(128), nullable=True)
     body = db.Column(db.String(512), nullable=False)
     timestamp = db.Column(db.DateTime, default=dt.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    @property
-    def title(self) -> str:
-        return self._title or ""
-    
-    @title.setter
-    def title(self, title: str):
-        if not title:
-            self._title = None
-        elif len(title) <= 128:
-            self._title = title
-        else:
-            raise ValueError('Title is too long')
-
-    def create(self):
-        self._timestamp = dt.now(UTC)
-        db.session.add(self)
-        db.session.commit()
-        return self
         
     def __repr__(self) -> str:
         return f"<Post '{self.id}:{self.body}'>"
@@ -143,19 +124,15 @@ class PasswordResetTokens(db.Model):
         )
         db.session.add(instence)
         db.session.commit()
-
         return instence._token
     
     @classmethod
     def validate(cls, token: str):
-        # check token in database
         if not cls.query.filter_by(_token=token).first():
             return None
-
         # remove expired tokens
         cls.query.filter(cls._expire_time < dt.now(UTC)).delete()
         db.session.commit()
-
         try: # validate token
             id = jwt.decode(token, flask_app.config["SECRET_KEY"], algorithms="HS256")["reset_password"]
             user = User.query.get(id)
@@ -171,15 +148,38 @@ class PasswordResetTokens(db.Model):
             user = cls.validate(token=token)
             if not user:
                 return None
-
             cls.query.filter_by(_token=token).delete()
             db.session.commit()
             return user
-
         except:
             cls.query.filter_by(_token=token).delete()
             cls.query.filter(cls._epxire_time < dt.now(UTC)).delete()
             db.session.commit()
             return None
 
- 
+
+class GalleryPost(db.Model):
+    __tablename__ = 'gallerypost'
+    # TODO: create galary listings
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=dt.now(UTC))
+    title = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.String(512), nullable=True)
+    author = db.relationship('User', backref='gallery_post', uselist=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self) -> str:
+        return f'<GalleryPost {self.id}:{self.title}'
+
+
+class GalleryPostImages(db.Model):
+    __tablename__ = 'galleryimages'
+    # TODO: one to many relationship
+    id = db.Column(db.Integer, primary_key=True)
+    path = db.Column(db.String(256), nullable=False)
+
+    posts = db.relationship('GalleryPost', backref='images', uselist=False)
+    gallerypost_id = db.Column(db.Integer, db.ForeignKey('gallerypost.id'))
+
+

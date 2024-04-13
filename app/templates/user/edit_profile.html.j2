@@ -2,7 +2,11 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
     <h1>{{ _("Edit Profile") }}</h1>
-    {{ wtf.quick_form(form) }}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">{{ wtf.quick_form(form) }}</div>
+        </div>
+    </div>
     <p>
         {{ _("To change your profile picture. please go to") }} <a href="https://gravatar.com/">gravatar.com</a>
     </p>

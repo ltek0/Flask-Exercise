@@ -246,4 +246,3 @@ def gallery_post_view(post_id: int):
     post = models.GalleryPost.query.filter_by(id = post_id).first_or_404()
     post.add_view_count()
     return render_template('gallery/view.html.j2', post=post)
-

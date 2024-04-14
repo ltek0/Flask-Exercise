@@ -40,3 +40,6 @@ class Config(object):
     
     # TODO: migrate to database user role
     ADMINS = ['admin@local']
+
+    GOOGLE_SERVICE_ACCOUNT_JSON_STRING = _required_env('GOOGLE_SERVICE_ACCOUNT_JSON_STRING')
+    

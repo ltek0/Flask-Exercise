@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField, FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField, MultipleFileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_wtf.file import FileRequired,  FileAllowed
 
@@ -93,5 +93,9 @@ class ResetPasswordForm(FlaskForm):
 
 class CreateGallery(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
-    images = FileField(gettext('Select Photos'), validators=[FileRequired(), FileAllowed(['jpg', 'png', 'You can only upload images!'])])
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
     submit = SubmitField("Upload")
+
+    def validate_images(self, images: MultipleFileField):
+        if len(images.data) > 10:
+            raise ValidationError('You can upload a maxium on 10 images')

@@ -235,6 +235,7 @@ def gallery_create_post():
                 posts = gallery_post)
         db.session.add_all([gallery_post, gallery_post_image])
         db.session.commit()
+        flash('Thankyou for your submission')
         return redirect(url_for('gallery'))
     return render_template('gallery/create.html.j2', form=form)
 

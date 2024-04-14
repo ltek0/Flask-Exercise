@@ -84,7 +84,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=True)
     body = db.Column(db.String(512), nullable=False)
-    timestamp = db.Column(db.DateTime, default=dt.now(UTC))
+    timestamp = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
         
     def __repr__(self) -> str:
@@ -161,7 +161,7 @@ class PasswordResetTokens(db.Model):
 class GalleryPost(db.Model):
     __tablename__ = 'gallerypost'
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=dt.now(UTC))
+    timestamp = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(512), nullable=True)
     _views = db.Column(db.Integer, default=0)
@@ -189,7 +189,7 @@ class GalleryPostImages(db.Model):
     gallerypost_id = db.Column(db.Integer, db.ForeignKey('gallerypost.id'))
 
     def __repr__(self) -> str:
-        return f'<GalleryPost {self.id}:{self.path}>'
+        return f'<GalleryPostImages {self.id}:{self.path}>'
     
 
 class GalleryCategory(db.Model):

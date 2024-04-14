@@ -17,3 +17,6 @@ flask_bootstrap==3.3.7.1
 flask-moment==1.0.5
 flask-babel==2.0.0
 python-dotenv==1.0.1
+
+google-cloud-storage==2.11.0
+google-auth==2.23.2

@@ -24,6 +24,9 @@
                 <li>
                     <a href="{{ url_for("gallery") }}">{{ _("Gallery") }}</a>
                 </li>
+                <li>
+                    <a href="{{ url_for("secondhand") }}">{{ _("Second Hand Market") }}</a>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_anonymous %}

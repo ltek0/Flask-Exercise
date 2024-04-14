@@ -253,25 +253,38 @@ def gallery_post_view(post_id: int):
     return render_template('gallery/view.html.j2', post=post)
 
 
+@flask_app.route('/secondhand/p')
+@flask_app.route('/secondhand')
+def secondhand():
+    page = request.args.get("page", 1, type=int)
+    posts = models.SecondHandPost.query.order_by(models.SecondHandPost.issue_date.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for('secondhand', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for('secondhand', page=posts.prev_num) if posts.prev_num else None
+    return render_template('secondhand/home.html.j2', title='Second Hand Market', posts=posts, next_url=next_url, prev_url=prev_url)
+
+
 @flask_app.route('/secondhand/create', methods=['GET', 'POST'])
 @login_required
 def secondhand_create_post():
     form = forms.CreateSecondHandPost()
     if form.validate_on_submit():
-        gallery_post = models.GalleryPost(
+        secondhand_post = models.SecondHandPost(
             title = form.title.data,
             description = form.description.data,
-            author = current_user)
+            seller = current_user)
         for image in request.files.getlist('images'):
-            gallery_post_image = models.GalleryPostImage(
-                path = google_cloud.upload_blob_to_bucket(
-                    object_key=f'images/a',
-                    content=image.read(),
-                    content_type='image/jpeg'
-                ),
-                posts = gallery_post)
-        db.session.add_all([gallery_post, gallery_post_image])
+            secondhand_post_image = models.SecondHandImage(
+                path = sha256(image.read()).hexdigest(),
+                post = secondhand_post)
+        db.session.add_all([secondhand_post, secondhand_post_image])
         db.session.commit()
         flash('Thankyou for your submission')
-        return redirect(url_for('gallery'))
-    return render_template('gallery/create.html.j2', form=form)
+        return redirect(url_for('secondhand'))
+    return render_template('secondhand/create.html.j2', form=form)
+
+
+@flask_app.route('/secondhand/p/<int:post_id>')
+def secondhand_post_view(post_id: int):
+    post = models.SecondHandPost.query.filter_by(id = post_id).first_or_404()
+    post.add_view_count()
+    return render_template('secondhand/view.html.j2', post=post)

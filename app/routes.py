@@ -228,6 +228,7 @@ def gallery_create_post():
     if form.validate_on_submit():
         gallery_post = models.GalleryPost(
             title = form.title.data,
+            description = form.description.data,
             author = current_user)
         for image in request.files.getlist('images'):
             gallery_post_image = models.GalleryPostImages(

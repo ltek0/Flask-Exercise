@@ -13,5 +13,5 @@
     {% if post.description %}<p>{{ post.description }}</p>{% endif %}
     <p>{{ _("Views:") }} {{ post.views }}</p>
     <hr />
-    {% for img in post.images %}<p>sha256 of img: {{ img.path }}</p>{% endfor %}
+    {% for img in post.images %}<img src="{{ img.path }}" alt="{{ post.title }}" class="img-responsive" />{% endfor %}
 {% endblock app_content %}

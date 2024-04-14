@@ -6,5 +6,6 @@
 /app/logs
 /migrations
 /.flaskenv
+/service_account.json
 
 **/**.mo

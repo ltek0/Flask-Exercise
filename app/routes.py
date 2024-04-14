@@ -5,13 +5,14 @@ from flask_babel import _, get_locale
 from werkzeug.utils import secure_filename
 from urllib.parse import urlparse
 from datetime import datetime as dt, UTC
-from hashlib import sha256
+from hashlib import sha256, md5
 
 from . import flask_app, db, forms
 from .models import User, Post, PasswordResetTokens
 from .email import send_password_reset_email
 
 import app.models as models
+import app.google_cloud as google_cloud
 
 
 def _get_next_url_from_request(request):
@@ -232,7 +233,11 @@ def gallery_create_post():
             author = current_user)
         for image in request.files.getlist('images'):
             gallery_post_image = models.GalleryPostImage(
-                path = sha256(image.read()).hexdigest(),
+                path = google_cloud.upload_blob_to_bucket(
+                    object_key=f'images/{md5(("{}_{}".format(current_user.username, image.filename)).encode("utf-8")).hexdigest()}',
+                    content=image.read(),
+                    content_type='image/jpeg'
+                ),
                 post = gallery_post)
         db.session.add_all([gallery_post, gallery_post_image])
         db.session.commit()
@@ -258,8 +263,12 @@ def secondhand_create_post():
             description = form.description.data,
             author = current_user)
         for image in request.files.getlist('images'):
-            gallery_post_image = models.GalleryPostImages(
-                path = sha256(image.read()).hexdigest(),
+            gallery_post_image = models.GalleryPostImage(
+                path = google_cloud.upload_blob_to_bucket(
+                    object_key=f'images/a',
+                    content=image.read(),
+                    content_type='image/jpeg'
+                ),
                 posts = gallery_post)
         db.session.add_all([gallery_post, gallery_post_image])
         db.session.commit()

@@ -6,8 +6,7 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 
-_credentials = service_account.Credentials.from_service_account_info(
-    json.load(flask_app.config['GOOGLE_SERVICE_ACCOUNT_JSON_STRING']))
+_credentials = service_account.Credentials.from_service_account_file(flask_app.config['GOOGLE_SERVICE_ACCOUNT_FILE'])
 _storage_client = storage.Client(credentials=_credentials)
 _bucket_name = flask_app.config['GOOGLE_STORAGE_BUCKET']
 
@@ -30,4 +29,4 @@ def upload_blob_to_bucket(object_key: str, content: str, content_type: str):
         _create_public_bucket(_bucket_name)
     blob = bucket.blob(object_key)
     blob.upload_from_string(content, content_type=content_type)
-    return 
+    return f"https://storage.googleapis.com/{_bucket_name}/{object_key}"

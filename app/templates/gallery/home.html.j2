@@ -14,14 +14,18 @@
     </div>
     <hr />
     {% for post in posts %}
-        <div class="post">
-            <h3>
-                <a href="{{ url_for('gallery_post_view', post_id=post.id) }}">{{ post.title }}</a>
-            </h3>
-            <p>sha256 of img {{ post.images[0].path }}</p>
-            <p>
-                by: <a href="{{ url_for('profile', username = post.author.username) }}">{{ post.author.display_name }}</a> @ {{ moment(post.timestamp).fromNow() }}
-            </p>
+        <div class="container">
+            <div class="col-md-6">
+                <h3>
+                    <a href="{{ url_for('gallery_post_view', post_id=post.id) }}">{{ post.title }}</a>
+                </h3>
+                <img src="{{ post.images[0].path }}"
+                     alt="{{ post.title }}"
+                     class="img-responsive" />
+                <p>
+                    by: <a href="{{ url_for('profile', username = post.author.username) }}">{{ post.author.display_name }}</a> @ {{ moment(post.timestamp).fromNow() }}
+                </p>
+            </div>
         </div>
     {% endfor %}
     {% include "_pagination_button.html.j2" %}

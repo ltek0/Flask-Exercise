@@ -1,0 +1,28 @@
+{% extends "base.html.j2" %}
+{% block app_content %}
+    <div class="container">
+        <div class="row">
+            <div class="span6 pull-left">
+                <h1 style="margin: 0; display: inline-block;">{{ _("Second Hand Market") }}</h1>
+            </div>
+            <div class="span6 pull-right">
+                <a href="{{ url_for("secondhand_create_post") }}"
+                   class="btn btn-primary"
+                   role="button">{{ _("Create Second Hand Post") }}</a>
+            </div>
+        </div>
+    </div>
+    <hr />
+    {% for post in posts %}
+        <div class="post">
+            <h3>
+                <a href="{{ url_for('secondhand_post_view', post_id=post.id) }}">{{ post.title }}</a>
+            </h3>
+            <p>sha256 of img {{ post.images[0].path }}</p>
+            <p>
+                by: <a href="{{ url_for('profile', username = post.seller.username) }}">{{ post.seller.display_name }}</a> @ {{ moment(post.issue_date).fromNow() }}
+            </p>
+        </div>
+    {% endfor %}
+    {% include "_pagination_button.html.j2" %}
+{% endblock app_content %}

@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField, MultipleFileField
+from wtforms import StringField, IntegerField, PasswordField, BooleanField, SubmitField, ValidationError, TextAreaField, MultipleFileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_wtf.file import FileRequired,  FileAllowed
 
@@ -104,6 +104,8 @@ class CreateGallery(FlaskForm):
 
 class CreateSecondHandPost(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
+    type = StringField(gettext('Type'), validators=[DataRequired(message='Type of product is required')])
+    price = IntegerField(gettext('Price'), default=0, validators=[DataRequired(message='Type of product is required')])
     images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
     description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
     submit = SubmitField("Submit")

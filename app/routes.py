@@ -246,3 +246,23 @@ def gallery_post_view(post_id: int):
     post = models.GalleryPost.query.filter_by(id = post_id).first_or_404()
     post.add_view_count()
     return render_template('gallery/view.html.j2', post=post)
+
+
+@flask_app.route('/secondhand/create', methods=['GET', 'POST'])
+@login_required
+def secondhand_create_post():
+    form = forms.CreateSecondHandPost()
+    if form.validate_on_submit():
+        gallery_post = models.GalleryPost(
+            title = form.title.data,
+            description = form.description.data,
+            author = current_user)
+        for image in request.files.getlist('images'):
+            gallery_post_image = models.GalleryPostImages(
+                path = sha256(image.read()).hexdigest(),
+                posts = gallery_post)
+        db.session.add_all([gallery_post, gallery_post_image])
+        db.session.commit()
+        flash('Thankyou for your submission')
+        return redirect(url_for('gallery'))
+    return render_template('gallery/create.html.j2', form=form)

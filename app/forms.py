@@ -94,22 +94,9 @@ class ResetPasswordForm(FlaskForm):
 class CreateGallery(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
     images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
-    description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
+    description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Title must be less then 512 charactor')])
     submit = SubmitField("Upload")
 
     def validate_images(self, images: MultipleFileField):
         if len(images.data) > 10:
-            raise ValidationError('You can upload a maximum of 10 images')
-        
-
-class CreateSecondHandPost(FlaskForm):
-    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
-    type = StringField(gettext('Type'), validators=[DataRequired(message='Type of product is required')])
-    price = IntegerField(gettext('Price'), default=0, validators=[DataRequired(message='Type of product is required')])
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
-    description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
-    submit = SubmitField("Submit")
-
-    def validate_images(self, images: MultipleFileField):
-        if len(images.data) > 10:
-            raise ValidationError('You can upload a maximum of 10 images')
+            raise ValidationError('You can upload a maxium of 10 images')

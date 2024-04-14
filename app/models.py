@@ -198,20 +198,20 @@ class GalleryCategory(db.Model):
     # TODO: create category for users select from
 
 
-class SecondHandPost(db.model):
+class SecondHandPost(db.Model):
     __tablename__ = 'secondhandpost'
-    id = db.column(db.Integer, primary_key=True)
-    title = db.column(db.String(128), nullable=False)
-    type = db.column(db.String(10), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(128), nullable=False)
+    type = db.Column(db.String(10), nullable=False)
     product_price = db.Column(db.Integer, nullable=True)
     request_price = db.Column(db.Integer, nullable=True)
-    price = db.column(db.Integer, nullable=False)
-    _queries = db.column(db.Integer, default=0)
-    _views = db.column(db.Integer, default=0)
-    issue_date = db.column(db.DateTime, default=dt.now(UTC))
-    last_update = db.column(db.DateTime, default=dt.now(UTC))
-    publish_until = db.column(db.DateTime, nullable=False)
-    description = db.column(db.String(512), nullable=True)
+    price = db.Column(db.Integer, nullable=False)
+    _queries = db.Column(db.Integer, default=0)
+    _views = db.Column(db.Integer, default=0)
+    issue_date = db.Column(db.DateTime, default=dt.now(UTC))
+    last_update = db.Column(db.DateTime, default=dt.now(UTC))
+    publish_until = db.Column(db.DateTime, nullable=False)
+    description = db.Column(db.String(512), nullable=True)
     seller = db.relationship('User', backref='second_hand_post', uselist=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -235,12 +235,12 @@ class SecondHandPost(db.model):
         db.session.commit()
 
 
-class SecondHandImage(db.model):
+class SecondHandImage(db.Model):
     __tablename__ = 'secondhandimage'
-    id = db.column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     path = db.Column(db.String(256), nullable=True)
-    post = db.relationship('secondhandpost', backref='image', uselist=False)
-    secondhandpost_id = db.Column(db.Integer, db.ForeignKey('secondhandpost'))
+    post = db.relationship('SecondHandPost', backref='images', uselist=False)
+    secondhandpost_id = db.Column(db.Integer, db.ForeignKey('secondhandpost.id'))
 
     def __repr__(self) -> str:
         return f'<secondhandimage {self.id}:{self.path}>'

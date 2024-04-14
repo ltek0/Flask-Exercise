@@ -231,9 +231,9 @@ def gallery_create_post():
             description = form.description.data,
             author = current_user)
         for image in request.files.getlist('images'):
-            gallery_post_image = models.GalleryPostImages(
+            gallery_post_image = models.GalleryPostImage(
                 path = sha256(image.read()).hexdigest(),
-                posts = gallery_post)
+                post = gallery_post)
         db.session.add_all([gallery_post, gallery_post_image])
         db.session.commit()
         flash('Thankyou for your submission')

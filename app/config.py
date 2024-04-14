@@ -42,4 +42,4 @@ class Config(object):
     ADMINS = ['admin@local']
 
     GOOGLE_SERVICE_ACCOUNT_JSON_STRING = _required_env('GOOGLE_SERVICE_ACCOUNT_JSON_STRING')
-    
+    GOOGLE_STORAGE_BUCKET = _required_env('GOOGLE_STORAGE_BUCKET')

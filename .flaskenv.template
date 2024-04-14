@@ -1,6 +1,9 @@
 FLASK_APP=app.py
 FLASK_DEBUG=
 
+GOOGLE_SERVICE_ACCOUNT_JSON_STRING="{<- some-json ->}"
+GOOGLE_STORAGE_BUCKET=
+
 SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@postgresdb:5432/postgres"
 SECRET_KEY="You will never guess this key"
 SERVER_NAME=127.0.0.1:5000

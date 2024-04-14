@@ -203,6 +203,8 @@ class SecondHandPost(db.model):
     id = db.column(db.Integer, primary_key=True)
     title = db.column(db.String(128), nullable=False)
     type = db.column(db.String(10), nullable=False)
+    product_price = db.Column(db.Integer, nullable=True)
+    request_price = db.Column(db.Integer, nullable=True)
     price = db.column(db.Integer, nullable=False)
     _queries = db.column(db.Integer, default=0)
     _views = db.column(db.Integer, default=0)
@@ -215,11 +217,11 @@ class SecondHandPost(db.model):
 
     def __repr__(self) -> str:
         return f'<SecondHandPost {self.id}:{self.title}>'
-    
+
     @property
     def views(self):
         return self._views
-    
+
     def add_view_count(self):
         self._views += 1
         db.session.commit()
@@ -227,7 +229,7 @@ class SecondHandPost(db.model):
     @property
     def queries(self):
         return self._queries
-    
+
     def add_view_count(self):
         self._queries += 1
         db.session.commit()

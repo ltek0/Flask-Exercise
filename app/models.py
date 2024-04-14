@@ -196,3 +196,24 @@ class GalleryCategory(db.Model):
     __tablename__ = 'gallerycategory'
     id = db.Column(db.Integer, primary_key=True)
     # TODO: create category for users select from
+
+
+class SecondHandPost(db.model):
+    __tablename__ = 'SecondHandPost'
+    id = db.column(db.Integer, primary_key=True)
+    title = db.column(db.String(128), nullable=False)
+    type = db.column(db.String(10), nullable=False)
+    price = db.column(db.Integer, nullable=False)
+    seller = db.relationship('User', backref='second_hand_post', uselist=False)
+    number_of_query = db.column(db.Integer, default=0)
+    number_of_view = db.column(db.Integer, default=0)
+    issue_date = db.column(db.DateTime, default=dt.now(UTC))
+    last_update = db.column(db.DateTime, default=dt.now(UTC))
+    publish_until = db.column(db.DateTime, nullable=False)
+    description = db.column(db.String(512), nullable=True)
+
+
+class SecondHandImages(db.model):
+    __tablename__ = 'SecondHandImages'
+    id = db.column(db.Integer, primary_key=True)
+    path = db.Column(db.String(256), nullable=True)

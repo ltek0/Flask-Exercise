@@ -1,0 +1,17 @@
+{% extends "base.html.j2" %}
+{% block app_content %}
+    <div class="container">
+        <div class="row">
+            <div class="span6 pull-left">
+                <h1 style="margin: 0; display: inline-block;">{{ _("Gallery Submission") }}</h1>
+            </div>
+            {% include "gallery/_back_button.html.j2" %}
+        </div>
+    </div>
+    <hr />
+    <h3>{{ post.title }}</h3>
+    {% if post.description %}<p>{{ post.description }}</p>{% endif %}
+    <p>{{ _("Views:") }} {{ post.views }}</p>
+    <hr />
+    {% for img in post.images %}<p>sha256 of img: {{ img.path }}</p>{% endfor %}
+{% endblock app_content %}

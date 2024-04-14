@@ -2,6 +2,15 @@
 {% block app_content %}
     <div class="container">
         <div class="row">
+            <div class="span6 pull-left">
+                <h1 style="margin: 0; display: inline-block;">{{ _("Create Gallery Submission") }}</h1>
+            </div>
+            {% include "gallery/_back_button.html.j2" %}
+        </div>
+    </div>
+    <hr />
+    <div class="container">
+        <div class="row">
             <div class="col-md-6">
                 <form method="post" class="form" enctype="multipart/form-data" role="form">
                     {{ form.hidden_tag() }}
@@ -9,10 +18,29 @@
                         <label class="control-label" for="title">{{ form.title.label }}</label>
                         {{ form.title(class="form-control") }}
                     </div>
+                    {% if form.title.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-group required">
+                        <label class="form-label" for="validatedCustomFile">{{ form.description.label }}</label>
+                        {{ form.description(class="form-control") }}
+                    </div>
+                    {% if form.description.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.description.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
                     <div class="form-group required">
                         <label class="form-label" for="validatedCustomFile">{{ form.images.label }}</label>
-                        {{ form.images(class="form-control", multiple=True) }}
+                        {{ form.images(class="form-control") }}
                     </div>
+                    {% if form.images.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
                     {{ form.submit(class="btn btn-primary") }}
                 </form>
             </div>

@@ -84,7 +84,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=True)
     body = db.Column(db.String(512), nullable=False)
-    timestamp = db.Column(db.DateTime, default=dt.now(UTC))
+    timestamp = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
         
     def __repr__(self) -> str:
@@ -160,26 +160,39 @@ class PasswordResetTokens(db.Model):
 
 class GalleryPost(db.Model):
     __tablename__ = 'gallerypost'
-    # TODO: create galary listings
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=dt.now(UTC))
+    timestamp = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(512), nullable=True)
+    _views = db.Column(db.Integer, default=0)
     author = db.relationship('User', backref='gallery_post', uselist=False)
-
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    #TODO: create category
     def __repr__(self) -> str:
-        return f'<GalleryPost {self.id}:{self.title}'
+        return f'<GalleryPost {self.id}:{self.title}>'
+    
+    @property
+    def views(self):
+        return self._views
+    
+    def add_view_count(self):
+        self._views += 1
+        db.session.commit()
 
 
 class GalleryPostImages(db.Model):
-    __tablename__ = 'galleryimages'
-    # TODO: one to many relationship
+    __tablename__ = 'gallerypostimages'
     id = db.Column(db.Integer, primary_key=True)
     path = db.Column(db.String(256), nullable=False)
-
     posts = db.relationship('GalleryPost', backref='images', uselist=False)
     gallerypost_id = db.Column(db.Integer, db.ForeignKey('gallerypost.id'))
 
+    def __repr__(self) -> str:
+        return f'<GalleryPostImages {self.id}:{self.path}>'
+    
 
+class GalleryCategory(db.Model):
+    __tablename__ = 'gallerycategory'
+    id = db.Column(db.Integer, primary_key=True)
+    # TODO: create category for users select from

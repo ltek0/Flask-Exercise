@@ -211,6 +211,7 @@ def unfollow(username: str):
     return redirect(url_for('profile', username=user.username))
 
 
+@flask_app.route('/gallery/p')
 @flask_app.route('/gallery')
 def gallery():
     page = request.args.get("page", 1, type=int)
@@ -227,6 +228,7 @@ def gallery_create_post():
     if form.validate_on_submit():
         gallery_post = models.GalleryPost(
             title = form.title.data,
+            description = form.description.data,
             author = current_user)
         for image in request.files.getlist('images'):
             gallery_post_image = models.GalleryPostImages(
@@ -234,12 +236,14 @@ def gallery_create_post():
                 posts = gallery_post)
         db.session.add_all([gallery_post, gallery_post_image])
         db.session.commit()
+        flash('Thankyou for your submission')
         return redirect(url_for('gallery'))
     return render_template('gallery/create.html.j2', form=form)
 
 
-@flask_app.route('/gallery/post-<int:post_id>')
+@flask_app.route('/gallery/p/<int:post_id>')
 def gallery_post_view(post_id: int):
-    # TODO: gallery view post
-    pass
+    post = models.GalleryPost.query.filter_by(id = post_id).first_or_404()
+    post.add_view_count()
+    return render_template('gallery/view.html.j2', post=post)
 

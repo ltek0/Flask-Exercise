@@ -29,4 +29,9 @@ babel = Babel(flask_app)
 def get_locale():
     return request.accept_languages.best_match(flask_app.config['LANGS'])
 
+# place this import at the end to avoid circular import
+
+from .google_cloud import create_public_bucket
+create_public_bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
+
 from app import models, routes, errors, log

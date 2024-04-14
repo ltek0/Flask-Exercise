@@ -201,7 +201,7 @@ class GalleryCategory(db.Model):
 class SecondHandPost(db.Model):
     __tablename__ = 'secondhandpost'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(128), nullable=True)
+    title = db.Column(db.String(128), nullable=False)
     type = db.Column(db.String(10), nullable=True)
     price = db.Column(db.Integer, nullable=True)
     _queries = db.Column(db.Integer, default=0)
@@ -209,7 +209,7 @@ class SecondHandPost(db.Model):
     issue_date = db.Column(db.DateTime, default=dt.now(UTC))
     last_update = db.Column(db.DateTime, default=dt.now(UTC))
     publish_until = db.Column(db.DateTime, nullable=True)
-    description = db.Column(db.String(512), nullable=True)
+    description = db.Column(db.String(512), nullable=False)
     seller = db.relationship('User', backref='second_hand_post', uselist=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -228,7 +228,7 @@ class SecondHandPost(db.Model):
     def queries(self):
         return self._queries
 
-    def add_view_count(self):
+    def add_queries_count(self):
         self._queries += 1
         db.session.commit()
 

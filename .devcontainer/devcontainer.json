@@ -28,7 +28,9 @@
         "samuelcolvin.jinjahtml",
         "monosans.djlint",
         "ms-azuretools.vscode-docker",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "FallenMax.mithril-emmet",
+        "ms-python.pylint"
       ]
     }
   },

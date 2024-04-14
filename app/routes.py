@@ -234,14 +234,14 @@ def gallery_create_post():
         for image in request.files.getlist('images'):
             gallery_post_image = models.GalleryPostImage(
                 path = google_cloud.upload_blob_to_bucket(
-                    object_key=f'images/{md5(("{}_{}".format(current_user.username, image.filename)).encode("utf-8")).hexdigest()}',
+                    bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
+                    object_key=f"images/{md5(f'gallery{gallery_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}",
                     content=image.read(),
                     content_type='image/jpeg'
-                ),
-                post = gallery_post)
+                ), post = gallery_post)
         db.session.add_all([gallery_post, gallery_post_image])
         db.session.commit()
-        flash('Thankyou for your submission')
+        flash('Thank you for your submission', 'success')
         return redirect(url_for('gallery'))
     return render_template('gallery/create.html.j2', form=form)
 
@@ -278,7 +278,7 @@ def secondhand_create_post():
                 post = secondhand_post)
         db.session.add_all([secondhand_post, secondhand_post_image])
         db.session.commit()
-        flash('Thankyou for your submission')
+        flash('Thank you for your submission')
         return redirect(url_for('secondhand'))
     return render_template('secondhand/create.html.j2', form=form)
 

@@ -165,10 +165,13 @@ class GalleryPost(db.Model):
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(512), nullable=True)
     _views = db.Column(db.Integer, default=0)
+
     author = db.relationship('User', backref='gallery_post', uselist=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    #TODO: create category
+    category = db.relationship('GalleryCategory', backref='gallery_post', uselist=False)
+    category_id = db.Column(db.ForeignKey('gallerycategory.id'))
+    
     def __repr__(self) -> str:
         return f'<GalleryPost {self.id}:{self.title}>'
     
@@ -195,7 +198,7 @@ class GalleryPostImage(db.Model):
 class GalleryCategory(db.Model):
     __tablename__ = 'gallerycategory'
     id = db.Column(db.Integer, primary_key=True)
-    # TODO: create category for users select from
+    name = db.Column(db.String(50), nullable=False, index=True)
 
 
 class SecondHandPost(db.Model):

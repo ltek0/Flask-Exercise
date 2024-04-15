@@ -24,6 +24,15 @@
                         </div>
                     {% endif %}
                     <div class="form-group required">
+                        <label class="form-label" for="validatedCustomFile">{{ form.category.label }}</label>
+                        {{ form.category(class="form-control") }}
+                    </div>
+                    {% if form.description.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.description.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-group required">
                         <label class="form-label" for="validatedCustomFile">{{ form.description.label }}</label>
                         {{ form.description(class="form-control") }}
                     </div>

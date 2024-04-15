@@ -227,9 +227,9 @@ def gallery():
 def gallery_create_post():
     form = forms.CreateGallery()
     if form.validate_on_submit():
-        gallery_category = models.GalleryCategory.query.filter_by(name = form.category.data).first()
+        gallery_category = models.GalleryCategory.query.filter_by(name = form.category.data or 'others').first()
         if not gallery_category:
-            gallery_category = models.GalleryCategory(name = form.category.data)
+            gallery_category = models.GalleryCategory(name = form.category.data or 'others')
         gallery_post = models.GalleryPost(
             title = form.title.data,
             description = form.description.data,

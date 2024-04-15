@@ -165,13 +165,11 @@ class GalleryPost(db.Model):
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(512), nullable=True)
     _views = db.Column(db.Integer, default=0)
-
     author = db.relationship('User', backref='gallery_post', uselist=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
     category = db.relationship('GalleryCategory', backref='gallery_post', uselist=False)
     category_id = db.Column(db.ForeignKey('gallerycategory.id'))
-    
+
     def __repr__(self) -> str:
         return f'<GalleryPost {self.id}:{self.title}>'
     
@@ -179,7 +177,7 @@ class GalleryPost(db.Model):
     def views(self):
         return self._views
     
-    def add_view_count(self):
+    def view(self):
         self._views += 1
         db.session.commit()
 
@@ -187,13 +185,21 @@ class GalleryPost(db.Model):
 class GalleryPostImage(db.Model):
     __tablename__ = 'gallerypostimage'
     id = db.Column(db.Integer, primary_key=True)
-    path = db.Column(db.String(256), nullable=False)
+    _object_key = db.Column(db.String(256), nullable=False)
     post = db.relationship('GalleryPost', backref='images', uselist=False)
     gallerypost_id = db.Column(db.Integer, db.ForeignKey('gallerypost.id'))
 
     def __repr__(self) -> str:
         return f'<GalleryPostImages {self.id}:{self.path}>'
-    
+
+    @property
+    def path(self):
+        return f"https://storage.googleapis.com/{flask_app.config['GOOGLE_STORAGE_BUCKET']}/{self._object_key}"
+  
+    @property
+    def object_key(self, obj_key: str):
+        self.object_key = obj_key
+
 
 class GalleryCategory(db.Model):
     __tablename__ = 'gallerycategory'

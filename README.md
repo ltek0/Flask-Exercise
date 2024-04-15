@@ -68,8 +68,12 @@ python data_init.py
 see contents of data_init.py for details
 
 5. Update Service account info on .flaskenv
+    1. put the content of your service account json file into the `service_account.json`
+    2. this file is not tracked by git
+    3. replace the `GOOGLE_STORAGE_BUCKET` paramater value with the one you have or a name for the bucket that will store images uploaded.
+    4. flask execure, the script will ceate the bucket if it doesn't exists and enable public access to the bucket. 
 
-6. execute
+7. execute
 
 ```
 python app.py

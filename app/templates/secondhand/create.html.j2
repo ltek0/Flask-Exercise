@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Create Second Hand Post Submission") }}</h1>
+                <h1 style="margin: 0; display: inline-block;">{{ _("Create Second Hand Post") }}</h1>
             </div>
             {% include "secondhand/_back_button.html.j2" %}
         </div>
@@ -21,6 +21,33 @@
                     {% if form.title.errors %}
                         <div class="alert alert-danger">
                             {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-group required">
+                        <label class="control-label" for="type">{{ form.type.label }}</label>
+                        {{ form.type(class="form-control") }}
+                    </div>
+                    {% if form.type.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.type.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-group required">
+                        <label class="control-label" for="price">{{ form.price.label }}</label>
+                        {{ form.price(class="form-control", step="0.01", default="0") }}
+                    </div>
+                    {% if form.price.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.price.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-group required">
+                        <label class="control-label" for="publish_until">{{ form.publish_until.label }}</label>
+                        {{ form.price(class="form-control", type="datetime-local") }}
+                    </div>
+                    {% if form.publish_until.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.publish_until.errors %}<p>{{ error }}</p>{% endfor %}
                         </div>
                     {% endif %}
                     <div class="form-group required">

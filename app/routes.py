@@ -75,13 +75,13 @@ def login():
         return redirect(next_url)
     form = forms.LoginForm()
     if form.validate_on_submit():
-        u = User.query.filter(db.or_(User.email == form.username.data, User.username == form.username.data)).first()
-        if not u and not u.check_password(form.password.data):
-            flash(_('Invalid username or password'))
-            return redirect(url_for('login'))
-        login_user(u, remember=form.remember_me.data)
-        flash(_('Welcome Back!'))
-        return redirect(url_for('index'))
+        user = User.query.filter(db.or_(User.email == form.username.data, User.username == form.username.data)).first()
+        if user is not None and user.check_password(form.password.data) is True:
+            login_user(user, remember=form.remember_me.data)
+            flash(_('Welcome Back!'))
+            return redirect(url_for('index'))
+        flash(_('Invalid username or password'))
+        return redirect(url_for('login'))
     return render_template('user/login.html.j2', title="Sign In", form=form)
 
 
@@ -274,6 +274,9 @@ def secondhand_create_post():
     if form.validate_on_submit():
         secondhand_post = models.SecondHandPost(
             title = form.title.data,
+            type = form.type.data,
+            price = form.price.data,
+            publish_until = form.publish_until.data,
             description = form.description.data,
             seller = current_user)
         for image in request.files.getlist('images'):

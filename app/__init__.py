@@ -35,8 +35,6 @@ def get_locale():
 # place this import at the end to avoid circular import
 
 from .google_cloud import create_public_bucket
-def _create_bucket():
-    create_public_bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
-Thread(target=_create_bucket).start()
+Thread(target=create_public_bucket).start()
 
 from app import models, routes, errors, log

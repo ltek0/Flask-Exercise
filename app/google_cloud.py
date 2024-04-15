@@ -12,10 +12,11 @@ def _get_storage_client():
         return storage.Client()
 
 
-def create_public_bucket(bucket_name: str):
-    bucket = _get_storage_client().bucket(bucket_name)
+def create_public_bucket():
+    storage_client = _get_storage_client()
+    bucket = storage_client.bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
     if not bucket.exists():
-        _get_storage_client().create_bucket(bucket)
+        storage_client.create_bucket(bucket)
     policy = bucket.get_iam_policy()
     policy.bindings.append({"role": "roles/storage.objectViewer", "members": {'allUsers'}})
     bucket.set_iam_policy(policy)

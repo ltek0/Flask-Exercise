@@ -53,8 +53,8 @@ class RegisterForm(FlaskForm):
         if User.query.filter_by(username=email.data).first():
             raise ValidationError(gettext("This email is already in use."))
 
-    def validate_password(self, password: StringField):
-        _password_validator(password=password.data)
+    # def validate_password(self, password: StringField):
+    #     _password_validator(password=password.data)
 
 
 class EditProfileForm(FlaskForm):
@@ -87,14 +87,15 @@ class ResetPasswordForm(FlaskForm):
     password2 = PasswordField(gettext("Repeat new Password"), validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField(gettext("Reset password"))
 
-    def validate_password(self, password: StringField):
-        _password_validator(password=password.data)
+    # def validate_password(self, password: StringField):
+    #     _password_validator(password=password.data)
 
 
 class CreateGallery(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
     images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
     description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Title must be less then 512 charactor')])
+    category = StringField("Category", validators=[DataRequired(), Length(max=50, min=0, message='Title must be less then 512 charactor')])
     submit = SubmitField("Upload")
 
     def validate_images(self, images: MultipleFileField):

@@ -227,10 +227,14 @@ def gallery():
 def gallery_create_post():
     form = forms.CreateGallery()
     if form.validate_on_submit():
+        gallery_category = models.GalleryCategory.query.filter_by(name = form.category.data).first()
+        if not gallery_category:
+            gallery_category = models.GalleryCategory(name = form.category.data)
         gallery_post = models.GalleryPost(
             title = form.title.data,
             description = form.description.data,
-            author = current_user)
+            author = current_user,
+            category = gallery_category)
         for image in request.files.getlist('images'):
             gallery_post_image = models.GalleryPostImage(
                 path = google_cloud.upload_blob_to_bucket(
@@ -239,7 +243,7 @@ def gallery_create_post():
                     content=image.read(),
                     content_type='image/jpeg'
                 ), post = gallery_post)
-        db.session.add_all([gallery_post, gallery_post_image])
+        db.session.add_all([gallery_category, gallery_post, gallery_post_image])
         db.session.commit()
         flash('Thank you for your submission', 'success')
         return redirect(url_for('gallery'))

@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
-from wtforms import StringField, IntegerField, PasswordField, BooleanField, SubmitField, DateTimeField, ValidationError, TextAreaField, MultipleFileField
+from wtforms import StringField, IntegerField, DecimalField, PasswordField, BooleanField, SubmitField, DateTimeField, ValidationError, TextAreaField, MultipleFileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_wtf.file import FileRequired,  FileAllowed
 
@@ -22,6 +22,8 @@ def _username_validator(curr_username:str = None, username: str= None):
 def _password_validator(password: str):
     conditions = ['Your password must:']
     if len(password) < 8:
+        conditions.append('contain at least 8 charactors.')
+    if not re.search('[a-z]', password):
         conditions.append('contain at least one lowercase letter.')
     if not re.search('[A-Z]', password):
         conditions.append('contain at least one uppercase letter.')
@@ -105,9 +107,9 @@ class CreateGallery(FlaskForm):
 
 class CreateSecondHandPost(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
-    # type = StringField(gettext('Type'), validators=[DataRequired(message='Type of product is required')])
-    # price = IntegerField(gettext('Product Price'), validators=[DataRequired(message='Price is required')])
-    # publish_until = DateTimeField(gettext('Publish Until'), validators=[DataRequired(message='Date/Time is required')])
+    type = StringField(gettext('Type'), validators=[DataRequired(message='Type of product is required')])
+    price = DecimalField(gettext('Product Price'), validators=[DataRequired(message='Price is required')])
+    publish_until = DateTimeField(gettext('Publish Until'))
     images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
     description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
     submit = SubmitField("Submit")
@@ -115,3 +117,7 @@ class CreateSecondHandPost(FlaskForm):
     def validate_images(self, images: MultipleFileField):
         if len(images.data) > 10:
             raise ValidationError('You can upload a maximum of 10 images')
+        
+    def validate_price(self, price):
+        if price.data < 0:
+            raise ValidationError('Invalid price')

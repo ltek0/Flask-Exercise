@@ -26,7 +26,7 @@ def _create_users(count: int):
             display_name = f'User{i+1} name',
             username = f'user{i+1}',
             email = f'user{i+1}@example.com')
-        user.set_password(f'user{i+1}pw')
+        user.set_password(f'user{i+1}')
         db.session.add(user)
         db.session.commit()
         print(user)

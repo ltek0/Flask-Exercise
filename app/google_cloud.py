@@ -3,9 +3,12 @@ from google.oauth2 import service_account
 
 from . import flask_app
 
-_storage_client = storage.Client(
-    credentials = service_account.Credentials.from_service_account_file(
-        filename = flask_app.config['GOOGLE_SERVICE_ACCOUNT_FILE']))
+if flask_app.config['IS_DEV_LOCAL']:
+    _storage_client = storage.Client(
+        credentials = service_account.Credentials.from_service_account_file(
+            filename = flask_app.config['GOOGLE_SERVICE_ACCOUNT_FILE']))
+else:
+    _storage_client = storage.Client()
 
 
 def create_public_bucket(bucket_name: str):

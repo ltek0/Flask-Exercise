@@ -18,7 +18,9 @@
             <h3>
                 <a href="{{ url_for('secondhand_post_view', post_id=post.id) }}">{{ post.title }}</a>
             </h3>
-            <p>sha256 of img {{ post.images[0].path }}</p>
+            <img src="{{ post.images[0].path }}"
+                 alt="{{ post.title }}"
+                 class="img-responsive" />
             <p>
                 by: <a href="{{ url_for('profile', username = post.seller.username) }}">{{ post.seller.display_name }}</a> @ {{ moment(post.issue_date).fromNow() }}
             </p>

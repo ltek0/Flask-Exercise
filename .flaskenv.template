@@ -3,6 +3,7 @@ FLASK_DEBUG=
 
 GOOGLE_SERVICE_ACCOUNT_FILE=/workspaces/Flask-Exercise/service_account.json
 GOOGLE_STORAGE_BUCKET="somebucket"
+IS_DEV_LOCAL=1
 
 SQLALCHEMY_DATABASE_URI="postgresql://postgres:postgres@postgresdb:5432/postgres"
 SECRET_KEY="You will never guess this key"

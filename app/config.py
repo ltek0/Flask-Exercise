@@ -43,3 +43,4 @@ class Config:
 
     GOOGLE_SERVICE_ACCOUNT_FILE = _required_env('GOOGLE_SERVICE_ACCOUNT_FILE')
     GOOGLE_STORAGE_BUCKET = _required_env('GOOGLE_STORAGE_BUCKET')
+    IS_DEV_LOCAL = _required_env('IS_DEV_LOCAL')

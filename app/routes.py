@@ -274,7 +274,11 @@ def secondhand_create_post():
             seller = current_user)
         for image in request.files.getlist('images'):
             secondhand_post_image = models.SecondHandImage(
-                path = sha256(image.read()).hexdigest(),
+                path = google_cloud.upload_blob_to_bucket(
+                    bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
+                    object_key=f"images/{md5(f'gallery{secondhand_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}",
+                    content=image.read(),
+                    content_type='image/jpeg'),
                 post = secondhand_post)
         db.session.add_all([secondhand_post, secondhand_post_image])
         db.session.commit()

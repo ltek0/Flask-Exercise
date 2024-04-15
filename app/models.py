@@ -151,7 +151,7 @@ class PasswordResetTokens(db.Model):
             cls.query.filter_by(_token=token).delete()
             db.session.commit()
             return user
-        except:
+        except Exception:
             cls.query.filter_by(_token=token).delete()
             cls.query.filter(cls._epxire_time < dt.now(UTC)).delete()
             db.session.commit()

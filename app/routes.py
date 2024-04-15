@@ -236,13 +236,13 @@ def gallery_create_post():
             author = current_user,
             category = gallery_category)
         for image in request.files.getlist('images'):
-            gallery_post_image = models.GalleryPostImage(
-                path = google_cloud.upload_blob_to_bucket(
+            image_path = f"images/{md5(f'gallery{gallery_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}"
+            google_cloud.upload_blob_to_bucket(
                     bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
-                    object_key=f"images/{md5(f'gallery{gallery_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}",
+                    object_key=image_path,
                     content=image.read(),
-                    content_type='image/jpeg'
-                ), post = gallery_post)
+                    content_type='image/jpeg')
+            gallery_post_image = models.GalleryPostImage(path = image_path, post = gallery_post)
         db.session.add_all([gallery_category, gallery_post, gallery_post_image])
         db.session.commit()
         flash('Thank you for your submission', 'success')
@@ -253,8 +253,9 @@ def gallery_create_post():
 @flask_app.route('/gallery/p/<int:post_id>')
 def gallery_post_view(post_id: int):
     post = models.GalleryPost.query.filter_by(id = post_id).first_or_404()
-    post.add_view_count()
+    post.view()
     return render_template('gallery/view.html.j2', post=post)
+
 
 
 @flask_app.route('/secondhand/p')

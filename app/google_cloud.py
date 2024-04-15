@@ -30,4 +30,3 @@ def upload_blob_to_bucket(bucket_name: str, object_key: str, content: str, conte
     bucket = _get_storage_client().bucket(bucket_name)
     blob = bucket.blob(blob_name = object_key)
     blob.upload_from_string(data = content, content_type = content_type)
-    return f"https://storage.googleapis.com/{bucket_name}/{object_key}"

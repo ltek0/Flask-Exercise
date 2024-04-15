@@ -7,7 +7,10 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_babel import Babel
 
+from threading import Thread
+
 from .config import Config
+
 
 flask_app = Flask(__name__)
 flask_app.config.from_object(Config)
@@ -32,6 +35,8 @@ def get_locale():
 # place this import at the end to avoid circular import
 
 from .google_cloud import create_public_bucket
-create_public_bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
+def _create_bucket():
+    create_public_bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
+Thread(target=_create_bucket).start()
 
 from app import models, routes, errors, log

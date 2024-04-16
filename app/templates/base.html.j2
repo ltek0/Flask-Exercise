@@ -1,27 +1,27 @@
 {% extends 'bootstrap/base.html' %}
 {% block title %}
-  {% if title %}
-    {{ title }}
-  {% else %}
-    Flask Exercise
-  {% endif %}
+{% if title %}
+{{ title }}
+{% else %}
+Flask Exercise
+{% endif %}
 {% endblock title %}
 {% block navbar %}
-  {% include "_navgation_bar.html.j2" %}
+{% include "_navgation_bar_v1.html.j2" %}
 {% endblock navbar %}
 {% block content %}
-  <div class="container">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}<div class="alert alert-info" role="alert">{{ message }}</div>{% endfor %}
-      {% endif %}
-    {% endwith %}
-    {% block app_content %}
-    {% endblock app_content %}
-  </div>
+<div class="container">
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  {% for message in messages %}<div class="alert alert-info" role="alert">{{ message }}</div>{% endfor %}
+  {% endif %}
+  {% endwith %}
+  {% block app_content %}
+  {% endblock app_content %}
+</div>
 {% endblock content %}
 {% block scripts %}
-  {{ super() }}
-  {{ moment.include_moment() }}
-  {{ moment.lang(g.locale) }}
+{{ super() }}
+{{ moment.include_moment() }}
+{{ moment.lang(g.locale) }}
 {% endblock scripts %}

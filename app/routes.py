@@ -300,3 +300,41 @@ def secondhand_post_view(post_id: int):
     post = models.SecondHandPost.query.filter_by(id = post_id).first_or_404()
     post.add_view_count()
     return render_template('secondhand/view.html.j2', post=post)
+
+
+#------------------------------------------------------------------------------
+@flask_app.route('/news')
+def news():
+    return render_template('others/news.html.j2', title=_('News'))
+
+
+@flask_app.route('/cameras')
+def cameras():
+    return render_template('others/cameras.html.j2', title=_('Cameras'))
+
+
+@flask_app.route('/phones')
+def phones():
+    return render_template('others/phones.html.j2', title=_('Phones'))
+
+
+@flask_app.route('/cars')
+def cars():
+    return render_template('others/cars.html.j2', title=_('Cars'))
+
+
+@flask_app.route('/shop')
+def shop():
+    return render_template('others/shop.html.j2', title=_('Shop'))
+
+
+@flask_app.route('/photography')
+def photography():
+    return render_template('others/photography.html.j2', title=_('Photography'))
+
+
+@flask_app.route('/travel')
+def travel():
+    return render_template('others/travel.html.j2', title=_('Travel'))
+
+#------------------------------------------------------------------------------

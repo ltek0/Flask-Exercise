@@ -42,6 +42,9 @@
                 <li>
                     <a href="{{ url_for('photography') }}">{{ _("Photography") }}</a>
                 </li>
+                <li>
+                    <a href="{{ url_for('travel') }}">{{ _("Travel") }}</a>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_anonymous %}

@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from urllib.parse import urlparse
 from datetime import datetime as dt, UTC
 from hashlib import sha256, md5
+from threading import Thread
 
 from . import flask_app, db, forms
 from .models import User, Post, PasswordResetTokens
@@ -227,23 +228,21 @@ def gallery():
 def gallery_create_post():
     form = forms.CreateGallery()
     if form.validate_on_submit():
-        gallery_category = models.GalleryCategory.query.filter_by(name = form.category.data or 'others').first()
-        if not gallery_category:
-            gallery_category = models.GalleryCategory(name = form.category.data or 'others')
-        gallery_post = models.GalleryPost(
+        post = models.GalleryPost(
             title = form.title.data,
             description = form.description.data,
             author = current_user,
-            category = gallery_category)
+            category = form.category.data)
+        db.session.add(post)
         for image in request.files.getlist('images'):
-            image_path = f"images/{md5(f'gallery{gallery_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}"
-            google_cloud.upload_blob_to_bucket(
-                    bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
-                    object_key=image_path,
-                    content=image.read(),
-                    content_type='image/jpeg')
-            gallery_post_image = models.GalleryPostImage(path = image_path, post = gallery_post)
-        db.session.add_all([gallery_category, gallery_post, gallery_post_image])
+            object_key = f"images/{md5(f'gallery{form.title.data}{current_user.username}{secure_filename(image.filename)}'.encode('utf-8')).hexdigest()}"
+            post_image = models.GalleryPostImage(object_key=object_key, post=post)
+            Thread(target=google_cloud.upload_blob_to_bucket(
+                bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
+                object_key=object_key,
+                content=image.read(),
+                content_type='image/jpeg')).start()
+            db.session.add(post_image)
         db.session.commit()
         flash('Thank you for your submission', 'success')
         return redirect(url_for('gallery'))

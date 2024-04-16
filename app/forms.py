@@ -1,8 +1,19 @@
-from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
-from wtforms import StringField, IntegerField, DecimalField, PasswordField, BooleanField, SubmitField, DateTimeField, ValidationError, TextAreaField, MultipleFileField
+from wtforms import (
+    StringField, 
+    DecimalField, 
+    PasswordField, 
+    BooleanField, 
+    SubmitField, 
+    DateTimeField, 
+    ValidationError, 
+    TextAreaField, 
+    MultipleFileField,
+    EmailField,
+    SelectField
+)
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_wtf.file import FileRequired,  FileAllowed
 
@@ -43,7 +54,7 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     display_name = StringField(gettext('Display Name'), validators=[Length(max=100, message='Max Allowed leanth is 100 Charactor')])
     username = StringField(gettext("Username"), validators=[DataRequired(), Length(max=64, message='Max Allowed leanth is 64 Charactor')])
-    email = StringField(gettext("Email"), validators=[DataRequired(), Email()])
+    email = EmailField(gettext("Email"), validators=[DataRequired(), Email()])
     password = PasswordField(gettext("Password"), validators=[DataRequired()])
     password2 = PasswordField(gettext("Repeat Password"), validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField(gettext("Register"))
@@ -80,7 +91,7 @@ class CreatePostForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField(gettext("Email"), validators=[DataRequired(), Email()])
+    email = EmailField(gettext("Email"), validators=[DataRequired(), Email()])
     submit = SubmitField(gettext("Request Password Reset"))
 
 
@@ -95,14 +106,32 @@ class ResetPasswordForm(FlaskForm):
 
 class CreateGallery(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
     description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Title must be less then 512 charactor')])
-    category = StringField("Category", validators=[Length(max=50, min=0, message='Title must be less then 512 charactor')])
-    submit = SubmitField("Upload")
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
+    category = StringField(gettext("Category"), validators=[Length(max=50, min=0, message='Title must be less then 512 charactor')])
+    submit = SubmitField(gettext("Upload"))
+
+
+class EditGallery(FlaskForm):
+    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
+    description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Title must be less then 512 charactor')])
+    category = StringField(gettext("Category"), validators=[Length(max=50, min=0, message='Title must be less then 512 charactor')])
+    submit = SubmitField(gettext("Update"))
+
+
+class AddGalleryImages(FlaskForm):
+    title = StringField(gettext('Title of Image'))
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
+    submit = SubmitField(gettext("Delete"))
 
     def validate_images(self, images: MultipleFileField):
         if len(images.data) > 10:
             raise ValidationError('You can upload a maximum of 10 images')
+
+
+class DeleteGalleryImages(FlaskForm):
+    image_to_delete = SelectField("Images to delete")
+    submit = SubmitField(gettext("Delete"))
 
 
 class CreateSecondHandPost(FlaskForm):
@@ -112,7 +141,7 @@ class CreateSecondHandPost(FlaskForm):
     publish_until = DateTimeField(gettext('Publish Until'))
     images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
     description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
-    submit = SubmitField("Submit")
+    submit = SubmitField(gettext("Submit"))
 
     def validate_images(self, images: MultipleFileField):
         if len(images.data) > 10:

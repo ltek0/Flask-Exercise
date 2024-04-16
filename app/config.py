@@ -12,6 +12,7 @@ def _required_env(name: str):
         raise KeyError(f"{name} is not set in environment") from exc
     return env
 
+
 class Config:
 
     SECRET_KEY = _required_env("SECRET_KEY")

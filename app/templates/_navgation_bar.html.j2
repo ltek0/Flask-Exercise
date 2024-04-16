@@ -1,47 +1,70 @@
+{% extends 'bootstrap/base.html' %} {% block navbar %}
 <nav class="navbar navbar-default">
     <div class="container">
         <div class="navbar-header">
-            <button type="button"
-                    class="navbar-toggle collapsed"
-                    data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1"
-                    aria-expanded="false">
-                <span class="sr-only">{{ _("Toggle navigation") }}</span>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for("index") }}">Flask Exercise</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">DemoFever</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="{{ url_for("index") }}">{{ _("Home") }}</a>
+                    <a href="{{ url_for('index') }}">{{ _("Home") }}</a>
                 </li>
                 <li>
-                    <a href="{{ url_for("explore") }}">{{ _("Explore") }}</a>
+                    <a href="{{ url_for('news') }}">{{ _("News") }}</a>
                 </li>
                 <li>
-                    <a href="{{ url_for("gallery") }}">{{ _("Gallery") }}</a>
+                    <a href="{{ url_for('cameras') }}">{{ _("Cameras") }}</a>
                 </li>
                 <li>
-                    <a href="{{ url_for("secondhand") }}">{{ _("Second Hand Market") }}</a>
+                    <a href="{{ url_for('phones') }}">{{ _("Phones") }}</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('cars') }}">{{ _("Cars") }}</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('secondhand') }}">{{
+                        _("Second Hand Market")
+                        }}</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('gallery') }}">{{ _("Gallery") }}</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('shop') }}">{{ _("shop@dcfever") }}</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('photography') }}">{{ _("Photography") }}</a>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_anonymous %}
-                    <li>
-                        <a href="{{ url_for("login") }}">{{ _("Login") }}</a>
-                    </li>
+                <li>
+                    <a href="{{ url_for('login') }}">{{ _("Login") }}</a>
+                </li>
                 {% else %}
-                    <li>
-                        <a href="{{ url_for('profile', username=current_user.username) }}">{{ _("Profile") }}</a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for("logout") }}">{{ _("Logout") }}</a>
-                    </li>
+                <li>
+                    <a href="{{ url_for('profile', username=current_user.username) }}">{{
+                        _("Profile")
+                        }}</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}">{{ _("Logout") }}</a>
+                </li>
                 {% endif %}
             </ul>
         </div>
     </div>
 </nav>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{{ moment.lang(g.locale) }}
+{% endblock %}

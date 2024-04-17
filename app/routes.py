@@ -16,14 +16,6 @@ import app.models as models
 import app.google_cloud as google_cloud
 
 
-def _get_next_url_from_request(request):
-    next_url = request.args.get('next', None)
-    if not next_url or urlparse(next_url).netloc != '':
-        if request.referrer != request.url and not urlparse(request.referrer).netloc != urlparse(request.url).netloc:
-            return request.referrer or url_for('index')
-    return next_url
-
-
 @flask_app.before_request
 def before_request():
     if current_user.is_authenticated:
@@ -77,9 +69,8 @@ def explore_post(post_id: int):
 
 @flask_app.route("/login", methods=['GET', 'POST'])
 def login():
-    next_url = _get_next_url_from_request(request)
     if current_user.is_authenticated:
-        return redirect(next_url)
+        return redirect(url_for('index'))
     form = forms.LoginForm()
     if form.validate_on_submit():
         user = User.query.filter(db.or_(
@@ -90,14 +81,13 @@ def login():
             return redirect(url_for('index'))
         flash(_('Invalid username or password'))
         return redirect(url_for('login'))
-    return render_template('user/login.html.j2', title="Sign In", form=form)
+    return render_template('user/login.html.j2', title="Sign In", form=form, next_next=next_url)
 
 
 @flask_app.route('/register', methods=['GET', 'POST'])
 def register():
-    next_url = _get_next_url_from_request(request)
     if current_user.is_authenticated:
-        return redirect(next_url)
+        return redirect(url_for('index'))
     form = forms.RegisterForm()
     if form.validate_on_submit():
         u = User(username=form.username.data,
@@ -159,9 +149,8 @@ def change_password():
 
 @flask_app.route("/reset_password", methods=['GET', 'POST'])
 def reset_password_request():
-    next_url = _get_next_url_from_request(request)
     if current_user.is_authenticated:
-        return redirect(next_url)
+        return redirect(url_for('index'))
     form = forms.ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -226,8 +215,10 @@ def unfollow(username: str):
     return redirect(url_for('profile', username=user.username))
 
 
-@flask_app.route('/gallery/p')
 @flask_app.route('/gallery')
+@flask_app.route('/gallery/')
+@flask_app.route('/gallery/post')
+@flask_app.route('/gallery/post/')
 def gallery():
     page = request.args.get("page", 1, type=int)
     posts = models.GalleryPost.query.order_by(models.GalleryPost.timestamp.desc()).paginate(
@@ -239,6 +230,31 @@ def gallery():
     return render_template('gallery/home.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url)
 
 
+@flask_app.route('/gallery/category/<category>')
+def gallery_category(category: str):
+    category = models.GalleryCategory.query.filter_by(
+        name=category).first_or_404()
+    page = request.args.get("page", 1, type=int)
+    posts = models.GalleryPost.query.filter_by(category=category).order_by(models.GalleryPost.timestamp.desc()).paginate(
+        page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for(
+        'gallery', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for(
+        'gallery', page=posts.prev_num) if posts.prev_num else None
+    return render_template('gallery/home.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url)
+
+
+def upload_store_image(post, image, current_user):
+    object_key = f"{md5(f'{post.title}{current_user.username}{secure_filename(image.filename)}{dt.now(UTC)}'.encode('utf-8')).hexdigest()}"
+    post_image = models.GalleryPostImage(object_key=object_key, post=post)
+    Thread(target=google_cloud.upload_blob_to_bucket,
+           kwargs={
+               'object_key': object_key,
+               'content': image.read(),
+               'content_type': 'image/jpeg'}).start()
+    db.session.add(post_image)
+
+
 @flask_app.route('/gallery/create', methods=['GET', 'POST'])
 @login_required
 def create_gallery():
@@ -248,33 +264,24 @@ def create_gallery():
             title=form.title.data,
             description=form.description.data,
             author=current_user,
-            category=form.category.data)
+            category=form.category.data or 'General')
         db.session.add(post)
         for image in request.files.getlist('images'):
-            secure_filename_string = secure_filename(image.filename)
-            object_key = f"images/{md5(f'gallery{form.title.data}{current_user.username}{secure_filename_string}'.encode('utf-8')).hexdigest()}"
-            post_image = models.GalleryPostImage(object_key=object_key, post=post, file_name=secure_filename_string)
-            cloud_properties = {
-                'object_key':object_key,
-                'content':image.read(),
-                'content_type': 'image/jpeg'
-            }
-            Thread(target=google_cloud.upload_blob_to_bucket, kwargs=cloud_properties).start()
-            db.session.add(post_image)
+            upload_store_image(post, image, current_user)
         db.session.commit()
-        flash('Thank you for your submission', 'success')
+        flash('Thank you for your submission')
         return redirect(url_for('gallery'))
     return render_template('gallery/create.html.j2', form=form)
 
 
-@flask_app.route('/gallery/p/<int:post_id>')
+@flask_app.route('/gallery/post/<int:post_id>')
 def view_gallery(post_id: int):
     post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
     post.view()
     return render_template('gallery/view.html.j2', post=post)
 
 
-@flask_app.route('/gallery/p/<int:post_id>/edit', methods=["GET", "POST"])
+@flask_app.route('/gallery/post/<int:post_id>/edit', methods=["GET", "POST"])
 def edit_gallery(post_id: int):
     post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
     if post.author != current_user:
@@ -290,7 +297,45 @@ def edit_gallery(post_id: int):
     edit_post.title.data = post.title
     edit_post.description.data = post.description
     edit_post.category.data = post.category.name
-    return render_template('gallery/edit.html.j2', edit_form=edit_post, post_id=post.id)
+    return render_template('gallery/edit.html.j2', form=edit_post, post=post)
+
+
+@flask_app.route('/gallery/post/<int:post_id>/add_images', methods=["GET", "POST"])
+def add_gallery_image(post_id: int):
+    post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
+    if post.author != current_user:
+        flash('You can only edit your own post!')
+        return redirect(url_for('view_gallery', post_id=post_id))
+    add_image = forms.AddGalleryImages()
+    if add_image.validate_on_submit():
+        for image in request.files.getlist('images'):
+            upload_store_image(post, image, current_user)
+        db.session.commit()
+        return redirect(url_for('view_gallery', post_id=post.id))
+    return render_template('gallery/add_image.html.j2', form=add_image, post=post)
+
+
+@flask_app.route('/gallery/post/<int:post_id>/delete_images', methods=["GET", "POST"])
+def delete_gallery_image(post_id: int):
+    post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
+    if post.author != current_user:
+        flash('You can only edit your own post!')
+        return redirect(url_for('view_gallery', post_id=post_id))
+    delete_image = forms.DeleteGalleryImages(post_id=post.id)
+    if delete_image.validate_on_submit():
+        # TODO: better implimentation
+        image = models.GalleryPostImage.query.filter_by(
+            object_key=delete_image.filehash.data, gallerypost_id=post.id).first()
+        if image:
+            Thread(target=google_cloud.delete_from_object_key,
+                   kwargs={'object_key': image.object_key})
+            db.session.delete(image)
+            db.session.commit()
+            flash(f'deleted {delete_image.filehash.data}')
+        else:
+            flash('Image was not found')
+        return redirect(url_for('view_gallery', post_id=post.id))
+    return render_template('gallery/delete_image.html.j2', form=delete_image, post=post, title='Delete Image')
 
 
 @flask_app.route('/secondhand/p')
@@ -320,7 +365,7 @@ def secondhand_create_post():
             seller=current_user)
         for image in request.files.getlist('images'):
             secondhand_post_image = models.SecondHandImage(
-                path=google_cloud.upload_blob_to_bucket(
+                object_key=google_cloud.upload_blob_to_bucket(
                     bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
                     object_key=f"images/{md5(f'gallery{secondhand_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}",
                     content=image.read(),

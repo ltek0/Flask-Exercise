@@ -1,27 +1,26 @@
-{% extends "base.html.j2" %}
-{% block app_content %}
-    <div class="container">
-        <div class="row">
-            <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Gallery") }}</h1>
-            </div>
-            <div class="span6 pull-right">
-                <a href="{{ url_for("create_gallery") }}"
-                   class="btn btn-primary"
-                   role="button">{{ _("Create Your Gallery") }}</a>
-            </div>
-        </div>
-        <hr />
-    </div>
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Gallery") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for("create_gallery") }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Create Your Gallery") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
     {% for post in posts %}
         <div class="container">
             <div class="col-md-6">
                 <h3>
                     <a href="{{ url_for('view_gallery', post_id=post.id) }}">{{ post.title }}</a>
                 </h3>
-                <img src="{{ post.images[0].path }}"
-                     alt="{{ post.title }}"
-                     class="img-responsive" />
+                {% if post.images %}
+                    <img src="{{ post.images[0].path }}"
+                         alt="{{ post.title }}"
+                         class="img-responsive" 
+                         width="300px"/>
+                {% endif %}
                 <p>
                     by: <a href="{{ url_for('profile', username = post.author.username) }}">{{ post.author.display_name }}</a> @ {{ moment(post.timestamp).fromNow() }}
                 </p>
@@ -29,4 +28,4 @@
         </div>
     {% endfor %}
     {% include "_pagination_button.html.j2" %}
-{% endblock app_content %}
+{% endblock %}

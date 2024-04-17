@@ -28,5 +28,7 @@ def create_public_bucket():
 
 def upload_blob_to_bucket(bucket_name: str, object_key: str, content: str, content_type: str):
     bucket = _get_storage_client().bucket(bucket_name)
+    if not bucket.exists():
+        create_public_bucket()
     blob = bucket.blob(blob_name = object_key)
     blob.upload_from_string(data = content, content_type = content_type)

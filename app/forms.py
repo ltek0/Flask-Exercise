@@ -2,14 +2,14 @@ from flask_wtf import FlaskForm
 from flask_babel import gettext
 
 from wtforms import (
-    StringField, 
-    DecimalField, 
-    PasswordField, 
-    BooleanField, 
-    SubmitField, 
-    DateTimeField, 
-    ValidationError, 
-    TextAreaField, 
+    StringField,
+    DecimalField,
+    PasswordField,
+    BooleanField,
+    SubmitField,
+    DateTimeField,
+    ValidationError,
+    TextAreaField,
     MultipleFileField,
     EmailField,
     SelectField
@@ -22,12 +22,14 @@ from .models import User
 import re
 
 
-def _username_validator(curr_username:str = None, username: str= None):
+def _username_validator(curr_username: str = None, username: str = None):
     if not re.fullmatch(r'\b[A-Za-z0-9._]{3,32}\b', username):
-        raise ValidationError(gettext('Username must be between 3 and 24 characters long and contain only letters, numbers, dots and underscores.'))
+        raise ValidationError(gettext(
+            'Username must be between 3 and 24 characters long and contain only letters, numbers, dots and underscores.'))
     if curr_username != username:
         if User.query.filter_by(username=username).first():
-            raise ValidationError(gettext("Username not avaliable. Please use a different username."))
+            raise ValidationError(
+                gettext("Username not avaliable. Please use a different username."))
 
 
 def _password_validator(password: str):
@@ -45,23 +47,27 @@ def _password_validator(password: str):
 
 
 class LoginForm(FlaskForm):
-    username = StringField(gettext("Username or email"), validators=[DataRequired()])
+    username = StringField(gettext("Username or email"),
+                           validators=[DataRequired()])
     password = PasswordField(gettext("Password"), validators=[DataRequired()])
     remember_me = BooleanField(gettext("Remember Me"))
     submit = SubmitField(gettext("Sign In"))
 
 
 class RegisterForm(FlaskForm):
-    display_name = StringField(gettext('Display Name'), validators=[Length(max=100, message='Max Allowed leanth is 100 Charactor')])
-    username = StringField(gettext("Username"), validators=[DataRequired(), Length(max=64, message='Max Allowed leanth is 64 Charactor')])
+    display_name = StringField(gettext('Display Name'), validators=[
+                               Length(max=100, message='Max Allowed leanth is 100 Charactor')])
+    username = StringField(gettext("Username"), validators=[DataRequired(), Length(
+        max=64, message='Max Allowed leanth is 64 Charactor')])
     email = EmailField(gettext("Email"), validators=[DataRequired(), Email()])
     password = PasswordField(gettext("Password"), validators=[DataRequired()])
-    password2 = PasswordField(gettext("Repeat Password"), validators=[DataRequired(), EqualTo("password")])
+    password2 = PasswordField(gettext("Repeat Password"), validators=[
+                              DataRequired(), EqualTo("password")])
     submit = SubmitField(gettext("Register"))
 
     def validate_username(self, username: StringField):
         _username_validator(username=username.data)
-    
+
     def validate_email(self, email: StringField):
         if User.query.filter_by(username=email.data).first():
             raise ValidationError(gettext("This email is already in use."))
@@ -72,8 +78,10 @@ class RegisterForm(FlaskForm):
 
 class EditProfileForm(FlaskForm):
     username = StringField(gettext('Username'))
-    display_name = StringField(gettext('Display Name'), validators=[Length(max=100, message='Max Allowed leanth is 100 Charactor')])
-    about_me = TextAreaField(gettext('About Me'), validators=[Length(max=256, message='Max Allowed leanth is 256 Charactor')])
+    display_name = StringField(gettext('Display Name'), validators=[
+                               Length(max=100, message='Max Allowed leanth is 100 Charactor')])
+    about_me = TextAreaField(gettext('About Me'), validators=[Length(
+        max=256, message='Max Allowed leanth is 256 Charactor')])
     submit = SubmitField(gettext('Submit'))
 
     def __init__(self, original_username, *args, **kwargs):
@@ -81,12 +89,14 @@ class EditProfileForm(FlaskForm):
         self.original_username = original_username
 
     def validate_username(self, username: StringField):
-        _username_validator(curr_username=self.original_username, username=username.data)
-    
+        _username_validator(
+            curr_username=self.original_username, username=username.data)
+
 
 class CreatePostForm(FlaskForm):
     title = StringField(gettext('Title'), validators=[Length(min=0, max=128)])
-    body = TextAreaField(gettext('Say something to the world'), validators=[DataRequired(), Length(min=0, max=512)])
+    body = TextAreaField(gettext('Say something to the world'), validators=[
+                         DataRequired(), Length(min=0, max=512)])
     submit = SubmitField(gettext('Post'))
 
 
@@ -96,8 +106,10 @@ class ResetPasswordRequestForm(FlaskForm):
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField(gettext("New password"), validators=[DataRequired()])
-    password2 = PasswordField(gettext("Repeat new Password"), validators=[DataRequired(), EqualTo("password")])
+    password = PasswordField(gettext("New password"),
+                             validators=[DataRequired()])
+    password2 = PasswordField(gettext("Repeat new Password"), validators=[
+                              DataRequired(), EqualTo("password")])
     submit = SubmitField(gettext("Reset password"))
 
     # def validate_password(self, password: StringField):
@@ -105,23 +117,31 @@ class ResetPasswordForm(FlaskForm):
 
 
 class CreateGallery(FlaskForm):
-    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
-    description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Title must be less then 512 charactor')])
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
-    category = StringField(gettext("Category"), validators=[Length(max=50, min=0, message='Title must be less then 512 charactor')])
+    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(
+        max=128, min=1, message='Title must be less then 128 charactor')])
+    description = TextAreaField(gettext("Description"), validators=[Length(
+        max=512, min=0, message='Title must be less then 512 charactor')])
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(
+        message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif', 'jfif'], message='You can only upload images!')])
+    category = StringField(gettext("Category"), validators=[Length(
+        max=50, min=0, message='Title must be less then 512 charactor')])
     submit = SubmitField(gettext("Upload"))
 
 
 class EditGallery(FlaskForm):
-    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
-    description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Title must be less then 512 charactor')])
-    category = StringField(gettext("Category"), validators=[Length(max=50, min=0, message='Title must be less then 512 charactor')])
-    submit = SubmitField(gettext("Update"))
+    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(
+        max=128, min=1, message='Title must be less then 128 charactor')])
+    description = TextAreaField(gettext("Description"), validators=[Length(
+        max=512, min=0, message='Title must be less then 512 charactor')])
+    category = StringField(gettext("Category"), validators=[Length(
+        max=50, min=0, message='Title must be less then 512 charactor')])
+    submit = SubmitField(gettext("Save Changes"))
 
 
 class AddGalleryImages(FlaskForm):
     title = StringField(gettext('Title of Image'))
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(
+        message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
     submit = SubmitField(gettext("Delete"))
 
     def validate_images(self, images: MultipleFileField):
@@ -135,18 +155,23 @@ class DeleteGalleryImages(FlaskForm):
 
 
 class CreateSecondHandPost(FlaskForm):
-    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
-    type = StringField(gettext('Type'), validators=[DataRequired(message='Type of product is required')])
-    price = DecimalField(gettext('Product Price'), validators=[DataRequired(message='Price is required')])
+    title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(
+        max=128, min=1, message='Title must be less then 128 charactor')])
+    type = StringField(gettext('Type'), validators=[
+                       DataRequired(message='Type of product is required')])
+    price = DecimalField(gettext('Product Price'), validators=[
+                         DataRequired(message='Price is required')])
     publish_until = DateTimeField(gettext('Publish Until'))
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
-    description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(
+        ['jpg', 'png', 'gif'], message='You can only upload images!')])
+    description = TextAreaField(gettext("Description"), validators=[Length(
+        max=512, min=0, message='Description must be less then 512 charactor')])
     submit = SubmitField(gettext("Submit"))
 
     def validate_images(self, images: MultipleFileField):
         if len(images.data) > 10:
             raise ValidationError('You can upload a maximum of 10 images')
-        
+
     def validate_price(self, price):
         if price.data < 0:
             raise ValidationError('Invalid price')

@@ -39,27 +39,33 @@ def index():
     form = forms.CreatePostForm()
     if form.validate_on_submit():
         post = Post(
-            title = form.title.data,
-            body = form.body.data,
-            author = current_user)
+            title=form.title.data,
+            body=form.body.data,
+            author=current_user)
         db.session.add(post)
         db.session.commit()
         flash(_('Your post is live'))
         # after form submit, redirect, otherwise, form data will not be cleared
         return redirect(url_for('index'))
     page = request.args.get("page", 1, type=int)
-    posts = current_user.followed_posts().paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for('index', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for('index', page=posts.prev_num) if posts.prev_num else None
+    posts = current_user.followed_posts().paginate(
+        page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for(
+        'index', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for(
+        'index', page=posts.prev_num) if posts.prev_num else None
     return render_template("index.html.j2", title="Home", form=form, posts=posts.items, next_url=next_url, prev_url=prev_url, home=True)
 
 
 @flask_app.route('/explore')
 def explore():
     page = request.args.get("page", 1, type=int)
-    posts = Post.query.order_by(Post.timestamp.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for('explore', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for('explore', page=posts.prev_num) if posts.prev_num else None
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for(
+        'explore', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for(
+        'explore', page=posts.prev_num) if posts.prev_num else None
     return render_template("index.html.j2", title="Explore", posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 
@@ -76,7 +82,8 @@ def login():
         return redirect(next_url)
     form = forms.LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter(db.or_(User.email == form.username.data, User.username == form.username.data)).first()
+        user = User.query.filter(db.or_(
+            User.email == form.username.data, User.username == form.username.data)).first()
         if user is not None and user.check_password(form.password.data) is True:
             login_user(user, remember=form.remember_me.data)
             flash(_('Welcome Back!'))
@@ -86,16 +93,16 @@ def login():
     return render_template('user/login.html.j2', title="Sign In", form=form)
 
 
-@flask_app.route('/register', methods=['GET','POST'])
+@flask_app.route('/register', methods=['GET', 'POST'])
 def register():
     next_url = _get_next_url_from_request(request)
     if current_user.is_authenticated:
         return redirect(next_url)
     form = forms.RegisterForm()
     if form.validate_on_submit():
-        u = User(username = form.username.data,
-                    email = form.email.data,
-                    display_name = form.display_name.data)
+        u = User(username=form.username.data,
+                 email=form.email.data,
+                 display_name=form.display_name.data)
         u.set_password(form.password.data)
         db.session.add(u)
         db.session.commit()
@@ -117,9 +124,12 @@ def profile(username):
     user = User.query.filter_by(username=username).first_or_404()
     title = _('User  %(dn)s', dn=user.display_name) if user else _('Not Found')
     page = request.args.get("page", 1, type=int)
-    posts = Post.query.filter_by(author = user).order_by(Post.timestamp.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for('profile', page=posts.next_num, username=username) if posts.next_num else None
-    prev_url = url_for('profile', page=posts.prev_num, username=username) if posts.prev_num else None
+    posts = Post.query.filter_by(author=user).order_by(Post.timestamp.desc()).paginate(
+        page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for('profile', page=posts.next_num,
+                       username=username) if posts.next_num else None
+    prev_url = url_for('profile', page=posts.prev_num,
+                       username=username) if posts.prev_num else None
     return render_template('user/profile.html.j2', user=user, posts=posts, title=title, next_url=next_url, prev_url=prev_url)
 
 
@@ -143,7 +153,7 @@ def edit_profile():
 
 @flask_app.route('/change_password')
 def change_password():
-    #TODO: change password
+    # TODO: change password
     pass
 
 
@@ -157,7 +167,8 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash(_('An email will be sent to you shortly if the email is found in our records'))
+        flash(
+            _('An email will be sent to you shortly if the email is found in our records'))
         return redirect(url_for('login'))
     return render_template('user/reset_password.html.j2', title="Reset Password", form=form)
 
@@ -184,8 +195,9 @@ def reset_password(token: str):
 @flask_app.route('/follow/<username>')
 @login_required
 def follow(username: str):
-    current_user_profile = redirect(url_for('profile', username=current_user.username))
-    user = User.query.filter_by(username = username).first()
+    current_user_profile = redirect(
+        url_for('profile', username=current_user.username))
+    user = User.query.filter_by(username=username).first()
     if not user:
         flash(_('user %(u)s was not found', u=username))
         return current_user_profile
@@ -200,8 +212,9 @@ def follow(username: str):
 @flask_app.route('/unfollow/<username>')
 @login_required
 def unfollow(username: str):
-    current_user_profile = redirect(url_for('profile', username=current_user.username))
-    user = User.query.filter_by(username = username).first()
+    current_user_profile = redirect(
+        url_for('profile', username=current_user.username))
+    user = User.query.filter_by(username=username).first()
     if not user:
         flash(_('user %(n)s was not found', n=username))
         return current_user_profile
@@ -217,26 +230,31 @@ def unfollow(username: str):
 @flask_app.route('/gallery')
 def gallery():
     page = request.args.get("page", 1, type=int)
-    posts = models.GalleryPost.query.order_by(models.GalleryPost.timestamp.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for('gallery', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for('gallery', page=posts.prev_num) if posts.prev_num else None
+    posts = models.GalleryPost.query.order_by(models.GalleryPost.timestamp.desc()).paginate(
+        page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for(
+        'gallery', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for(
+        'gallery', page=posts.prev_num) if posts.prev_num else None
     return render_template('gallery/home.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url)
 
 
 @flask_app.route('/gallery/create', methods=['GET', 'POST'])
 @login_required
-def gallery_create_post():
+def create_gallery():
     form = forms.CreateGallery()
     if form.validate_on_submit():
         post = models.GalleryPost(
-            title = form.title.data,
-            description = form.description.data,
-            author = current_user,
-            category = form.category.data)
+            title=form.title.data,
+            description=form.description.data,
+            author=current_user,
+            category=form.category.data)
         db.session.add(post)
         for image in request.files.getlist('images'):
-            object_key = f"images/{md5(f'gallery{form.title.data}{current_user.username}{secure_filename(image.filename)}'.encode('utf-8')).hexdigest()}"
-            post_image = models.GalleryPostImage(object_key=object_key, post=post)
+            secure_filename_string = secure_filename(image.filename)
+            object_key = f"images/{md5(f'gallery{form.title.data}{current_user.username}{secure_filename_string}'.encode('utf-8')).hexdigest()}"
+            post_image = models.GalleryPostImage(
+                object_key=object_key, post=post, file_name=secure_filename_string)
             Thread(target=google_cloud.upload_blob_to_bucket(
                 bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
                 object_key=object_key,
@@ -250,20 +268,41 @@ def gallery_create_post():
 
 
 @flask_app.route('/gallery/p/<int:post_id>')
-def gallery_post_view(post_id: int):
-    post = models.GalleryPost.query.filter_by(id = post_id).first_or_404()
+def view_gallery(post_id: int):
+    post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
     post.view()
     return render_template('gallery/view.html.j2', post=post)
 
+
+@flask_app.route('/gallery/p/<int:post_id>/edit', methods=["GET", "POST"])
+def edit_gallery(post_id: int):
+    post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
+    if post.author != current_user:
+        flash('You can only edit your own post!')
+        return redirect(url_for('view_gallery', post_id=post_id))
+    edit_post = forms.EditGallery()
+    if edit_post.validate_on_submit():
+        post.title = edit_post.title.data
+        post.description = edit_post.description.data
+        post.category.name = edit_post.category.data
+        db.session.commit()
+        return redirect(url_for('view_gallery', post_id=post.id))
+    edit_post.title.data = post.title
+    edit_post.description.data = post.description
+    edit_post.category.data = post.category.name
+    return render_template('gallery/edit.html.j2', edit_form=edit_post, post_id=post.id)
 
 
 @flask_app.route('/secondhand/p')
 @flask_app.route('/secondhand')
 def secondhand():
     page = request.args.get("page", 1, type=int)
-    posts = models.SecondHandPost.query.order_by(models.SecondHandPost.issue_date.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for('secondhand', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for('secondhand', page=posts.prev_num) if posts.prev_num else None
+    posts = models.SecondHandPost.query.order_by(models.SecondHandPost.issue_date.desc(
+    )).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for(
+        'secondhand', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for(
+        'secondhand', page=posts.prev_num) if posts.prev_num else None
     return render_template('secondhand/home.html.j2', title='Second Hand Market', posts=posts, next_url=next_url, prev_url=prev_url)
 
 
@@ -273,20 +312,20 @@ def secondhand_create_post():
     form = forms.CreateSecondHandPost()
     if form.validate_on_submit():
         secondhand_post = models.SecondHandPost(
-            title = form.title.data,
-            type = form.type.data,
-            price = form.price.data,
-            publish_until = form.publish_until.data,
-            description = form.description.data,
-            seller = current_user)
+            title=form.title.data,
+            type=form.type.data,
+            price=form.price.data,
+            publish_until=form.publish_until.data,
+            description=form.description.data,
+            seller=current_user)
         for image in request.files.getlist('images'):
             secondhand_post_image = models.SecondHandImage(
-                path = google_cloud.upload_blob_to_bucket(
+                path=google_cloud.upload_blob_to_bucket(
                     bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
                     object_key=f"images/{md5(f'gallery{secondhand_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}",
                     content=image.read(),
                     content_type='image/jpeg'),
-                post = secondhand_post)
+                post=secondhand_post)
         db.session.add_all([secondhand_post, secondhand_post_image])
         db.session.commit()
         flash('Thank you for your submission')
@@ -296,6 +335,6 @@ def secondhand_create_post():
 
 @flask_app.route('/secondhand/p/<int:post_id>')
 def secondhand_post_view(post_id: int):
-    post = models.SecondHandPost.query.filter_by(id = post_id).first_or_404()
+    post = models.SecondHandPost.query.filter_by(id=post_id).first_or_404()
     post.add_view_count()
     return render_template('secondhand/view.html.j2', post=post)

@@ -8,11 +8,33 @@
             {% include "gallery/_back_button.html.j2" %}
         </div>
         <hr />
+        <h3>{{ _("Title") }}: {{ post.title }}</h3>
+        <p>{{ _("Category") }}: {{ post.category.name }}</p>
+        {% if post.description %}<p>{{ _("Description") }}: {{ post.description }}</p>{% endif %}
+        <p>{{ _("Views:") }} {{ post.views }}</p>
+        <hr />
+        <a href="{{ url_for('edit_gallery', post_id=post.id) }}"
+           class="btn btn-primary"
+           role="button">{{ _("Edit Post") }}</a>
+        <hr />
+        {% for img in post.images %}
+            {# <div class="card border-primary mb-3" style="width: 18rem;">
+                <img class="card-img-top"
+                     src="{{ img.path }}"
+                     alt="{{ post.title }} image">
+                <div class="card-body text-primary">
+                    <h5 class="card-title">{{ img.file_name }}</h5>
+                    <a href="#" class="btn btn-danger">Delete</a>
+                </div>
+            </div> #}
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="..." alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        {% endfor %}
     </div>
-    <h3>{{ post.title }}</h3>
-    <p>Category: {{ post.category.name }}</p>
-    {% if post.description %}<p>{{ post.description }}</p>{% endif %}
-    <p>{{ _("Views:") }} {{ post.views }}</p>
-    <hr />
-    {% for img in post.images %}<img src="{{ img.path }}" alt="{{ post.title }}" class="img-responsive" />{% endfor %}
 {% endblock app_content %}

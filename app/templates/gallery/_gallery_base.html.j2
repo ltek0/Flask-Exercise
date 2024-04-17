@@ -1,0 +1,24 @@
+{% extends "base.html.j2" %}
+{% block app_content %}
+    <div class="container">
+        <div class="row">
+            <div class="span6 pull-left">
+                <h1 style="margin: 0; display: inline-block;">
+                    {% block gallery_nav_title %}
+                    {% endblock  gallery_nav_title %}
+                </h1>
+            </div>
+            <div class="span6 pull-right">
+                <a href="{% block gallery_nav_button_herf %}{% endblock gallery_nav_button_herf %}"
+                   class="btn btn-primary"
+                   role="button">
+                    {% block gallery_nav_button_label %}
+                    {% endblock gallery_nav_button_label %}
+                </a>
+            </div>
+        </div>
+    </div>
+    <hr />
+    {% block gallery_page_content %}
+    {% endblock gallery_page_content %}
+{% endblock app_content %}

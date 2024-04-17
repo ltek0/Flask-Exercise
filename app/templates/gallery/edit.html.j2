@@ -1,27 +1,13 @@
-{% extends "base.html.j2" %}
-{% block app_content %}
-    <div class="container">
-        <div class="row">
-            <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Edit Gallery") }}</h1>
-            </div>
-            <div class="span6 pull-right">
-                <a href="{{ url_for('view_gallery', post_id=post_id) }}"
-                   class="btn btn-primary"
-                   role="button">{{ _("Go Back") }}</a>
-            </div>
-        </div>
-        <hr />
-        {% import 'bootstrap/wtf.html' as wtf %}
-        <div class="col-md-6">{{ wtf.quick_form(edit_form) }}</div>
-        <hr />
-        <div class="card" style="width: 18rem;">
-            <img class="card-img-top" src="..." alt="Card image cap">
-            <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-        </div>
-    </div>
-{% endblock app_content %}
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Edit Gallery") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for('view_gallery', post_id=post.id) }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
+    {% include "_quick_form.html.j2" %}
+{% endblock gallery_page_content %}

@@ -208,8 +208,7 @@ class GalleryPost(db.Model):
 class GalleryPostImage(db.Model):
     __tablename__ = 'gallerypostimage'
     id = db.Column(db.Integer, primary_key=True)
-    object_key = db.Column(db.String(40), nullable=False)
-    file_name = db.Column(db.String(256), nullable=False)
+    object_key = db.Column(db.String(40), nullable=False, unique=True)
     post = db.relationship('GalleryPost', backref='images', uselist=False)
     gallerypost_id = db.Column(db.Integer, db.ForeignKey('gallerypost.id'))
 

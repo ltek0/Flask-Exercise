@@ -1,6 +1,4 @@
 import os
-
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -45,3 +43,5 @@ class Config:
     GOOGLE_SERVICE_ACCOUNT_FILE = _required_env('GOOGLE_SERVICE_ACCOUNT_FILE')
     GOOGLE_STORAGE_BUCKET = _required_env('GOOGLE_STORAGE_BUCKET')
     IS_DEV_LOCAL = bool(os.environ.get('IS_DEV_LOCAL'))
+
+    ALLOWED_IMAGE_FORMATS = ['jpg', 'png', 'gif', 'jfif']

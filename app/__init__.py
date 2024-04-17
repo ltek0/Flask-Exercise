@@ -7,8 +7,6 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_babel import Babel
 
-from threading import Thread
-
 from .config import Config
 
 
@@ -21,6 +19,7 @@ migrate = Migrate(flask_app, db)
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
+login_manager.login_message = 'You need an account to access this page'
 login_manager.init_app(flask_app)
 
 mail = Mail(flask_app)
@@ -28,8 +27,12 @@ bootstrap = Bootstrap(flask_app)
 moment = Moment(flask_app)
 
 babel = Babel(flask_app)
+
+
 @babel.localeselector
 def get_locale():
     return request.accept_languages.best_match(flask_app.config['LANGS'])
 
+
+# routes must be placed at the bottom
 from app import models, routes, errors, log

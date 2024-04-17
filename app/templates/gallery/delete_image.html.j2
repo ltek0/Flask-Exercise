@@ -1,0 +1,38 @@
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Delete Image") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for('view_gallery', post_id=post.id) }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
+    {% if post.images %}
+        <table>
+            <tr>
+                <td>Preview</td>
+                <td>Hash</td>
+            </tr>
+            {% for image in post.images %}
+                <tr>
+                    <td><img src="{{ image.path }}" width="100px" alt="post.title" /></td>
+                    <td>{{ image.object_key }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    <div class="container">
+        <div class="row">
+            <form action="" method="post" class="form" role="form">
+                {{ form.hidden_tag() }}
+                <div class="form-group ">
+                    <label class="control-label" for="filehash">{{ form.filehash.label }}</label>
+                    {{ form.filehash(class="form-control") }}
+                </div>
+                {{ form.submit(class="btn btn-danger") }}
+            </form>
+        </div>
+    </div>
+{% endblock gallery_page_content %}

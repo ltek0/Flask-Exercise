@@ -1,40 +1,32 @@
-{% extends "base.html.j2" %}
-{% block app_content %}
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Gallery Submission") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for("gallery") }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
     <div class="container">
         <div class="row">
-            <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Gallery Submission") }}</h1>
-            </div>
-            {% include "gallery/_back_button.html.j2" %}
+            <h3>{{ _("Title") }}: {{ post.title }}</h3>
+            <p>{{ _("Category") }}: {{ post.category.name }}</p>
+            {% if post.description %}<p>{{ _("Description") }}: {{ post.description }}</p>{% endif %}
+            <p>{{ _("Views:") }} {{ post.views }}</p>
+            <hr />
+            <a href="{{ url_for('edit_gallery', post_id=post.id) }}"
+               class="btn btn-primary"
+               role="button">{{ _("Edit Post") }}</a>
+            <a href="{{ url_for('add_gallery_image', post_id=post.id) }}"
+               class="btn btn-success"
+               role="button">{{ _("Add Images") }}</a>
+            <a href="{{ url_for('delete_gallery_image', post_id=post.id) }}"
+               class="btn btn-danger"
+               role="button">{{ _("Delete Images") }}</a>
+            <hr />
+            {% for image in post.images %}<img src="{{ image.path }}" width="300" alt="post.title" />{% endfor %}
         </div>
-        <hr />
-        <h3>{{ _("Title") }}: {{ post.title }}</h3>
-        <p>{{ _("Category") }}: {{ post.category.name }}</p>
-        {% if post.description %}<p>{{ _("Description") }}: {{ post.description }}</p>{% endif %}
-        <p>{{ _("Views:") }} {{ post.views }}</p>
-        <hr />
-        <a href="{{ url_for('edit_gallery', post_id=post.id) }}"
-           class="btn btn-primary"
-           role="button">{{ _("Edit Post") }}</a>
-        <hr />
-        {% for img in post.images %}
-            {# <div class="card border-primary mb-3" style="width: 18rem;">
-                <img class="card-img-top"
-                     src="{{ img.path }}"
-                     alt="{{ post.title }} image">
-                <div class="card-body text-primary">
-                    <h5 class="card-title">{{ img.file_name }}</h5>
-                    <a href="#" class="btn btn-danger">Delete</a>
-                </div>
-            </div> #}
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="..." alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
-                </div>
-            </div>
-        {% endfor %}
     </div>
-{% endblock app_content %}
+{% endblock gallery_page_content %}

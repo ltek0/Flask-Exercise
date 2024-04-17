@@ -17,8 +17,8 @@ from wtforms import (
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_wtf.file import FileRequired,  FileAllowed
 
-from .models import User
-
+from .models import User, GalleryPostImage
+from . import flask_app
 import re
 
 
@@ -72,8 +72,9 @@ class RegisterForm(FlaskForm):
         if User.query.filter_by(username=email.data).first():
             raise ValidationError(gettext("This email is already in use."))
 
-    # def validate_password(self, password: StringField):
-    #     _password_validator(password=password.data)
+    def validate_password(self, password: StringField):
+        if not flask_app.config['IS_DEV_LOCAL']:
+            _password_validator(password=password.data)
 
 
 class EditProfileForm(FlaskForm):
@@ -112,8 +113,9 @@ class ResetPasswordForm(FlaskForm):
                               DataRequired(), EqualTo("password")])
     submit = SubmitField(gettext("Reset password"))
 
-    # def validate_password(self, password: StringField):
-    #     _password_validator(password=password.data)
+    def validate_password(self, password: StringField):
+        if not flask_app.config['IS_DEV_LOCAL']:
+            _password_validator(password=password.data)
 
 
 class CreateGallery(FlaskForm):
@@ -121,11 +123,15 @@ class CreateGallery(FlaskForm):
         max=128, min=1, message='Title must be less then 128 charactor')])
     description = TextAreaField(gettext("Description"), validators=[Length(
         max=512, min=0, message='Title must be less then 512 charactor')])
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(
-        message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif', 'jfif'], message='You can only upload images!')])
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(
+        flask_app.config['ALLOWED_IMAGE_FORMATS'], message='You can only upload images!')])
     category = StringField(gettext("Category"), validators=[Length(
         max=50, min=0, message='Title must be less then 512 charactor')])
     submit = SubmitField(gettext("Upload"))
+
+    def validate_images(self, images: MultipleFileField):
+        if len(images.data) > 10:
+            raise ValidationError('You can upload a maximum of 10 images')
 
 
 class EditGallery(FlaskForm):
@@ -139,10 +145,9 @@ class EditGallery(FlaskForm):
 
 
 class AddGalleryImages(FlaskForm):
-    title = StringField(gettext('Title of Image'))
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileRequired(
-        message="You must provide at least one image"), FileAllowed(['jpg', 'png', 'gif'], message='You can only upload images!')])
-    submit = SubmitField(gettext("Delete"))
+    images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(
+        flask_app.config['ALLOWED_IMAGE_FORMATS'], message='You can only upload images!')])
+    submit = SubmitField(gettext("Add"))
 
     def validate_images(self, images: MultipleFileField):
         if len(images.data) > 10:
@@ -150,8 +155,18 @@ class AddGalleryImages(FlaskForm):
 
 
 class DeleteGalleryImages(FlaskForm):
-    image_to_delete = SelectField("Images to delete")
+    filehash = StringField(gettext("Image key of image to delete"))
     submit = SubmitField(gettext("Delete"))
+
+    def __init__(self, post_id: int, *args, **kwargs):
+        super(DeleteGalleryImages, self).__init__(*args, **kwargs)
+        self.post_id = post_id
+
+    def validate_file_hash(self, filehash: StringField):
+        img = GalleryPostImage.query.filter_by(
+            object_key=filehash, gallerypost_id=self.post_id).first()
+        if not img:
+            raise ValidationError("Image key was not found")
 
 
 class CreateSecondHandPost(FlaskForm):

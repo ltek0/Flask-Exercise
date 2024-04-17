@@ -1,0 +1,34 @@
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Add Gallery Images") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for('edit_gallery', post_id=post.id) }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
+    <div class="container">
+        <div class="row">
+            {% if form.images.errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+            <form method="post" class="form" enctype="multipart/form-data" role="form">
+                {{ form.hidden_tag() }}
+                <div class="form-group required">
+                    <label class="form-label" for="validatedCustomFile">{{ form.images.label }}</label>
+                    {{ form.images(class="form-control") }}
+                </div>
+                {% if form.images.errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
+                    </div>
+                {% endif %}
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+    </div>
+{% endblock gallery_page_content %}

@@ -14,19 +14,31 @@
             <h3>{{ _("Title") }}: {{ post.title }}</h3>
             <p>{{ _("Category") }}: {{ post.category.name }}</p>
             {% if post.description %}<p>{{ _("Description") }}: {{ post.description }}</p>{% endif %}
-            <p>{{ _("Views:") }} {{ post.views }}</p>
+            <p>{{ _("Views") }}: {{ post.views }}</p>
+            <p>{{ _("Image Count") }}: {{ IMGC }}</p>
             <hr />
-            <a href="{{ url_for('edit_gallery', post_id=post.id) }}"
-               class="btn btn-primary"
-               role="button">{{ _("Edit Post") }}</a>
-            <a href="{{ url_for('add_gallery_image', post_id=post.id) }}"
-               class="btn btn-success"
-               role="button">{{ _("Add Images") }}</a>
-            <a href="{{ url_for('delete_gallery_image', post_id=post.id) }}"
-               class="btn btn-danger"
-               role="button">{{ _("Delete Images") }}</a>
-            <hr />
-            {% for image in post.images %}<img src="{{ image.path }}" width="300" alt="post.title" />{% endfor %}
-        </div>
-    </div>
-{% endblock gallery_page_content %}
+            {% if post.author == current_user %}
+                <a href="{{ url_for('edit_gallery', post_id=post.id) }}"
+                   class="btn btn-primary"
+                   role="button">{{ _("Edit Post") }}</a>
+                <a href="{{ url_for('add_gallery_image', post_id=post.id) }}"
+                   class="btn btn-success"
+                   role="button">{{ _("Add Images") }}</a>
+                <a href="{{ url_for('delete_gallery_image', post_id=post.id) }}"
+                   class="btn btn-danger"
+                   role="button">{{ _("Delete Images") }}</a>
+                <hr />
+            {% endif %}
+            <div class="container">
+                <div class="row">
+                    {% for image in post.images %}
+                        <img src="{{ image.path }}"
+                             class="img-responsive"
+                             style="width: auto;
+                                    display: inline-block;
+                                    height: 250px"
+                             alt="{{ post.title }}" />
+                    {% endfor %}
+                </div>
+            </div>
+        {% endblock gallery_page_content %}

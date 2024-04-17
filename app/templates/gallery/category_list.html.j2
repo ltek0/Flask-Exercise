@@ -1,0 +1,36 @@
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Gallery Categories") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for("gallery") }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ _("Category") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                            <tr>
+                                <td>{{ category.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('gallery_category_view', category=category.name) }}">{{ _("visit") }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% include "_pagination_button.html.j2" %}
+            </div>
+        </div>
+    </div>
+{% endblock gallery_page_content %}

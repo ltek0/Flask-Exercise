@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
@@ -123,15 +124,22 @@ class CreateGallery(FlaskForm):
         max=128, min=1, message='Title must be less then 128 charactor')])
     description = TextAreaField(gettext("Description"), validators=[Length(
         max=512, min=0, message='Title must be less then 512 charactor')])
-    images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(
+    images = MultipleFileField(gettext('Select Photos'), validators=[DataRequired(message='You must select at least one image, 10 at once'), FileAllowed(
         flask_app.config['ALLOWED_IMAGE_FORMATS'], message='You can only upload images!')])
     category = StringField(gettext("Category"), validators=[Length(
         max=50, min=0, message='Title must be less then 512 charactor')])
-    submit = SubmitField(gettext("Upload"))
+    submit = SubmitField(gettext("Create"))
 
     def validate_images(self, images: MultipleFileField):
-        if len(images.data) > 10:
-            raise ValidationError('You can upload a maximum of 10 images')
+        if len(images.data) > flask_app.config['IMAGE_PER_UPLOAD']:
+            raise ValidationError(
+                f'You can upload a maximum of {flask_app.config["IMAGE_PER_UPLOAD"]} images at once')
+
+    def validate_category(self, category: StringField):
+        if category.data != '':
+            if not re.fullmatch(r'\b[A-Za-z0-9._]{3,50}\b', category.data):
+                raise ValidationError(gettext(
+                    'Category must be between 3 and 50 characters long and contain only letters, numbers, dots and underscores.'))
 
 
 class EditGallery(FlaskForm):
@@ -143,6 +151,12 @@ class EditGallery(FlaskForm):
         max=50, min=0, message='Title must be less then 512 charactor')])
     submit = SubmitField(gettext("Save Changes"))
 
+    def validate_category(self, category: StringField):
+        if category.data != '':
+            if not re.fullmatch(r'\b[A-Za-z0-9._]{3,50}\b', category.data):
+                raise ValidationError(gettext(
+                    'Category must be between 3 and 50 characters long and contain only letters, numbers, dots and underscores.'))
+
 
 class AddGalleryImages(FlaskForm):
     images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(
@@ -150,8 +164,9 @@ class AddGalleryImages(FlaskForm):
     submit = SubmitField(gettext("Add"))
 
     def validate_images(self, images: MultipleFileField):
-        if len(images.data) > 10:
-            raise ValidationError('You can upload a maximum of 10 images')
+        if len(images.data) > flask_app.config['IMAGE_PER_UPLOAD']:
+            raise ValidationError(
+                f'You can upload a maximum of {flask_app.config["IMAGE_PER_UPLOAD"]} images at once')
 
 
 class DeleteGalleryImages(FlaskForm):

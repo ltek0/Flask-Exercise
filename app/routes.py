@@ -81,7 +81,7 @@ def login():
             return redirect(url_for('index'))
         flash(_('Invalid username or password'))
         return redirect(url_for('login'))
-    return render_template('user/login.html.j2', title="Sign In", form=form, next_next=next_url)
+    return render_template('user/login.html.j2', title="Sign In", form=form)
 
 
 @flask_app.route('/register', methods=['GET', 'POST'])
@@ -215,10 +215,10 @@ def unfollow(username: str):
     return redirect(url_for('profile', username=user.username))
 
 
-@flask_app.route('/gallery')
-@flask_app.route('/gallery/')
 @flask_app.route('/gallery/post')
 @flask_app.route('/gallery/post/')
+@flask_app.route('/gallery')
+@flask_app.route('/gallery/')
 def gallery():
     page = request.args.get("page", 1, type=int)
     posts = models.GalleryPost.query.order_by(models.GalleryPost.timestamp.desc()).paginate(
@@ -230,18 +230,32 @@ def gallery():
     return render_template('gallery/home.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url)
 
 
+@flask_app.route('/gallery/category')
+@flask_app.route('/gallery/category/')
+def gallery_category():
+    page = request.args.get("page", 1, type=int)
+    categories = models.GalleryCategory.query.paginate(
+        page=page, per_page=20, error_out=False)
+    next_url = url_for(
+        'gallery_category', page=categories.next_num) if categories.next_num else None
+    prev_url = url_for(
+        'gallery_category', page=categories.prev_num) if categories.prev_num else None
+    return render_template('gallery/category_list.html.j2', title='Gallery', categories=categories, next_url=next_url, prev_url=prev_url)
+
+
 @flask_app.route('/gallery/category/<category>')
-def gallery_category(category: str):
+@flask_app.route('/gallery/category/<category>/')
+def gallery_category_view(category: str):
     category = models.GalleryCategory.query.filter_by(
         name=category).first_or_404()
     page = request.args.get("page", 1, type=int)
     posts = models.GalleryPost.query.filter_by(category=category).order_by(models.GalleryPost.timestamp.desc()).paginate(
         page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
     next_url = url_for(
-        'gallery', page=posts.next_num) if posts.next_num else None
+        'gallery_category_view', page=posts.next_num) if posts.next_num else None
     prev_url = url_for(
-        'gallery', page=posts.prev_num) if posts.prev_num else None
-    return render_template('gallery/home.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url)
+        'gallery_category_view', page=posts.prev_num) if posts.prev_num else None
+    return render_template('gallery/category_view.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url, category=category)
 
 
 def upload_store_image(post, image, current_user):
@@ -278,7 +292,7 @@ def create_gallery():
 def view_gallery(post_id: int):
     post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
     post.view()
-    return render_template('gallery/view.html.j2', post=post)
+    return render_template('gallery/view.html.j2', post=post, IMGC=len(post.images))
 
 
 @flask_app.route('/gallery/post/<int:post_id>/edit', methods=["GET", "POST"])
@@ -308,6 +322,11 @@ def add_gallery_image(post_id: int):
         return redirect(url_for('view_gallery', post_id=post_id))
     add_image = forms.AddGalleryImages()
     if add_image.validate_on_submit():
+        existing_image_count = models.GalleryPostImage.query.filter_by(
+            gallerypost_id=post.id).count()
+        if existing_image_count + len(request.files.getlist('images')) > flask_app.config['IMAGE_PER_GALLERY']:
+            flash(f'You can only have {flask_app.config["IMAGE_PER_GALLERY"]} images in a post!')
+            return redirect(url_for('view_gallery', post_id=post.id))
         for image in request.files.getlist('images'):
             upload_store_image(post, image, current_user)
         db.session.commit()

@@ -12,9 +12,9 @@ def _get_storage_client():
         return storage.Client()
 
 
-def create_public_bucket():
+def create_public_bucket(bucket: str):
     storage_client = _get_storage_client()
-    bucket = storage_client.bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
+    bucket = storage_client.bucket(bucket)
     if not bucket.exists():
         storage_client.create_bucket(bucket)
     policy = bucket.get_iam_policy()
@@ -26,9 +26,9 @@ def create_public_bucket():
     bucket.patch()
 
 
-def upload_blob_to_bucket(bucket_name: str, object_key: str, content: str, content_type: str):
-    bucket = _get_storage_client().bucket(bucket_name)
+def upload_blob_to_bucket(object_key: str, content: str, content_type: str):
+    bucket = _get_storage_client().bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
     if not bucket.exists():
-        create_public_bucket()
+        create_public_bucket(flask_app.config['GOOGLE_STORAGE_BUCKET'])
     blob = bucket.blob(blob_name = object_key)
     blob.upload_from_string(data = content, content_type = content_type)

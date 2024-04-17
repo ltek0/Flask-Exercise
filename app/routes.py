@@ -253,13 +253,13 @@ def create_gallery():
         for image in request.files.getlist('images'):
             secure_filename_string = secure_filename(image.filename)
             object_key = f"images/{md5(f'gallery{form.title.data}{current_user.username}{secure_filename_string}'.encode('utf-8')).hexdigest()}"
-            post_image = models.GalleryPostImage(
-                object_key=object_key, post=post, file_name=secure_filename_string)
-            Thread(target=google_cloud.upload_blob_to_bucket(
-                bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
-                object_key=object_key,
-                content=image.read(),
-                content_type='image/jpeg')).start()
+            post_image = models.GalleryPostImage(object_key=object_key, post=post, file_name=secure_filename_string)
+            cloud_properties = {
+                'object_key':object_key,
+                'content':image.read(),
+                'content_type': 'image/jpeg'
+            }
+            Thread(target=google_cloud.upload_blob_to_bucket, kwargs=cloud_properties).start()
             db.session.add(post_image)
         db.session.commit()
         flash('Thank you for your submission', 'success')

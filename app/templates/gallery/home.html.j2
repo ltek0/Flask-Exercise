@@ -9,23 +9,34 @@
     {{ _("Create Your Gallery") }}
 {% endblock gallery_nav_button_label %}
 {% block gallery_page_content %}
-    {% for post in posts %}
-        <div class="container">
-            <div class="col-md-6">
-                <h3>
-                    <a href="{{ url_for('view_gallery', post_id=post.id) }}">{{ post.title }}</a>
-                </h3>
-                {% if post.images %}
-                    <img src="{{ post.images[0].path }}"
-                         alt="{{ post.title }}"
-                         class="img-responsive" 
-                         width="300px"/>
-                {% endif %}
-                <p>
-                    by: <a href="{{ url_for('profile', username = post.author.username) }}">{{ post.author.display_name }}</a> @ {{ moment(post.timestamp).fromNow() }}
-                </p>
-            </div>
+    <h4>
+        <a href="{{ url_for("gallery_category") }}">{{ _("Filter By Category") }}</a>
+    </h4>
+    <hr />
+    <div class="container"
+         style="display: flex;
+                flex-direction: column;
+                align-items: flex-start">
+        <div class="row">
+            {% for post in posts %}
+                <div style="display: inline-block;">
+                    <h3>
+                        <a href="{{ url_for('view_gallery', post_id=post.id) }}">{{ post.title }}</a>
+                    </h3>
+                    {% if post.images %}
+                        <img src="{{ post.images[0].path }}"
+                             alt="{{ post.title }}"
+                             class="img-responsive"
+                             style="width: auto;
+                                    height: 250px;
+                                    object-fit: contain" />
+                    {% endif %}
+                    <p>
+                        by: <a href="{{ url_for('profile', username = post.author.username) }}">{{ post.author.display_name }}</a> @ {{ moment(post.timestamp).fromNow() }}
+                    </p>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
     {% include "_pagination_button.html.j2" %}
 {% endblock %}

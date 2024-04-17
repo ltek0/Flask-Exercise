@@ -45,3 +45,5 @@ class Config:
     IS_DEV_LOCAL = bool(os.environ.get('IS_DEV_LOCAL'))
 
     ALLOWED_IMAGE_FORMATS = ['jpg', 'png', 'gif', 'jfif']
+    IMAGE_PER_GALLERY = 50
+    IMAGE_PER_UPLOAD = 20

@@ -1,18 +1,44 @@
-{% extends "base.html.j2" %}
-{% block app_content %}
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Gallery Submission") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for("gallery") }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
     <div class="container">
         <div class="row">
-            <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Gallery Submission") }}</h1>
+            <h3>{{ _("Title") }}: {{ post.title }}</h3>
+            <p>{{ _("Category") }}: {{ post.category.name }}</p>
+            {% if post.description %}<p>{{ _("Description") }}: {{ post.description }}</p>{% endif %}
+            <p>{{ _("Views") }}: {{ post.views }}</p>
+            <p>{{ _("Image Count") }}: {{ IMGC }}</p>
+            <hr />
+            {% if post.author == current_user %}
+                <a href="{{ url_for('edit_gallery', post_id=post.id) }}"
+                   class="btn btn-primary"
+                   role="button">{{ _("Edit Post") }}</a>
+                <a href="{{ url_for('add_gallery_image', post_id=post.id) }}"
+                   class="btn btn-success"
+                   role="button">{{ _("Add Images") }}</a>
+                <a href="{{ url_for('delete_gallery_image', post_id=post.id) }}"
+                   class="btn btn-danger"
+                   role="button">{{ _("Delete Images") }}</a>
+                <hr />
+            {% endif %}
+            <div class="container">
+                <div class="row">
+                    {% for image in post.images %}
+                        <img src="{{ image.path }}"
+                             class="img-responsive"
+                             style="width: auto;
+                                    display: inline-block;
+                                    height: 250px"
+                             alt="{{ post.title }}" />
+                    {% endfor %}
+                </div>
             </div>
-            {% include "gallery/_back_button.html.j2" %}
-        </div>
-        <hr />
-    </div>
-    <h3>{{ post.title }}</h3>
-    <p>Category: {{ post.category.name }}</p>
-    {% if post.description %}<p>{{ post.description }}</p>{% endif %}
-    <p>{{ _("Views:") }} {{ post.views }}</p>
-    <hr />
-    {% for img in post.images %}<img src="{{ img.path }}" alt="{{ post.title }}" class="img-responsive" />{% endfor %}
-{% endblock app_content %}
+        {% endblock gallery_page_content %}

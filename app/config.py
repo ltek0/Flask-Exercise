@@ -1,6 +1,4 @@
 import os
-
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -11,6 +9,7 @@ def _required_env(name: str):
     except KeyError as exc:
         raise KeyError(f"{name} is not set in environment") from exc
     return env
+
 
 class Config:
 
@@ -44,3 +43,7 @@ class Config:
     GOOGLE_SERVICE_ACCOUNT_FILE = _required_env('GOOGLE_SERVICE_ACCOUNT_FILE')
     GOOGLE_STORAGE_BUCKET = _required_env('GOOGLE_STORAGE_BUCKET')
     IS_DEV_LOCAL = bool(os.environ.get('IS_DEV_LOCAL'))
+
+    ALLOWED_IMAGE_FORMATS = ['jpg', 'png', 'gif', 'jfif']
+    IMAGE_PER_GALLERY = 50
+    IMAGE_PER_UPLOAD = 20

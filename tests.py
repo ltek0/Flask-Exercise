@@ -1,10 +1,10 @@
+from app.models import User, Post
+from app import flask_app, db
+import unittest
+from datetime import datetime, timedelta
 import os
 os.environ['DATABASE_URL'] = 'sqlite://'
 
-from datetime import datetime, timedelta
-import unittest
-from app import flask_app, db
-from app.models import User, Post
 
 class UserModelCase(unittest.TestCase):
     def setUp(self):
@@ -36,7 +36,7 @@ class UserModelCase(unittest.TestCase):
         u2 = User(username='susan', email='susan@example.com')
         u2.set_password('1234')
 
-        db.session.add_all([u1,u2])
+        db.session.add_all([u1, u2])
         db.session.commit()
 
         self.assertEqual(u1.followed.all(), [])
@@ -66,7 +66,7 @@ class UserModelCase(unittest.TestCase):
         u3.set_password('1234')
         u4.set_password('1234')
 
-        db.session.add_all([u1,u2,u3,u4])
+        db.session.add_all([u1, u2, u3, u4])
         db.session.commit()
 
         # create four posts
@@ -97,6 +97,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(f2, [p2, p3])
         self.assertEqual(f3, [p3, p4])
         self.assertEqual(f4, [p4])
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

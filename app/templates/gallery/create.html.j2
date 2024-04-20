@@ -1,58 +1,56 @@
-{% extends "base.html.j2" %}
-{% block app_content %}
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Create Gallery") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for("gallery") }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
     <div class="container">
         <div class="row">
-            <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Create Gallery Submission") }}</h1>
-            </div>
-            {% include "gallery/_back_button.html.j2" %}
-        </div>
-        <hr />
-    </div>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <form method="post" class="form" enctype="multipart/form-data" role="form">
-                    {{ form.hidden_tag() }}
-                    <div class="form-group required">
-                        <label class="control-label" for="title">{{ form.title.label }}</label>
-                        {{ form.title(class="form-control") }}
+            <form method="post" class="form" enctype="multipart/form-data" role="form" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-group required">
+                    <label class="control-label" for="title">{{ form.title.label }}</label>
+                    {{ form.title(class="form-control") }}
+                </div>
+                {% if form.title.errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.title.errors %}<p>{{ error }}</p>{% endfor %}
                     </div>
-                    {% if form.title.errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="form-group required">
-                        <label class="form-label" for="validatedCustomFile">{{ form.category.label }}</label>
-                        {{ form.category(class="form-control") }}
+                {% endif %}
+                <div class="form-group required">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description(class="form-control") }}
+                </div>
+                {% if form.description.errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.description.errors %}<p>{{ error }}</p>{% endfor %}
                     </div>
-                    {% if form.description.errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.description.errors %}<p>{{ error }}</p>{% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="form-group required">
-                        <label class="form-label" for="validatedCustomFile">{{ form.description.label }}</label>
-                        {{ form.description(class="form-control") }}
+                {% endif %}
+                <div class="form-group required">
+                    <label class="form-label">{{ form.images.label }}</label>
+                    {{ form.images(class="form-control") }}
+                </div>
+                {% if form.images.errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
                     </div>
-                    {% if form.description.errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.description.errors %}<p>{{ error }}</p>{% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="form-group required">
-                        <label class="form-label" for="validatedCustomFile">{{ form.images.label }}</label>
-                        {{ form.images(class="form-control") }}
+                {% endif %}
+                <div class="form-group required">
+                    <label class="form-label">{{ form.category.label }}</label>
+                    {{ form.category(class="form-control") }}
+                </div>
+                {% if form.category.errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.category.errors %}<p>{{ error }}</p>{% endfor %}
                     </div>
-                    {% if form.images.errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
-                        </div>
-                    {% endif %}
-                    {{ form.submit(class="btn btn-primary") }}
-                </form>
-            </div>
+                {% endif %}
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
         </div>
     </div>
-{% endblock app_content %}
+{% endblock gallery_page_content %}

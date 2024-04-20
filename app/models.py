@@ -18,11 +18,12 @@ followers = db.Table(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), nullable=False, index=True, unique=True)
+    username = db.Column(db.String(64), nullable=False,
+                         index=True, unique=True)
     email = db.Column(db.String(128), nullable=False, index=True, unique=True)
     _password_hash = db.Column(db.String(256), nullable=False, index=True)
     last_seen = db.Column(db.DateTime, nullable=True)
-    display_name = db.Column(db.String(100), nullable=True) 
+    display_name = db.Column(db.String(100), nullable=True)
     about_me = db.Column(db.String(256), nullable=True)
     posts = db.relationship('Post', backref='author', lazy='select')
     followed = db.relationship(
@@ -31,7 +32,7 @@ class User(UserMixin, db.Model):
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
-    def __init__(self, username:str, email:str, display_name:str = None, about_me:str = None):
+    def __init__(self, username: str, email: str, display_name: str = None, about_me: str = None):
         self.username = username
         self.email = email
         self.display_name = display_name or self.username
@@ -41,7 +42,8 @@ class User(UserMixin, db.Model):
         return f'<User {self.id}:{self.username}>'
 
     def set_password(self, password: str) -> None:
-        self._password_hash = werkzeug.security.generate_password_hash(password)
+        self._password_hash = werkzeug.security.generate_password_hash(
+            password)
 
     def check_password(self, password: str) -> bool:
         return werkzeug.security.check_password_hash(self._password_hash, password)
@@ -66,12 +68,12 @@ class User(UserMixin, db.Model):
             db.session.commit()
             return True
         return False
-    
+
     def followed_posts(self):
         followed = Post.query.join(
             followers, (followers.c.followed_id == Post.user_id)
         ).filter(followers.c.follower_id == self.id)
-        own = Post.query.filter_by(user_id = self.id)
+        own = Post.query.filter_by(user_id=self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
 
 
@@ -86,7 +88,7 @@ class Post(db.Model):
     body = db.Column(db.String(512), nullable=False)
     timestamp = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-        
+
     def __repr__(self) -> str:
         return f"<Post '{self.id}:{self.body}'>"
 
@@ -119,13 +121,14 @@ class PasswordResetTokens(db.Model):
             "exp": dt.now(UTC) + td(seconds=expires_in)
         }
         instence = cls(
-            _token=jwt.encode(token, flask_app.config["SECRET_KEY"], algorithm="HS256"),
-            _expire_time = token["exp"]
+            _token=jwt.encode(
+                token, flask_app.config["SECRET_KEY"], algorithm="HS256"),
+            _expire_time=token["exp"]
         )
         db.session.add(instence)
         db.session.commit()
         return instence._token
-    
+
     @classmethod
     def validate(cls, token: str):
         if not cls.query.filter_by(_token=token).first():
@@ -133,8 +136,9 @@ class PasswordResetTokens(db.Model):
         # remove expired tokens
         cls.query.filter(cls._expire_time < dt.now(UTC)).delete()
         db.session.commit()
-        try: # validate token
-            id = jwt.decode(token, flask_app.config["SECRET_KEY"], algorithms="HS256")["reset_password"]
+        try:  # validate token
+            id = jwt.decode(token, flask_app.config["SECRET_KEY"], algorithms="HS256")[
+                "reset_password"]
             user = User.query.get(id)
             if not user:
                 return None
@@ -158,6 +162,15 @@ class PasswordResetTokens(db.Model):
             return None
 
 
+class GalleryCategory(db.Model):
+    __tablename__ = 'gallerycategory'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+
+    def __repr__(self) -> str:
+        return f'<GalleryPost {self.id}:{self.name}>'
+
+
 class GalleryPost(db.Model):
     __tablename__ = 'gallerypost'
     id = db.Column(db.Integer, primary_key=True)
@@ -165,18 +178,28 @@ class GalleryPost(db.Model):
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(512), nullable=True)
     _views = db.Column(db.Integer, default=0)
-    author = db.relationship('User', backref='gallery_post', uselist=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    category = db.relationship('GalleryCategory', backref='gallery_post', uselist=False)
     category_id = db.Column(db.ForeignKey('gallerycategory.id'))
+    author = db.relationship('User', backref='gallery_post', uselist=False)
+    category = db.relationship(
+        'GalleryCategory', backref='post', uselist=False)
+
+    def __init__(self, title: str, description: str, author: User, category: str):
+        self.title = title
+        self.description = description
+        self.author = author
+        self.category = GalleryCategory.query.filter_by(name=category).first()
+        if not self.category:
+            self.category = GalleryCategory(name=category)
+            db.session.add(self.category)
 
     def __repr__(self) -> str:
         return f'<GalleryPost {self.id}:{self.title}>'
-    
+
     @property
     def views(self):
         return self._views
-    
+
     def view(self):
         self._views += 1
         db.session.commit()
@@ -185,7 +208,7 @@ class GalleryPost(db.Model):
 class GalleryPostImage(db.Model):
     __tablename__ = 'gallerypostimage'
     id = db.Column(db.Integer, primary_key=True)
-    _object_key = db.Column(db.String(256), nullable=False)
+    object_key = db.Column(db.String(40), nullable=False, unique=True)
     post = db.relationship('GalleryPost', backref='images', uselist=False)
     gallerypost_id = db.Column(db.Integer, db.ForeignKey('gallerypost.id'))
 
@@ -194,17 +217,7 @@ class GalleryPostImage(db.Model):
 
     @property
     def path(self):
-        return f"https://storage.googleapis.com/{flask_app.config['GOOGLE_STORAGE_BUCKET']}/{self._object_key}"
-  
-    @property
-    def object_key(self, obj_key: str):
-        self.object_key = obj_key
-
-
-class GalleryCategory(db.Model):
-    __tablename__ = 'gallerycategory'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False, index=True)
+        return f"https://storage.googleapis.com/{flask_app.config['GOOGLE_STORAGE_BUCKET']}/{self.object_key}"
 
 
 class SecondHandPost(db.Model):
@@ -247,7 +260,8 @@ class SecondHandImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     path = db.Column(db.String(256), nullable=True)
     post = db.relationship('SecondHandPost', backref='images', uselist=False)
-    secondhandpost_id = db.Column(db.Integer, db.ForeignKey('secondhandpost.id'))
+    secondhandpost_id = db.Column(
+        db.Integer, db.ForeignKey('secondhandpost.id'))
 
     def __repr__(self) -> str:
         return f'<secondhandimage {self.id}:{self.path}>'

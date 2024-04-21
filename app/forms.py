@@ -15,7 +15,7 @@ from wtforms import (
     EmailField,
     SelectField
 )
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 from flask_wtf.file import FileRequired,  FileAllowed
 
 from .models import User, GalleryPostImage
@@ -205,3 +205,23 @@ class CreateSecondHandPost(FlaskForm):
     def validate_price(self, price):
         if price.data < 0:
             raise ValidationError('Invalid price')
+
+# ----------------------------------------------------------------
+
+class TravelBlogForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(max=128)])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    country = StringField('Country', validators=[Optional(), Length(max=100)])
+    city = StringField('City', validators=[Optional(), Length(max=100)])
+    submit = SubmitField('Submit')
+
+    def __init__(self, *args, **kwargs):
+        super(TravelBlogForm, self).__init__(*args, **kwargs)
+
+        if not self.title.data or not self.content.data or not self.country.data or not self.city.data:
+            self.title.data = ''
+            self.content.data = ''
+            self.country.data = ''
+            self.city.data = ''
+
+# ----------------------------------------------------------------

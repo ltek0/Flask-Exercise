@@ -265,3 +265,74 @@ class SecondHandImage(db.Model):
 
     def __repr__(self) -> str:
         return f'<secondhandimage {self.id}:{self.path}>'
+
+
+#----------------------------------------------------------------------------------
+class TravelBlog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=dt.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    country_id = db.Column(db.Integer, db.ForeignKey('country.id'), nullable=False)
+    city_id = db.Column(db.Integer, db.ForeignKey('city.id'), nullable=False)
+
+    user = db.relationship('User', backref='travel_blogs', lazy=True)
+    country = db.relationship('Country', backref='travel_blogs', lazy=True)
+    city = db.relationship('City', backref='travel_blogs', lazy=True)
+
+    def __repr__(self) -> str:
+        return f"<TravelBlog '{self.id}:{self.title}'>"
+
+    def __init__(self, title, content, country, city, user):
+        self.title = title
+        self.content = content
+        self.country = country
+        self.city = city
+        self.user = user
+
+    @staticmethod
+    def create_or_get_country(name):
+        country = Country.query.filter_by(name=name).first()
+        if not country:
+            country = Country(name=name)
+            db.session.add(country)
+            db.session.commit()  # Commit the changes to the database
+        return country
+
+    @staticmethod
+    def create_or_get_city(name):
+        city = City.query.filter_by(name=name).first()
+        if not city:
+            city = City(name=name)
+            db.session.add(city)
+            db.session.commit()  # Commit the changes to the database
+        return city
+
+    def save(self):
+        country = self.create_or_get_country(self.country_name)
+        city = self.create_or_get_city(self.city_name)
+
+        self.country = country
+        self.city = city
+
+        db.session.add(self)
+        db.session.commit()
+
+
+class Country(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    
+    def __repr__(self) -> str:
+        return f"Country('{self.name}')"
+
+
+class City(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    
+    def __repr__(self) -> str:
+        return f"City('{self.name}')"
+
+#----------------------------------------------------------------------------------

@@ -15,8 +15,6 @@ from .email import send_password_reset_email
 import app.models as models
 import app.google_cloud as google_cloud
 
-from app.forms import TravelBlogForm
-from app.models import TravelBlog, Country, City
 
 @flask_app.before_request
 def before_request():
@@ -407,6 +405,9 @@ def secondhand_post_view(post_id: int):
 
 
 #------------------------------------------------------------------------------
+from app.forms import TravelBlogForm
+from app.models import TravelBlog, Country, City
+
 @flask_app.route('/news')
 def news():
     return render_template('others/news.html.j2', title=_('News'))
@@ -460,7 +461,6 @@ def write():
 
         db.session.commit()
 
-        # Create the TravelBlog object
         blog = TravelBlog(
             title=form.title.data,
             content=form.content.data,

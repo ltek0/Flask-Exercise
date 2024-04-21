@@ -1,5 +1,22 @@
 {% extends "base.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-
+<div class="container">
+    <h2>Travel Blogs</h2>
+    <a href="{{ url_for('write') }}" class="btn btn-primary mb-3">Create new blog</a>
+    {% if blogs %}
+        <ul>
+            {% for blog in blogs %}
+                <li>
+                    <h3>{{ blog.title }}</h3>
+                    <p>{{ blog.content }}</p>
+                    <p>Author: {{ blog.user.username }}</p> <!-- Assuming user is associated with TravelBlog -->
+                    <!-- Add more details as needed -->
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No travel blogs available.</p>
+    {% endif %}
+</div>
 {% endblock %}

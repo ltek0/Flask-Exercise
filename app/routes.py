@@ -15,6 +15,8 @@ from .email import send_password_reset_email
 import app.models as models
 import app.google_cloud as google_cloud
 
+from app.forms import TravelBlogForm
+from app.models import TravelBlog, Country, City
 
 @flask_app.before_request
 def before_request():
@@ -437,6 +439,41 @@ def photography():
 
 @flask_app.route('/travel')
 def travel():
-    return render_template('others/travel.html.j2', title=_('Travel'))
+    blogs = TravelBlog.query.order_by(TravelBlog.timestamp.desc()).all()
+    return render_template('others/travel.html.j2', blogs=blogs)
+
+@flask_app.route('/write', methods=['GET', 'POST'])
+@login_required
+def write():
+    form = TravelBlogForm()
+    if form.validate_on_submit():
+        # Check if city and country exist, if not, create them
+        country = Country.query.filter_by(name=form.country.data).first()
+        if not country:
+            country = Country(name=form.country.data)
+            db.session.add(country)
+        
+        city = City.query.filter_by(name=form.city.data).first()
+        if not city:
+            city = City(name=form.city.data)
+            db.session.add(city)
+
+        db.session.commit()
+
+        # Create the TravelBlog object
+        blog = TravelBlog(
+            title=form.title.data,
+            content=form.content.data,
+            country=country,
+            city=city,
+            user=current_user
+        )
+
+        db.session.add(blog)
+        db.session.commit()
+        
+        flash(_('Your travel blog has been created!'))
+        return redirect(url_for('travel'))
+    return render_template('others/write.html.j2', title=_('Write Travel Blog'), form=form)
 
 #------------------------------------------------------------------------------

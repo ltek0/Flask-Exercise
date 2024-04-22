@@ -3,16 +3,14 @@ from flask_login import login_user, current_user, login_required, logout_user
 from flask_babel import _, get_locale
 
 from werkzeug.utils import secure_filename
-from urllib.parse import urlparse
 from datetime import datetime as dt, UTC
-from hashlib import sha256, md5
+from hashlib import md5
 from threading import Thread
 
-from . import flask_app, db, forms
+from . import flask_app, db, forms, models
 from .models import User, Post, PasswordResetTokens
 from .email import send_password_reset_email
 
-import app.models as models
 import app.google_cloud as google_cloud
 
 

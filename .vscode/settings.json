@@ -7,7 +7,11 @@
   "[jinja-html]": {
     "editor.defaultFormatter": "monosans.djlint"
   },
-
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
   "python.defaultInterpreterPath": "/usr/local/bin/python",
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true,
@@ -20,11 +24,5 @@
   "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
   "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
   "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
-  "python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
-  "[html]": {
-    "editor.defaultFormatter": "vscode.html-language-features"
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.autopep8"
-
-  }
+  "python.testing.pytestPath": "/usr/local/py-utils/bin/pytest"
 }

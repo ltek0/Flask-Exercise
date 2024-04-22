@@ -30,7 +30,8 @@
         "ms-azuretools.vscode-docker",
         "esbenp.prettier-vscode",
         "FallenMax.mithril-emmet",
-        "ms-python.pylint"
+        "ms-python.pylint",
+        "ms-python.autopep8"
       ]
     }
   },

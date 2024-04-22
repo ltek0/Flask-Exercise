@@ -1,0 +1,80 @@
+{% extends "base.html.j2" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+<style>
+    .blog-title:hover {
+        color: orange;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="display: inline-block;">Popular tourist locations</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{{ url_for('write') }}" class="btn btn-primary mt-3">Create new blog</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center" style="background-image: url('https://cdn01.dcfever.com/media/travel/sharing/15/05/17/710048_1431794700242_l.jpg'); background-size: cover; width: 300px; height: 300px;">
+                <div class="card-body">
+                    <h2 class="blog-title" data-country="Japan" style="color: white; font-weight: bold; font-size: 30px;">Japan</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center" style="background-image: url('https://cdn01.dcfever.com/media/travel/sharing/17/04/04/183647_1491269386467_l.jpg'); background-size: cover; width: 300px; height: 300px;">
+                <div class="card-body">
+                    <h2 class="blog-title" data-country="Norway" style="color: white; font-weight: bold; font-size: 30px;">Norway</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center" style="background-image: url('https://cdn01.dcfever.com/media/travel/sharing/15/06/13/437365_1434170747346_l.jpg'); background-size: cover; width: 300px; height: 300px;">
+                <div class="card-body">
+                    <h2 class="blog-title" data-country="Italy" style="color: white; font-weight: bold; font-size: 30px;">Italy</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 style="margin-top: 50px;">Latest travel blogs</h3>
+    {% if blogs %}
+        <ul id="blog-list">
+            {% for blog in blogs %}
+                <li class="blog-item" data-country="{{ blog.country.name | lower }}">
+                    <h3 class="blog-title">{{ blog.title }}</h3>
+                    <p>{{ blog.content }}</p>
+                    <p>by <a href="{{ url_for('profile', username=blog.user.username) }}">{{ blog.user.username }}</a></p>
+                    <p>Published on {{ blog.timestamp.strftime('%Y-%m-%d') }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No travel blogs available.</p>
+    {% endif %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const blogTitles = document.querySelectorAll('.blog-title');
+        blogTitles.forEach(title => {
+            title.addEventListener('click', function() {
+                const country = this.getAttribute('data-country').toLowerCase();
+                const blogItems = document.querySelectorAll('.blog-item');
+                blogItems.forEach(item => {
+                    const blogCountry = item.getAttribute('data-country').toLowerCase();
+                    if (blogCountry.includes(country)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

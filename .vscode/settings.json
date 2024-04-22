@@ -23,7 +23,6 @@
   "python.testing.pytestPath": "/usr/local/py-utils/bin/pytest",
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
-=======
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
 

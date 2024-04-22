@@ -29,9 +29,9 @@ class Config:
     # server_name used by url_for to construct url
     # without it will resault in
     # indirect-access(email) having 127.0.0.1:<-port-> as host
-    svr_nme = os.environ.get('SERVER_NAME')
-    if svr_nme:
-        SERVER_NAME = svr_nme
+    _svr_nme = os.environ.get('SERVER_NAME')
+    if _svr_nme:
+        SERVER_NAME = _svr_nme
 
     POSTS_PER_PAGE = 3
     LANGS = ['en', 'zh']

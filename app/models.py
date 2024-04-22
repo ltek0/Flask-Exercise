@@ -265,3 +265,16 @@ class SecondHandImage(db.Model):
 
     def __repr__(self) -> str:
         return f'<secondhandimage {self.id}:{self.path}>'
+    
+# 評分
+class Review:
+    def __init__(self, user, item, rating, comment):
+        self.user = user
+        self.item = item
+        self.rating = rating
+        self.comment = comment
+
+    def get_details(self):
+        return f"用戶：{self.user}\n商品：{self.item}\n評分：{self.rating}\n評論：{self.comment}"
+        review = Review("用戶A", "商品B", 5, "非常好的商品！")
+        print(review.get_details())

@@ -7,7 +7,7 @@
   "[jinja-html]": {
     "editor.defaultFormatter": "monosans.djlint"
   },
-<<<<<<< HEAD
+
   "python.defaultInterpreterPath": "/usr/local/bin/python",
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true,
@@ -26,6 +26,6 @@
 =======
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
->>>>>>> main
+
   }
 }

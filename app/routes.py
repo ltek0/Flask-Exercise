@@ -256,12 +256,12 @@ def gallery_category_view(category: str):
     return render_template('gallery/category_view.html.j2', title='Gallery', posts=posts, next_url=next_url, prev_url=prev_url, category=category)
 
 
-def upload_store_image(post, image, current_user):
-    object_key = f"{md5(f'{post.title}{current_user.username}{secure_filename(image.filename)}{dt.now(UTC)}'.encode('utf-8')).hexdigest()}"
+def upload_gallery_images(post, image, username: str):
+    object_key = f"{md5(f'{post.title}{username}{secure_filename(image.filename)}{dt.now(UTC)}'.encode('utf-8')).hexdigest()}"
     post_image = models.GalleryPostImage(object_key=object_key, post=post)
-    Thread(target=google_cloud.upload_blob_to_bucket,
+    obj = google_cloud.BucketObject(object_key=object_key)
+    Thread(target=obj.upload,
            kwargs={
-               'object_key': object_key,
                'content': image.read(),
                'content_type': 'image/jpeg'}).start()
     db.session.add(post_image)
@@ -279,7 +279,7 @@ def create_gallery():
             category=form.category.data or 'General')
         db.session.add(post)
         for image in request.files.getlist('images'):
-            upload_store_image(post, image, current_user)
+            upload_gallery_images(post, image, current_user.username)
         db.session.commit()
         flash('Thank you for your submission')
         return redirect(url_for('gallery'))
@@ -326,7 +326,7 @@ def add_gallery_image(post_id: int):
             flash(f'You can only have {flask_app.config["IMAGE_PER_GALLERY"]} images in a post!')
             return redirect(url_for('view_gallery', post_id=post.id))
         for image in request.files.getlist('images'):
-            upload_store_image(post, image, current_user)
+            upload_gallery_images(post, image, current_user.username)
         db.session.commit()
         return redirect(url_for('view_gallery', post_id=post.id))
     return render_template('gallery/add_image.html.j2', form=add_image, post=post)

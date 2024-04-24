@@ -1,0 +1,56 @@
+{% extends "admin/_admin_base.html.j2" %}
+{% block admin_nav_title %}
+    {{ _("User Administration") }}
+{% endblock admin_nav_title %}
+{% block admin_nav_button_herf %}
+    {{ url_for("index") }}
+{% endblock admin_nav_button_herf %}
+{% block admin_nav_button_label %}
+    {{ _("Exit") }}
+{% endblock admin_nav_button_label %}
+{% block admin_page_content %}
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ _("Username") }}</th>
+                            <th>{{ _("Display Name") }}</th>
+                            <th>{{ _("Email") }}</th>
+                            <th>{{ _("Role") }}</th>
+                            <th>{{ _("Actions") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.display_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.role }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin_user_edit', username=user.username) }}"
+                                       class="btn btn-primary"
+                                       role="button">{{ _("Edit") }}</a>
+                                    <a href="{{ url_for('admin_user_delete', username=username) }}"
+                                       class="btn btn-danger"
+                                       role="button">{{ _("Delete") }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="container">
+                    <div class="row">
+                        <a href="{{ url_for("admin_user_create") }}"
+                           class="btn btn-success"
+                           role="button">{{ _("Create User") }}</a>
+                    </div>
+                </div>
+                {% include "_pagination_button.html.j2" %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_page_content %}

@@ -15,6 +15,15 @@ followers = db.Table(
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+class UserRole(db.Model):
+    __tablename__ = 'userroles'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    users = db.relationship('User', backref='role', lazy='dynamic')
+
+    def __repr__(self) -> str:
+        return f'<UserRole {self.id}:{self.name}>'
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,6 +34,8 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, nullable=True)
     display_name = db.Column(db.String(100), nullable=True)
     about_me = db.Column(db.String(256), nullable=True)
+    role_id = db.Column(db.ForeignKey('userroles.id'))
+
     posts = db.relationship('Post', backref='author', lazy='select')
     followed = db.relationship(
         'User', secondary=followers,
@@ -32,11 +43,15 @@ class User(UserMixin, db.Model):
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
-    def __init__(self, username: str, email: str, display_name: str = None, about_me: str = None):
+    def __init__(self, username: str, email: str, display_name: str = None, about_me: str = None, role_name: str = 'User'):
         self.username = username
         self.email = email
         self.display_name = display_name or self.username
         self._about_me = about_me or '---'
+        self.role = UserRole.query.filter_by(name=role_name).first()
+        if not self.role:
+            self.role = UserRole(name=role_name)
+            db.session.add(self.role)
 
     def __repr__(self) -> str:
         return f'<User {self.id}:{self.username}>'
@@ -75,6 +90,9 @@ class User(UserMixin, db.Model):
         ).filter(followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id=self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
+    
+    def has_role(self, role: str) -> bool:
+        return self.role.name == role
 
 
 @login_manager.user_loader

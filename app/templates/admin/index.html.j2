@@ -1,0 +1,31 @@
+{% extends "admin/_admin_base.html.j2" %}
+{% block admin_nav_title %}
+    {{ _("Application Administration") }}
+{% endblock admin_nav_title %}
+{% block admin_nav_button_herf %}
+    {{ url_for("index") }}
+{% endblock admin_nav_button_herf %}
+{% block admin_nav_button_label %}
+    {{ _("Exit") }}
+{% endblock admin_nav_button_label %}
+{% block admin_page_content %}
+    <p>{{ _("This page is for the administration of the application.") }}</p>
+    <p>{{ _("You can use this page to manage the application.") }}</p>
+    <p>{{ _("Please use the navigation button bellow to access the administration page.") }}</p>
+    <hr />
+    <a href="{{ url_for("admin_user") }}"
+       class="btn btn-danger"
+       role="button">{{ _("User Administration") }}</a>
+    <hr />
+    <a href="{{ url_for("admin_role") }}"
+       class="btn btn-danger"
+       role="button">{{ _("Role Administration") }}</a>
+    <hr />
+    <a href="{{ url_for("admin_gallery") }}"
+       class="btn btn-danger"
+       role="button">{{ _("Gallery Administration") }}</a>
+    <hr />
+    <a href="{{ url_for("admin_secondhand") }}"
+       class="btn btn-danger"
+       role="button">{{ _("Secondhand Post Administration") }}</a>
+{% endblock admin_page_content %}

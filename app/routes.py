@@ -16,6 +16,9 @@ import app.google_cloud as google_cloud
 
 @flask_app.before_request
 def before_request():
+    if request.path.startswith('/admin/'):
+        if not current_user.has_role('admin'):
+            abort(403)
     if current_user.is_authenticated:
         current_user.last_seen = dt.now(UTC)
         db.session.commit()

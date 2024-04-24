@@ -16,6 +16,9 @@ import app.google_cloud as google_cloud
 
 @flask_app.before_request
 def before_request():
+    if request.path.startswith('/admin/'):
+        if not current_user.has_role('admin'):
+            abort(403)
     if current_user.is_authenticated:
         current_user.last_seen = dt.now(UTC)
         db.session.commit()
@@ -290,7 +293,7 @@ def create_gallery():
 def view_gallery(post_id: int):
     post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
     post.view()
-    return render_template('gallery/view.html.j2', post=post, IMGC=len(post.images))
+    return render_template('gallery/view.html.j2', post=post)
 
 
 @flask_app.route('/gallery/post/<int:post_id>/edit', methods=["GET", "POST"])

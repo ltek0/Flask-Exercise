@@ -35,4 +35,4 @@ def get_locale():
 
 
 # routes must be placed at the bottom
-from app import models, routes, errors, log
+from app import models, routes, errors, log, admin

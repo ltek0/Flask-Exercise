@@ -84,3 +84,12 @@ if __name__ == '__main__':
 
     user5.follow(user3)
     user5.follow(user4)
+
+    admin = User(
+        display_name = 'Admin',
+        username = 'admin',
+        email = 'admin@local',
+        role_name= 'admin')
+    admin.set_password('admin')
+    db.session.add(admin)
+    db.session.commit()

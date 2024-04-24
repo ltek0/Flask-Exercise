@@ -10,17 +10,23 @@
 {% endblock gallery_nav_button_label %}
 {% block gallery_page_content %}
     {% if post.images %}
-        <table>
-            <tr>
-                <td>Preview</td>
-                <td>Hash</td>
-            </tr>
-            {% for image in post.images %}
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td><img src="{{ image.path }}" width="100px" alt="post.title" /></td>
-                    <td>{{ image.object_key }}</td>
+                    <th>{{ _("Preview") }}</th>
+                    <th>{{ _("Hash") }}</th>
                 </tr>
-            {% endfor %}
+            </thead>
+            <tbody>
+                {% for image in post.images %}
+                    <tr>
+                        <td>
+                            <img src="{{ image.path }}" width="100px" alt="post.title" />
+                        </td>
+                        <td>{{ image.object_key }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     {% endif %}
     <div class="container">

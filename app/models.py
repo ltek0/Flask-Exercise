@@ -233,16 +233,16 @@ class GalleryPostImage(db.Model):
         return f"https://storage.googleapis.com/{flask_app.config['GOOGLE_STORAGE_BUCKET']}/{self.object_key}"
 
 
+#----------------------------------------------------------------------------------
 class SecondHandPost(db.Model):
     __tablename__ = 'secondhandpost'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
-    type = db.Column(db.String(10), nullable=True)
-    price = db.Column(db.Integer, nullable=True)
+    type = db.Column(db.String(10), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
     _queries = db.Column(db.Integer, default=0)
     _views = db.Column(db.Integer, default=0)
-    issue_date = db.Column(db.DateTime, default=dt.now(UTC))
-    last_update = db.Column(db.DateTime, default=dt.now(UTC))
+    issue_date = db.Column(db.DateTime, default=lambda: dt.now(UTC))
     publish_until = db.Column(db.DateTime, nullable=True)
     description = db.Column(db.String(512), nullable=False)
     seller = db.relationship('User', backref='second_hand_post', uselist=False)
@@ -271,13 +271,16 @@ class SecondHandPost(db.Model):
 class SecondHandImage(db.Model):
     __tablename__ = 'secondhandimage'
     id = db.Column(db.Integer, primary_key=True)
-    path = db.Column(db.String(256), nullable=True)
+    object_key = db.Column(db.String(40), nullable=False, unique=True)
     post = db.relationship('SecondHandPost', backref='images', uselist=False)
-    secondhandpost_id = db.Column(
-        db.Integer, db.ForeignKey('secondhandpost.id'))
+    secondhandpost_id = db.Column(db.Integer, db.ForeignKey('secondhandpost.id'))
 
     def __repr__(self) -> str:
         return f'<secondhandimage {self.id}:{self.path}>'
+
+    @property
+    def path(self):
+        return f"https://storage.googleapis.com/{flask_app.config['GOOGLE_STORAGE_BUCKET']}/{self.object_key}"
 
 
 #----------------------------------------------------------------------------------

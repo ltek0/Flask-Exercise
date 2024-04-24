@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
@@ -12,11 +11,10 @@ from wtforms import (
     ValidationError,
     TextAreaField,
     MultipleFileField,
-    EmailField,
-    SelectField
+    EmailField
 )
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
-from flask_wtf.file import FileRequired,  FileAllowed
+from flask_wtf.file import FileAllowed
 
 from .models import User, GalleryPostImage
 from . import flask_app

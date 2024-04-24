@@ -355,16 +355,25 @@ def delete_gallery_image(post_id: int):
     return render_template('gallery/delete_image.html.j2', form=delete_image, post=post, title='Delete Image')
 
 
-@flask_app.route('/secondhand/p')
+#------------------------------------------------------------------------------
+def upload_secondhand_images(post, image, username: str):
+    object_key = f"{md5(f'{post.title}{username}{secure_filename(image.filename)}{dt.now(UTC)}'.encode('utf-8')).hexdigest()}"
+    post_image = models.SecondHandImage(object_key=object_key, post=post)
+    obj = google_cloud.BucketObject(object_key=object_key)
+    Thread(target=obj.upload,
+           kwargs={
+               'content': image.read(),
+               'content_type': 'image/jpeg'}).start()
+    db.session.add(post_image)
+
+
+@flask_app.route('/secondhand/page')
 @flask_app.route('/secondhand')
 def secondhand():
     page = request.args.get("page", 1, type=int)
-    posts = models.SecondHandPost.query.order_by(models.SecondHandPost.issue_date.desc(
-    )).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for(
-        'secondhand', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for(
-        'secondhand', page=posts.prev_num) if posts.prev_num else None
+    posts = models.SecondHandPost.query.order_by(models.SecondHandPost.issue_date.desc()).paginate(page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for('secondhand', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for('secondhand', page=posts.prev_num) if posts.prev_num else None
     return render_template('secondhand/home.html.j2', title='Second Hand Market', posts=posts, next_url=next_url, prev_url=prev_url)
 
 
@@ -374,32 +383,47 @@ def secondhand_create_post():
     form = forms.CreateSecondHandPost()
     if form.validate_on_submit():
         secondhand_post = models.SecondHandPost(
-            title=form.title.data,
-            type=form.type.data,
-            price=form.price.data,
-            publish_until=form.publish_until.data,
-            description=form.description.data,
-            seller=current_user)
+            title = form.title.data,
+            type = form.type.data,
+            price = form.price.data,
+            publish_until = form.publish_until.data,
+            description = form.description.data,
+            seller = current_user)
         for image in request.files.getlist('images'):
-            secondhand_post_image = models.SecondHandImage(
-                object_key=google_cloud.upload_blob_to_bucket(
-                    bucket_name=flask_app.config['GOOGLE_STORAGE_BUCKET'],
-                    object_key=f"images/{md5(f'gallery{secondhand_post.title}_{current_user.username}_{image.filename}'.encode('utf-8')).hexdigest()}",
-                    content=image.read(),
-                    content_type='image/jpeg'),
-                post=secondhand_post)
-        db.session.add_all([secondhand_post, secondhand_post_image])
+            upload_secondhand_images(secondhand_post, image, current_user.username)
+        db.session.add(secondhand_post)
         db.session.commit()
         flash('Thank you for your submission')
         return redirect(url_for('secondhand'))
     return render_template('secondhand/create.html.j2', form=form)
 
 
-@flask_app.route('/secondhand/p/<int:post_id>')
-def secondhand_post_view(post_id: int):
-    post = models.SecondHandPost.query.filter_by(id=post_id).first_or_404()
+@flask_app.route('/secondhand/page/<int:post_id>')
+def view_secondhand_post(post_id: int):
+    post = models.SecondHandPost.query.filter_by(id = post_id).first_or_404()
     post.add_view_count()
     return render_template('secondhand/view.html.j2', post=post)
+
+
+@flask_app.route('/secondhand/post/<int:post_id>/edit', methods=["GET", "POST"])
+def edit_secondhand(post_id: int):
+    post = models.SecondHandPost.query.filter_by(id=post_id).first_or_404()
+    if post.seller != current_user:
+        flash('You can only edit your own post!')
+        return redirect(url_for('view_secondhand_post', post_id=post_id))
+    edit_post = forms.EditSecondHandPost()
+    if edit_post.validate_on_submit():
+        post.title = edit_post.title.data
+        post.type = edit_post.type.data
+        post.price = edit_post.price.data
+        post.description = edit_post.description.data
+        db.session.commit()
+        return redirect(url_for('view_secondhand_post', post_id=post.id))
+    edit_post.title.data = post.title
+    edit_post.type.data = post.type
+    edit_post.price.data = post.price
+    edit_post.description.data = post.description
+    return render_template('secondhand/edit.html.j2', form=edit_post, post=post)
 
 
 #------------------------------------------------------------------------------

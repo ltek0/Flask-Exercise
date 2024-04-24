@@ -9,8 +9,12 @@
   },
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features",
+  },
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "files.associations": {
+    "*.html.j2": "jinja-html"
   },
   "python.defaultInterpreterPath": "/usr/local/bin/python",
   "python.linting.enabled": true,

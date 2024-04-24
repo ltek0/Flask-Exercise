@@ -6,7 +6,7 @@ from hashlib import md5
 
 from flask_login import UserMixin
 
-from . import db, login_manager, flask_app
+from . import db, login_manager, flask_app, google_cloud
 
 
 followers = db.Table(
@@ -179,6 +179,7 @@ class GalleryPost(db.Model):
     description = db.Column(db.String(512), nullable=True)
     _views = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    _is_ready = db.Column(db.Boolean, default=False)
     category_id = db.Column(db.ForeignKey('gallerycategory.id'))
     author = db.relationship('User', backref='gallery_post', uselist=False)
     category = db.relationship(
@@ -192,6 +193,7 @@ class GalleryPost(db.Model):
         if not self.category:
             self.category = GalleryCategory(name=category)
             db.session.add(self.category)
+        self._is_ready = False
 
     def __repr__(self) -> str:
         return f'<GalleryPost {self.id}:{self.title}>'
@@ -203,6 +205,17 @@ class GalleryPost(db.Model):
     def view(self):
         self._views += 1
         db.session.commit()
+
+    @property
+    def is_ready(self):
+        if self._is_ready:
+            return True
+        for image in self.images.all():
+            if not google_cloud.BucketObject(object_key=image.object_key).exist:
+                return False
+        self._is_ready = True
+        db.session.commit()
+        return self.is_ready
 
 
 class GalleryPostImage(db.Model):

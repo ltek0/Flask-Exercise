@@ -290,7 +290,7 @@ def create_gallery():
 def view_gallery(post_id: int):
     post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
     post.view()
-    return render_template('gallery/view.html.j2', post=post, IMGC=len(post.images))
+    return render_template('gallery/view.html.j2', post=post)
 
 
 @flask_app.route('/gallery/post/<int:post_id>/edit', methods=["GET", "POST"])

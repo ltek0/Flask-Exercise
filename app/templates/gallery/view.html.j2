@@ -15,7 +15,6 @@
             <p>{{ _("Category") }}: {{ post.category.name }}</p>
             {% if post.description %}<p>{{ _("Description") }}: {{ post.description }}</p>{% endif %}
             <p>{{ _("Views") }}: {{ post.views }}</p>
-            <p>{{ _("Image Count") }}: {{ IMGC }}</p>
             <hr />
             {% if post.author == current_user %}
                 <a href="{{ url_for('edit_gallery', post_id=post.id) }}"
@@ -41,4 +40,6 @@
                     {% endfor %}
                 </div>
             </div>
-        {% endblock gallery_page_content %}
+        </div>
+    </div>
+{% endblock gallery_page_content %}

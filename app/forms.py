@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from flask_wtf import FlaskForm
 from flask_babel import gettext
 
@@ -16,7 +17,7 @@ from wtforms import (
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 from flask_wtf.file import FileAllowed
 
-from .models import User, GalleryPostImage
+from .models import User, GalleryPostImage, SecondHandPost
 from . import flask_app
 import re
 
@@ -203,13 +204,22 @@ class CreateSecondHandPost(FlaskForm):
 
 class EditSecondHandPost(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='Title is required')])
-    type = StringField(gettext('Title'), validators=[DataRequired(message='Typeis required')])
+    type = StringField(gettext('Type'), validators=[DataRequired(message='Type is required')])
     price = DecimalField(gettext('Product Price'), validators=[DataRequired(message='Price is required')])
     description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
     submit = SubmitField(gettext("Save Changes"))
 
-# ----------------------------------------------------------------
 
+class DeleteSecondHandPost(FlaskForm):
+    confirm = StringField(gettext("Please input 'delete' to delete post"))
+    submit = SubmitField(gettext("Delete"))
+    
+    def validate_confirm(self, confirm: StringField):
+        if confirm.data != 'delete':
+            raise ValidationError('Please input "delete" to delete post')
+
+
+# ----------------------------------------------------------------
 class TravelBlogForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(max=128)])
     content = TextAreaField('Content', validators=[DataRequired()])

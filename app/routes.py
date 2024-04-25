@@ -408,6 +408,34 @@ def view_secondhand_post(post_id: int):
     return render_template('secondhand/view.html.j2', post=post)
 
 
+@flask_app.route('/secondhand/category')
+@flask_app.route('/secondhand/category/')
+def secondhand_category():
+    page = request.args.get("page", 1, type=int)
+    categories = models.SecondHandTypes.query.paginate(
+        page=page, per_page=20, error_out=False)
+    next_url = url_for(
+        'secondhand_category', page=categories.next_num) if categories.next_num else None
+    prev_url = url_for(
+        'secondhand_category', page=categories.prev_num) if categories.prev_num else None
+    return render_template('secondhand/category_list.html.j2', title='Second Hand', categories=categories, next_url=next_url, prev_url=prev_url)
+
+
+@flask_app.route('/secondhand/category/<category_s>')
+@flask_app.route('/secondhand/category/<category_s>/')
+def secondhand_category_view(category_s: str):
+    category = models.SecondHandTypes.query.filter_by(
+        name=category_s).first_or_404()
+    page = request.args.get("page", 1, type=int)
+    posts = models.SecondHandPost.query.filter_by(type_id=category.id).order_by(models.SecondHandPost.issue_date.desc()).paginate(
+        page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for(
+        'secondhand_category_view', page=posts.next_num) if posts.next_num else None
+    prev_url = url_for(
+        'secondhand_category_view', page=posts.prev_num) if posts.prev_num else None
+    return render_template('secondhand/category_view.html.j2', title='Second Hand', posts=posts, next_url=next_url, prev_url=prev_url, category=category)
+
+
 @flask_app.route('/secondhand/post/<int:post_id>/edit', methods=["GET", "POST"])
 def edit_secondhand(post_id: int):
     post = models.SecondHandPost.query.filter_by(id=post_id).first_or_404()
@@ -427,6 +455,24 @@ def edit_secondhand(post_id: int):
     edit_post.price.data = post.price
     edit_post.description.data = post.description
     return render_template('secondhand/edit.html.j2', form=edit_post, post=post)
+
+
+@flask_app.route('/secondhand/post/<int:post_id>/delete', methods=["GET", "POST"])
+def delete_secondhand_post(post_id: int):
+    post = models.SecondHandPost.query.filter_by(id=post_id).first_or_404()
+    if post.seller != current_user:
+        flash('You can only delete your own post!')
+        return redirect(url_for('view_secondhand_post', post_id=post_id))
+    delete_post = forms.DeleteSecondHandPost()
+    if delete_post.validate_on_submit():
+        for image in post.images:
+            google_cloud.delete_from_object_key(image.object_key)
+            db.session.delete(image)
+        db.session.delete(post)
+        db.session.commit()
+        flash(f'Deleted {post.title}')
+        return redirect(url_for('secondhand'))
+    return render_template('secondhand/delete_post.html.j2', form=delete_post, post=post, title='Delete Post')
 
 
 #------------------------------------------------------------------------------

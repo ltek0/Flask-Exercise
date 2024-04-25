@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Second Hand") }}</h1>
+                <h1 style="margin: 0; display: inline-block;">{{ _("Second Hand Market") }}</h1>
             </div>
             <div class="span6 pull-right">
                 <a href="{{ url_for("secondhand_create_post") }}"
@@ -14,7 +14,7 @@
     </div>
     <hr />
     <h4>
-        <a href="{{ url_for("secondhand_category") }}">{{ _("Filter By Category") }}</a>
+        <a href="{{ url_for("secondhand_category") }}">{{ _("Filter By types") }}</a>
     </h4>
     <hr />
     {% for post in posts %}

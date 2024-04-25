@@ -21,10 +21,7 @@
                     <tbody>
                         {% for category in categories %}
                             <tr>
-                                <td>{{ category.name }}</td>
-                                <td>
-                                    <a href="{{ url_for('gallery_category_view', category=category.name) }}">{{ _("visit") }}</a>
-                                </td>
+                                <td><a href="{{ url_for('gallery_category_view', category=category.name) }}">{{ category.name }}</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>

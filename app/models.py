@@ -260,7 +260,6 @@ class SecondHandPost(db.Model):
     _queries = db.Column(db.Integer, default=0)
     _views = db.Column(db.Integer, default=0)
     issue_date = db.Column(db.DateTime, default=lambda: dt.now(UTC))
-    publish_until = db.Column(db.DateTime, nullable=True)
     description = db.Column(db.String(512), nullable=False)
     seller = db.relationship('User', backref='second_hand_post', uselist=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

@@ -197,7 +197,6 @@ class CreateSecondHandPost(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(max=128, min=1, message='Title must be less then 128 charactor')])
     type = StringField(gettext('Type'), validators=[DataRequired(message='Type of product is required')])
     price = DecimalField(gettext('Product Price'), validators=[DataRequired(message='Price is required')])
-    publish_until = DateTimeField(gettext('Publish Until'))
     images = MultipleFileField(gettext('Select Photos'), validators=[FileAllowed(['jpg', 'png', 'gif', 'jfif'], message='You can only upload images!')])
     description = TextAreaField(gettext("Description"), validators=[Length(max=512, min=0, message='Description must be less then 512 charactor')])
     submit = SubmitField("Submit")

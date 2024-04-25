@@ -28,12 +28,15 @@
                                 <td>{{ user.username }}</td>
                                 <td>{{ user.display_name }}</td>
                                 <td>{{ user.email }}</td>
-                                <td>{{ user.role }}</td>
+                                <td>{{ user.role.name }}</td>
                                 <td>
-                                    <a href="{{ url_for('admin_user_edit', username=user.username) }}"
+                                    <a href="{{ url_for('profile', username=user.username) }}"
                                        class="btn btn-primary"
+                                       role="button">{{ _("View") }}</a>
+                                    <a href="{{ url_for('admin_user_edit', username=user.username) }}"
+                                       class="btn btn-success"
                                        role="button">{{ _("Edit") }}</a>
-                                    <a href="{{ url_for('admin_user_delete', username=username) }}"
+                                    <a href="{{ url_for('admin_user_delete', username=user.username) }}"
                                        class="btn btn-danger"
                                        role="button">{{ _("Delete") }}</a>
                                 </td>

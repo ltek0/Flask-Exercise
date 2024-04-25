@@ -1,0 +1,19 @@
+{% extends "admin/_admin_base.html.j2" %}
+{% block admin_nav_title %}
+    {{ _("User Administration") }}
+{% endblock admin_nav_title %}
+{% block admin_nav_button_herf %}
+    {{ url_for("index") }}
+{% endblock admin_nav_button_herf %}
+{% block admin_nav_button_label %}
+    {{ _("Exit") }}
+{% endblock admin_nav_button_label %}
+{% block admin_page_content %}
+    <div class="container">
+        <div class="row">
+        <h3>Edit User - {{user.username}}</h3>
+        <p>You are editing user with username {{user.username}}</p>
+        {% include "_quick_form.html.j2" %}
+        </div>
+    </div>
+{% endblock admin_page_content %}

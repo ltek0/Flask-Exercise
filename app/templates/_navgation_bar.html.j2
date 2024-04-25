@@ -48,6 +48,11 @@
                     <li>
                         <a href="{{ url_for("travel") }}">{{ _("Travel") }}</a>
                     </li>
+                    {% if current_user.is_authenticated and current_user.has_role('admin') %}
+                    <li>
+                        <a href="{{ url_for("admin") }}">{{ _("Admin") }}</a>
+                    </li>
+                    {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}

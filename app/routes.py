@@ -16,7 +16,7 @@ import app.google_cloud as google_cloud
 
 @flask_app.before_request
 def before_request():
-    if request.path.startswith('/admin/'):
+    if request.path.startswith('/admin'):
         if not current_user.has_role('admin'):
             abort(403)
     if current_user.is_authenticated:
@@ -408,7 +408,6 @@ def secondhand_create_post():
             title = form.title.data,
             type = form.type.data,
             price = form.price.data,
-            publish_until = form.publish_until.data,
             description = form.description.data,
             seller = current_user)
         for image in request.files.getlist('images'):
@@ -440,11 +439,11 @@ def secondhand_category():
     return render_template('secondhand/category_list.html.j2', title='Second Hand', categories=categories, next_url=next_url, prev_url=prev_url)
 
 
-@flask_app.route('/secondhand/category/<category_s>')
-@flask_app.route('/secondhand/category/<category_s>/')
-def secondhand_category_view(category_s: str):
+@flask_app.route('/secondhand/category/<category>')
+@flask_app.route('/secondhand/category/<category>/')
+def secondhand_category_view(category: str):
     category = models.SecondHandTypes.query.filter_by(
-        name=category_s).first_or_404()
+        name=category).first_or_404()
     page = request.args.get("page", 1, type=int)
     posts = models.SecondHandPost.query.filter_by(type_id=category.id).order_by(models.SecondHandPost.issue_date.desc()).paginate(
         page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)

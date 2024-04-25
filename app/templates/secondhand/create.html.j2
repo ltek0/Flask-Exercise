@@ -46,15 +46,6 @@
                         </div>
                     {% endif %}
                     <div class="form-group required">
-                        <label class="control-label" for="publish_until">{{ form.publish_until.label }}</label>
-                        {{ form.price(class="form-control", type="datetime-local") }}
-                    </div>
-                    {% if form.publish_until.errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.publish_until.errors %}<p>{{ error }}</p>{% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="form-group required">
                         <label class="form-label" for="validatedCustomFile">{{ form.description.label }}</label>
                         {{ form.description(class="form-control") }}
                     </div>

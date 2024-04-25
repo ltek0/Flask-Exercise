@@ -408,6 +408,7 @@ def secondhand_create_post():
             title = form.title.data,
             type = form.type.data,
             price = form.price.data,
+            category = form.category.data,
             description = form.description.data,
             seller = current_user)
         for image in request.files.getlist('images'):
@@ -430,7 +431,7 @@ def view_secondhand_post(post_id: int):
 @flask_app.route('/secondhand/category/')
 def secondhand_category():
     page = request.args.get("page", 1, type=int)
-    categories = models.SecondHandTypes.query.paginate(
+    categories = models.SecondHandCategory.query.paginate(
         page=page, per_page=20, error_out=False)
     next_url = url_for(
         'secondhand_category', page=categories.next_num) if categories.next_num else None
@@ -442,10 +443,10 @@ def secondhand_category():
 @flask_app.route('/secondhand/category/<category>')
 @flask_app.route('/secondhand/category/<category>/')
 def secondhand_category_view(category: str):
-    category = models.SecondHandTypes.query.filter_by(
+    category = models.SecondHandCategory.query.filter_by(
         name=category).first_or_404()
     page = request.args.get("page", 1, type=int)
-    posts = models.SecondHandPost.query.filter_by(type_id=category.id).order_by(models.SecondHandPost.issue_date.desc()).paginate(
+    posts = models.SecondHandPost.query.filter_by(category_id=category.id).order_by(models.SecondHandPost.issue_date.desc()).paginate(
         page=page, per_page=flask_app.config["POSTS_PER_PAGE"], error_out=False)
     next_url = url_for(
         'secondhand_category_view', page=posts.next_num) if posts.next_num else None
@@ -466,12 +467,14 @@ def edit_secondhand(post_id: int):
         post.type = edit_post.type.data
         post.price = edit_post.price.data
         post.description = edit_post.description.data
+        post.category = edit_post.category.data
         db.session.commit()
         return redirect(url_for('view_secondhand_post', post_id=post.id))
     edit_post.title.data = post.title
     edit_post.type.data = post.type
     edit_post.price.data = post.price
     edit_post.description.data = post.description
+    edit_post.category.data = post.category
     return render_template('secondhand/edit.html.j2', form=edit_post, post=post)
 
 

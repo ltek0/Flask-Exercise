@@ -1,6 +1,5 @@
 {% extends "base.html.j2" %}
 {% block app_content %}
-
     <div class="container">
         <div class="row">
             <div class="span6 pull-left">
@@ -17,21 +16,20 @@
     <h2>{{ post.title }}</h2>
     <hr />
     <p>
-        <span>{{ post.type }}</span>&nbsp;&nbsp;
-        <span style="color: red">HK${{ post.price }}</span>
+        <span>{{ post.type }}</span>&nbsp;&nbsp;<span style="color: red">HK${{ post.price }}</span>
     </p>
-    
-    <p>Seller: {{ post.seller.display_name }}</p>
-    <p>Queries: {{ post.queries }}</p>
+    <p>{{ _("Category: ") }} {{ post.category }}</p>
+    <p>{{ _("Seller:") }} {{ post.seller.display_name }}</p>
+    <p>{{ _("Queries:") }} {{ post.queries }}</p>
     <p>{{ _("Views:") }} {{ post.views }}</p>
-    <p>Issue Date: {{ post.issue_date.strftime("%d %b %Y") }}</p>
+    <p>{{ _("Issue Date:") }} {{ post.issue_date.strftime("%d %b %Y") }}</p>
     {% if post.description %}<p>{{ post.description }}</p>{% endif %}
     <hr />
     {% if post.seller == current_user %}
         <a href="{{ url_for('edit_secondhand', post_id=post.id) }}"
            class="btn btn-primary"
            role="button">{{ _("Edit Post") }}</a>
-           <hr />
+        <hr />
     {% endif %}
-        {% for img in post.images %}<img src="{{ img.path }}" alt="{{ post.title }}" class="img-responsive" />{% endfor %}
-    {% endblock app_content %}
+    {% for img in post.images %}<img src="{{ img.path }}" alt="{{ post.title }}" class="img-responsive" />{% endfor %}
+{% endblock app_content %}

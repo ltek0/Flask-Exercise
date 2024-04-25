@@ -1,0 +1,40 @@
+{% extends "base.html.j2" %}
+{% block app_content %}
+    <div class="container">
+        <div class="row">
+            <div class="span6 pull-left">
+                <h1 style="margin: 0; display: inline-block;">{{ _("Second Hand Types") }}</h1>
+            </div>
+            <div class="span6 pull-right">
+                <a href="{{ url_for("secondhand") }}"
+                   class="btn btn-primary"
+                   role="button">{{ _("go back") }}</a>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ _("Types") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('secondhand_category_view', category=category.name) }}">{{ category.name }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% include "_pagination_button.html.j2" %}
+            </div>
+        </div>
+    </div>
+{% endblock app_content %}
+=

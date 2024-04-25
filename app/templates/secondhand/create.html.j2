@@ -36,6 +36,16 @@
                             {% for error in form.type.errors %}<p>{{ error }}</p>{% endfor %}
                         </div>
                     {% endif %}
+                    
+                    <div class="form-group required">
+                        <label class="control-label" for="type">{{ form.category.label }}</label>
+                        {{ form.category(class="form-control") }}
+                    </div>
+                    {% if form.category.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.category.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
                     <div class="form-group required">
                         <label class="control-label" for="price">{{ form.price.label }}</label>
                         {{ form.price(class="form-control", step="0.01", default="0") }}

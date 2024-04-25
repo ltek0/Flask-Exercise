@@ -256,7 +256,6 @@ class SecondHandPost(db.Model):
     __tablename__ = 'secondhandpost'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
-    type = db.Column(db.String(10), nullable=False)
     price = db.Column(db.Integer, nullable=False)
     _queries = db.Column(db.Integer, default=0)
     _views = db.Column(db.Integer, default=0)
@@ -265,6 +264,19 @@ class SecondHandPost(db.Model):
     description = db.Column(db.String(512), nullable=False)
     seller = db.relationship('User', backref='second_hand_post', uselist=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    type_id = db.Column(db.ForeignKey('secondhandtypes.id'))
+    _type = db.relationship('SecondHandTypes', backref='post', uselist=False)
+
+    @property
+    def type(self) -> str:
+        return self._type.name
+    
+    @type.setter
+    def type(self, type_string: str):
+        self._type = SecondHandTypes.query.filter_by(name=type_string).first()
+        if not self._type:
+            self._type = SecondHandTypes(name=type_string)
+            db.session.add(self._type)
 
     def __repr__(self) -> str:
         return f'<SecondHandPost {self.id}:{self.title}>'
@@ -299,6 +311,15 @@ class SecondHandImage(db.Model):
     @property
     def path(self):
         return f"https://storage.googleapis.com/{flask_app.config['GOOGLE_STORAGE_BUCKET']}/{self.object_key}"
+    
+
+class SecondHandTypes(db.Model):
+    __tablename__ = 'secondhandtypes'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True, index=True)
+
+    def __repr__(self) -> str:
+        return f'<SecondHandPost {self.id}:{self.name}>'
 
 
 #----------------------------------------------------------------------------------

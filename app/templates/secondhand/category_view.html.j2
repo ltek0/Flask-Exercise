@@ -3,10 +3,10 @@
     <div class="container">
         <div class="row">
             <div class="span6 pull-left">
-                <h1 style="margin: 0; display: inline-block;">{{ _("Second Hand Type %(n)s", n= category.name) }}</h1>
+                <h1 style="margin: 0; display: inline-block;">{{ _("Second Hand Type - %(n)s", n= category.name) }}</h1>
             </div>
             <div class="span6 pull-right">
-                <a href="{{ url_for("secondhand") }}"
+                <a href="{{ url_for("secondhand_category") }}"
                    class="btn btn-primary"
                    role="button">{{_("go back")}}</a>
             </div>

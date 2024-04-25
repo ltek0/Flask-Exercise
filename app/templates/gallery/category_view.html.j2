@@ -1,6 +1,6 @@
 {% extends "gallery/_gallery_base.html.j2" %}
 {% block gallery_nav_title %}
-    {{ _("Gallery Categories Posts %(c)s", c=category.name) }}
+    {{ _("Gallery Categories - %(c)s", c=category.name) }}
 {% endblock gallery_nav_title %}
 {% block gallery_nav_button_herf %}
     {{ url_for("gallery_category") }}

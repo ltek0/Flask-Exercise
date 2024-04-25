@@ -41,6 +41,7 @@ def get_bucket():
 
 
 def delete_from_object_key(object_key: str):
+    print(f"Deleting {object_key}")
     bucket = _get_storage_client().bucket(
         flask_app.config['GOOGLE_STORAGE_BUCKET'])
     blob = bucket.blob(object_key)

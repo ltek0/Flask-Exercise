@@ -118,6 +118,7 @@ class ResetPasswordForm(FlaskForm):
             _password_validator(password=password.data)
 
 
+# ----------------------------------------------------------------
 class CreateGallery(FlaskForm):
     title = StringField(gettext('Title'), validators=[DataRequired(message='A title for your submission is required'), Length(
         max=128, min=1, message='Title must be less then 128 charactor')])
@@ -181,7 +182,15 @@ class DeleteGalleryImages(FlaskForm):
             object_key=filehash, gallerypost_id=self.post_id).first()
         if not img:
             raise ValidationError("Image key was not found")
+        
 
+class DeleteGallery(FlaskForm):
+    confirm = StringField(gettext('Please Input "delete me" to delete your post'), validators=[DataRequired(message='Please input "delete me" to confirm delete your post.')])
+    submit = SubmitField(gettext("Delete My Post"))
+
+    def validate_confirm(self, confirm: StringField):
+        if confirm.data != 'delete me':
+            raise ValidationError(gettext('Please input "delete me" to confirm delete your post.'))
 
 # ----------------------------------------------------------------
 class CreateSecondHandPost(FlaskForm):

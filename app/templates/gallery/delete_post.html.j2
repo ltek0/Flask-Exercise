@@ -1,0 +1,33 @@
+{% extends "gallery/_gallery_base.html.j2" %}
+{% block gallery_nav_title %}
+    {{ _("Delete Your Gallery") }}
+{% endblock gallery_nav_title %}
+{% block gallery_nav_button_herf %}
+    {{ url_for('view_gallery', post_id=post.id) }}
+{% endblock gallery_nav_button_herf %}
+{% block gallery_nav_button_label %}
+    {{ _("Go Back") }}
+{% endblock gallery_nav_button_label %}
+{% block gallery_page_content %}
+    <div class="container">
+        <div class="row">
+        <h3>Delete {{ post.title }}</h3>
+        <p>You are about to delete your post titled "{{ post.title }}". This action is irreversible and cannot be undone, even if you contact support. Please confirm your action.</p>
+        <hr />
+            <form method="post" class="form" enctype="multipart/form-data" role="form" novalidate>
+            {{ form.hidden_tag() }}
+                <div class="form-group required">
+                    <label class="control-label" for="title">{{ form.confirm.label }}</label>
+                    {{ form.confirm(class="form-control") }}
+                </div>
+                {% if form.confirm.errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.confirm.errors %}<p>{{ error }}</p>{% endfor %}
+                    </div>
+                {% endif %}
+                
+                {{ form.submit(class="btn btn-danger") }}
+            </form>
+        </div>
+    </div>
+{% endblock gallery_page_content %}

@@ -40,6 +40,12 @@
                     {% endfor %}
                 </div>
             </div>
+            <hr />
+            {% if post.author == current_user %}
+                <a href="{{ url_for('delete_gallery', post_id=post.id) }}"
+                   class="btn btn-danger"
+                   role="button">{{ _("Delete my post") }}</a>
+            {% endif %}
         </div>
     </div>
 {% endblock gallery_page_content %}

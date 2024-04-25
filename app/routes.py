@@ -315,6 +315,25 @@ def edit_gallery(post_id: int):
     return render_template('gallery/edit.html.j2', form=edit_post, post=post)
 
 
+@flask_app.route('/gallery/post/<int:post_id>/delete', methods=["GET", "POST"])
+def delete_gallery(post_id: int):
+    post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
+    if post.author != current_user:
+        flash('You can only edit your own post!')
+        return redirect(url_for('view_gallery', post_id=post_id))
+    form = forms.DeleteGallery()
+    if form.validate_on_submit():
+        for image in post.images:
+            google_cloud.delete_from_object_key(image.object_key)
+            db.session.delete(image)
+            db.session.commit()
+        db.session.delete(post)
+        db.session.commit()
+        flash(f'Your gallery titled {post.title} has been deleted')
+        return redirect(url_for('gallery'))
+    return render_template('gallery/delete_post.html.j2', form=form, post=post)
+
+
 @flask_app.route('/gallery/post/<int:post_id>/add_images', methods=["GET", "POST"])
 def add_gallery_image(post_id: int):
     post = models.GalleryPost.query.filter_by(id=post_id).first_or_404()
@@ -347,8 +366,7 @@ def delete_gallery_image(post_id: int):
         image = models.GalleryPostImage.query.filter_by(
             object_key=delete_image.filehash.data, gallerypost_id=post.id).first()
         if image:
-            Thread(target=google_cloud.delete_from_object_key,
-                   kwargs={'object_key': image.object_key})
+            google_cloud.delete_from_object_key(image.object_key)
             db.session.delete(image)
             db.session.commit()
             flash(f'deleted {delete_image.filehash.data}')
@@ -356,6 +374,7 @@ def delete_gallery_image(post_id: int):
             flash('Image was not found')
         return redirect(url_for('view_gallery', post_id=post.id))
     return render_template('gallery/delete_image.html.j2', form=delete_image, post=post, title='Delete Image')
+
 
 
 #------------------------------------------------------------------------------

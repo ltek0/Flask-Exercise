@@ -565,4 +565,18 @@ def write():
         return redirect(url_for('travel'))
     return render_template('others/write.html.j2', title=_('Write Travel Blog'), form=form)
 
+@flask_app.route('/delete_travel_blog/<int:blog_id>', methods=['POST'])
+@login_required
+def delete_travel_blog(blog_id):
+    blog = TravelBlog.query.get_or_404(blog_id)
+
+    # Check if the current user is the author of the blog
+    if blog.user != current_user:
+        abort(403) 
+
+    db.session.delete(blog)
+    db.session.commit()
+    flash(_('Your travel blog has been deleted!'))
+    return redirect(url_for('travel'))
+
 #------------------------------------------------------------------------------

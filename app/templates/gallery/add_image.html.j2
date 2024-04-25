@@ -3,7 +3,7 @@
     {{ _("Add Gallery Images") }}
 {% endblock gallery_nav_title %}
 {% block gallery_nav_button_herf %}
-    {{ url_for('edit_gallery', post_id=post.id) }}
+    {{ url_for('view_gallery', post_id=post.id) }}
 {% endblock gallery_nav_button_herf %}
 {% block gallery_nav_button_label %}
     {{ _("Go Back") }}

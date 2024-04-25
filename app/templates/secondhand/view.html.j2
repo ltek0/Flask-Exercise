@@ -31,5 +31,12 @@
            role="button">{{ _("Edit Post") }}</a>
         <hr />
     {% endif %}
-    {% for img in post.images %}<img src="{{ img.path }}" alt="{{ post.title }}" class="img-responsive" />{% endfor %}
+    {% for img in post.images %}
+        <img src="{{ img.path }}"
+             alt="{{ post.title }}"
+             class="img-responsive"
+             style="width: auto;
+                    height: 250px;
+                    object-fFit: contain" />
+    {% endfor %}
 {% endblock app_content %}

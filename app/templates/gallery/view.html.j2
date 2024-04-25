@@ -11,9 +11,8 @@
 {% block gallery_page_content %}
     <div class="container">
         <div class="row">
-            <h3>{{ _("Title") }}: {{ post.title }}</h3>
-            <p>{{ _("Category") }}: {{ post.category.name }}</p>
-            {% if post.description %}<p>{{ _("Description") }}: {{ post.description }}</p>{% endif %}
+            <h3>{{ post.title }}</h3>
+            {% if post.description %}<p>{{ post.description }}</p>{% endif %}
             <p>{{ _("Views") }}: {{ post.views }}</p>
             <hr />
             {% if post.author == current_user %}

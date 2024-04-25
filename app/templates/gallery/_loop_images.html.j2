@@ -1,0 +1,25 @@
+<div class="container"
+     style="display: flex;
+            flex-direction: column;
+            align-items: flex-start">
+    <div class="row">
+        {% for post in posts %}
+            <div style="display: inline-block;">
+                <h3>
+                    <a href="{{ url_for('view_gallery', post_id=post.id) }}">{{ post.title }}</a>
+                </h3>
+                {% if post.images %}
+                    <img src="{{ post.images[0].path }}"
+                         alt="{{ post.title }}"
+                         class="img-responsive"
+                         style="width: auto;
+                                height: 250px;
+                                object-fFit: contain" />
+                {% endif %}
+                <p>
+                    by: <a href="{{ url_for('profile', username = post.author.username) }}">{{ post.author.display_name }}</a> @ {{ moment(post.timestamp).fromNow() }}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+</div>

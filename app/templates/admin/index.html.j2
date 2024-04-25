@@ -16,16 +16,4 @@
     <a href="{{ url_for("admin_user") }}"
        class="btn btn-danger"
        role="button">{{ _("User Administration") }}</a>
-    <hr />
-    <a href="{{ url_for("admin_role") }}"
-       class="btn btn-danger"
-       role="button">{{ _("Role Administration") }}</a>
-    <hr />
-    <a href="{{ url_for("admin_gallery") }}"
-       class="btn btn-danger"
-       role="button">{{ _("Gallery Administration") }}</a>
-    <hr />
-    <a href="{{ url_for("admin_secondhand") }}"
-       class="btn btn-danger"
-       role="button">{{ _("Secondhand Post Administration") }}</a>
-{% endblock admin_page_content %}
+    {% endblock admin_page_content %}

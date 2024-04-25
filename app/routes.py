@@ -409,7 +409,7 @@ def secondhand_create_post():
         secondhand_post = models.SecondHandPost(
             title = form.title.data,
             type = form.type.data,
-            price = form.price.data,
+            price = float(form.price.data),
             category = form.category.data,
             description = form.description.data,
             seller = current_user)

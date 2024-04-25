@@ -256,7 +256,7 @@ class SecondHandPost(db.Model):
     __tablename__ = 'secondhandpost'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
-    price = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
     _queries = db.Column(db.Integer, default=0)
     _views = db.Column(db.Integer, default=0)
     issue_date = db.Column(db.DateTime, default=lambda: dt.now(UTC))

@@ -17,18 +17,6 @@
         <a href="{{ url_for("secondhand_category") }}">{{ _("Filter By category") }}</a>
     </h4>
     <hr />
-    {% for post in posts %}
-        <div class="post">
-            <h3>
-                <a href="{{ url_for('view_secondhand_post', post_id=post.id) }}">{{ post.title }}</a>
-            </h3>
-            <img src="{{ post.images[0].path }}"
-                 alt="{{ post.title }}"
-                 class="img-responsive" />
-            <p>
-                by: <a href="{{ url_for('profile', username = post.seller.username) }}">{{ post.seller.display_name }}</a> @ {{ moment(post.issue_date).fromNow() }}
-            </p>
-        </div>
-    {% endfor %}
+    {% include "secondhand/_loop_images.html.j2" %}
     {% include "_pagination_button.html.j2" %}
 {% endblock app_content %}

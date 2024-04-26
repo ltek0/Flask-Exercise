@@ -267,6 +267,9 @@ class SecondHandImage(db.Model):
         return f'<secondhandimage {self.id}:{self.path}>'
     
 # 評分
+from flask import Flask, render_template
+app = Flask(__name__)
+
 class Review:
     def __init__(self, user, item, rating, comment):
         self.user = user
@@ -276,5 +279,8 @@ class Review:
 
     def get_details(self):
         return f"用戶：{self.user}\n商品：{self.item}\n評分：{self.rating}\n評論：{self.comment}"
-        review = Review("用戶A", "商品B", 5, "非常好的商品！")
-        print(review.get_details())
+
+@app.route('/review')
+def review():
+    review = Review("用戶A", "商品B", 5, "非常好的商品！")
+    return render_template('review.html', review=review)

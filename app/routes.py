@@ -402,3 +402,8 @@ def secondhand_post_view(post_id: int):
     post = models.SecondHandPost.query.filter_by(id=post_id).first_or_404()
     post.add_view_count()
     return render_template('secondhand/view.html.j2', post=post)
+
+@app.route('/review')
+def review():
+    review = Review("用戶A", "商品B", 5, "非常好的商品！")
+    return render_template('review.html', review=review)

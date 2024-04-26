@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <link rel="stylesheet"
+              href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ title }}</title>
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+        }
+
+        .container a {
+            border-bottom: 2px solid transparent;
+        }
+
+        .container a.homeM {
+            border-bottom: 2px solid red;
+        }
+
+        .navbar {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            display: block;
+            color: rgb(0, 0, 0);
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .main {
+            padding: 20px 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: relative;
+            width: 100%;
+            clear: both;
+        }
+
+        .dcimg {
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+
+        .sp {
+            margin-top: 10px;
+            font-size: 25px;
+            color:#ddd
+        }
+        img{
+            border-radius: 10%;
+        }
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <script>
+        $(document).ready(function () {
+            $(".owl-carousel").owlCarousel({
+                items: 1,
+                loop: true,
+                autoplay: true,
+                autoplayTimeout: 3000,
+                autoplaySpeed: 800,
+                nav: true,
+                dots: true,
+            });
+        });
+    </script>
+    <style>
+        div#tran {
+            width: 850px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        img.owl {
+            width: 850px !important;
+        }
+
+        .flex_product_list {
+            display: flex;
+        }
+
+        .flex_product_wrap {
+            flex: 1;
+        }
+
+        div.col-md-12 {
+            margin: 0 auto;
+            text-align: center;
+            display: inline ;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <img class="dcimg"
+                 src="{{ url_for('static', filename='images/dcfever_logo_v2_png.png') }}"
+                 width="154"
+                 height="36"
+                 alt="DCFever Logo">
+            <span class="sp">|攝影—生活的探索</span>
+        </div>
+        <div class="navbar">
+            <div class="container">
+                <a href="{{ url_for('homeM') }}" class="honeM">首页</a>
+                <a href="{{ url_for('second_hand_market') }}">二手市集</a>
+                <a href="{{ url_for('work_publish') }}">作品發表</a>
+                <a href="{{ url_for('review') }}">評論區</a>
+            </div>
+        </div>
+        <div class="swiper-wrapper clearfix">
+            {% for article in articles %}
+                <div class="col-md-6 col-6">
+                    <div style="margin-bottom: 20px;
+                                background-color: #fff;
+                                border: solid 1px #eee"
+                         class="clearfix">
+                        <a>
+                            <div class="my_slide">
+                                <img src="{{ url_for('static', filename='articles/news/2024/04/' + article.image) }}"
+                                     alt="{{ article.title }}">
+                                <div class="my_caption">{{ article.title }}</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="footer">
+            <div class="container"></div>
+        </div>
+    <div id="tran">
+    <div class="owl-carousel owl-theme">
+        {% for item in items %}
+        <div class="item"><img class="owl" src="{{ item.src }}" alt="{{ item.alt }}"></div>
+        {% endfor %}
+    </div>
+</div>
+<div class="col-md-12">
+    <div class="flex_product_list">
+        {% for product in products %}
+        <div class="flex_product_wrap ">
+            <div class="flex_product">
+                <div class="top">
+                    <div class="image">
+                        <a href="{{ product.href }}"><img src="{{ product.img_src }}"></a>
+                    </div>
+                    <div class="model_no">
+                        <a href="{{ product.href }}">{{ product.model }}</a>
+                    </div>
+                    <div class="price_wrap">
+                        <div class="display_price">
+                            HK${{ product.price }}
+                        </div>
+                        <div class="market_price"></div>
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="buy_button_wrap">
+                        <a href="{{ product.buy_link }}"><i class="fa fa-shopping-cart"></i> 立即購買</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+    </body>
+</html>

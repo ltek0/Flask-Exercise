@@ -4,12 +4,12 @@ provider "aws" {
 
 variable "cluster_name" {
   type    = string
-  default = "cwad-cluster"
+  default = "cloudweb"
 }
 
 variable "vpc_name" {
   type    = string
-  default = "cwad-vpc"
+  default = "cloudweb-vpc"
 }
 
 variable "region" {
@@ -19,7 +19,7 @@ variable "region" {
 
 variable "vpc_cidr" {
   type    = string
-  default = "10.10.0.0/16"
+  default = "10.101.0.0/16"
 }
 
 variable "vpc_azs" {
@@ -30,9 +30,9 @@ variable "vpc_azs" {
 variable "subnets" {
   type = map(list(string))
   default = {
-    "public_subnets"  = ["10.10.1.0/24", "10.10.2.0/24"],
-    "private_subnets" = ["10.10.3.0/24", "10.10.4.0/24"],
-    "intra_subnets"   = ["10.10.5.0/24", "10.10.6.0/24"]
+    "public_subnets"  = ["10.101.1.0/24", "10.101.2.0/24"],
+    "private_subnets" = ["10.101.3.0/24", "10.101.4.0/24"],
+    "intra_subnets"   = ["10.101.5.0/24", "10.101.6.0/24"]
   }
 }
 
@@ -61,9 +61,10 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.15.1"
+  version = "~> 20.0"
 
   cluster_name                   = var.cluster_name
+  cluster_version                = "1.29"
   cluster_endpoint_public_access = true
 
   cluster_addons = {
@@ -85,7 +86,7 @@ module "eks" {
   # EKS Managed Node Group(s)
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
-    instance_types = ["m5.large"]
+    instance_types = ["t3.large"]
 
     attach_cluster_primary_security_group = true
   }

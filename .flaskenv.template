@@ -1,7 +1,7 @@
 FLASK_APP=app.py
 FLASK_DEBUG=
 
-GOOGLE_SERVICE_ACCOUNT_FILE=/workspaces/Flask-Exercise/service_account.json
+GOOGLE_SERVICE_ACCOUNT_FILE=service_account.json
 GOOGLE_STORAGE_BUCKET="somebucket"
 IS_DEV_LOCAL=1
 
